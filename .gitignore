@@ -1,0 +1,77 @@
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+*.jlink
+*.env
+build/
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+*.pyc
+
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.bak
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.bin
+*.map
+*.d
+obj_*
+genhdr*
+
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+.tmp
+
+# Icon must ends with two \r.
+Icon
+
+*.env
+
+*.ak2dk

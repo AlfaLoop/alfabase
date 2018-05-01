@@ -1,0 +1,430 @@
+### Include compiler tools
+include $(PROJECT)/Makefile.env
+
+MK	:= mkdir -p
+RM	:= rm -rf
+
+### CPU-dependent cleanup files
+CLEAN += *.d *.elf *.hex *.bin *.jlink genhdr/*
+
+### General Variables & Device related stuff
+###
+LINK_DIR		= link
+CPU				:= cortex-m4
+DEVICE 			:= NRF52
+DEVICESERIES 	:= nrf52
+
+### Linker script
+BLE_REQD		:= BLE_STACK_SUPPORT_REQD
+BTLE_STACK		:= S132
+
+ifeq ($(NRF_SD_BLE_API_VERSION),3)
+	SOFTDEVICE		:= S132_VERSION_3_0
+	SOFTDEVICE_HEX	:= s132_nrf52_3.0.0_softdevice.hex
+	LD_SCRIPT = $(PROJECT_ARCH)/$(LINK_DIR)/gcc_nrf52_s132_3_0_$(CHIP_VERSION).ld
+	FLASH_START_ADDRESS	= 0x1F000
+else ifeq ($(NRF_SD_BLE_API_VERSION),2)
+	SOFTDEVICE		:= S132_VERSION_2_0
+	SOFTDEVICE_HEX	:= s132_nrf52_2.0.0_softdevice.hex
+	LD_SCRIPT = $(PROJECT_ARCH)/$(LINK_DIR)/gcc_nrf52_s132_2_0_$(CHIP_VERSION).ld
+	FLASH_START_ADDRESS	= 0x1C000
+endif
+
+
+# Include directories
+#INCLUDEDIRS = $(shell find $(PROJECT_ARCH) -type d)
+INCLUDEDIRS	= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/include/
+INCLUDEDIRS	+= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/include-fixed/
+#$(info "Included: $(INCLUDEDIRS) " )
+
+### Compiler related stuff
+###
+CFLAGS  = -Os	#debugging friendly
+CFLAGS	+= -ggdb	#info for the debugger
+CFLAGS	+= --std=gnu99
+CFLAGS	+= -Wall
+CFLAGS	+= -mcpu=$(CPU)
+CFLAGS	+= -mthumb
+CFLAGS	+= -mabi=aapcs
+CFLAGS	+= -mfloat-abi=hard
+CFLAGS	+= -mfpu=fpv4-sp-d16
+CFLAGS  += -w
+CFLAGS	+= -D$(BOARD)
+CFLAGS  += -D$(DEVICE)
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	CFLAGS  += -D$(BLE_REQD)
+	CFLAGS  += -D$(BTLE_STACK)
+	CFLAGS  += -DDEBUG_NRF_USER
+	CFLAGS  += -DDEBUG_NRF
+	CFLAGS  += -DSOFTDEVICE_PRESENT
+	CFLAGS  += -DNRF_SD_BLE_API_VERSION=$(NRF_SD_BLE_API_VERSION)
+endif
+CFLAGS += -DELF_LOADER_TEXT=$(CONF_ELF_LOADER_TEXT_SIZE)
+CFLAGS += -DNRF52832
+CFLAGS += -DNRF52_PAN_12
+CFLAGS += -DNRF52_PAN_15
+CFLAGS += -DNRF52_PAN_58
+CFLAGS += -DNRF52_PAN_55
+CFLAGS += -DNRF52_PAN_54
+CFLAGS += -DNRF52_PAN_31
+CFLAGS += -DNRF52_PAN_30
+CFLAGS += -DNRF52_PAN_51
+CFLAGS += -DNRF52_PAN_36
+CFLAGS += -DNRF52_PAN_53
+CFLAGS += -DNRF52_PAN_63
+CFLAGS += -DNRF52_PAN_20
+CFLAGS += -DNRF52_PAN_64
+CFLAGS += -DNRF52_PAN_62
+
+# keep every function in separate section, this allows linker to discard unused ones
+CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
+CFLAGS += -fno-builtin --short-enums
+CFLAGS	+= $(patsubst %,-I%, $(INCLUDEDIRS))
+
+
+CPPFLAGS = -Og	#debugging friendly
+CPPFLAGS += -ggdb
+CPPFLAGS += --std=gnu99
+CPPFLAGS += -Wall
+CPPFLAGS += -mcpu=$(CPU)
+CPPFLAGS += -mthumb
+CPPFLAGS += -mabi=aapcs
+CPPFLAGS += -mlittle-endian
+CPPFLAGS += -mfloat-abi=hard
+CPPFLAGS	+= -mfpu=fpv4-sp-d16
+CPPFLAGS  += -Wno-strict-aliasing
+CPPFLAGS += -D$(DEVICE)
+CPPFLAGS += -D$(BOARD)
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	CPPFLAGS  += -D$(BLE_REQD)
+	CPPFLAGS  += -D$(BTLE_STACK)
+	CPPFLAGS  += -DDEBUG_NRF_USER
+	CPPFLAGS  += -DDEBUG_NRF
+	CPPFLAGS  += -DSOFTDEVICE_PRESENT
+endif
+
+CPPFLAGS += $(patsubst %,-I%, $(INCLUDEDIRS))
+
+# New
+ASFLAGS = $(patsubst %,-I%, $(INCLUDEDIRS))
+ASFLAGS += -c
+ASFLAGS += -mthumb
+ASFLAGS += -mcpu=$(CPU)
+ASFLAGS += -g -Wall -Os
+ASFLAGS += -ffunction-sections
+ASFLAGS += -mlittle-endian
+ASFLAGS += -fshort-enums
+ASFLAGS += -DNRF52_PAN_12
+ASFLAGS += -DELF_LOADER_TEXT=$(CONF_ELF_LOADER_TEXT_SIZE)
+ASFLAGS += -DNRF52_PAN_15
+ASFLAGS += -DNRF52_PAN_58
+ASFLAGS += -DNRF52_PAN_55
+ASFLAGS += -DNRF52_PAN_54
+ASFLAGS += -DNRF52_PAN_31
+ASFLAGS += -DNRF52_PAN_30
+ASFLAGS += -DNRF52_PAN_51
+ASFLAGS += -DNRF52_PAN_36
+ASFLAGS += -DNRF52_PAN_53
+ASFLAGS += -DNRF52_PAN_63
+ASFLAGS += -DNRF_SD_BLE_API_VERSION=$(NRF_SD_BLE_API_VERSION)
+ASFLAGS += -DNRF52_PAN_20
+ASFLAGS += -DNRF52_PAN_64
+ASFLAGS += -DNRF52_PAN_62
+ASFLAGS += -DS132
+ASFLAGS += -x assembler-with-cpp -Wa,-EL
+ASFLAGS += -D__HEAP_SIZE=$(HEAP_SIZE) -D__STACK_SIZE=$(STACK_SIZE)
+
+### Linker related stuff
+###
+LDDIRS 	 = $(GCC_INSTALL_ROOT)/$(GCC_PREFIX)/lib/armv6-m
+LDDIRS 	+= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/armv6-m
+LDDIRS	+= $(LINK_DIR)
+
+LDFLAGS = -Xlinker
+LDFLAGS += -Map=$(TARGET).map
+LDFLAGS += -mcpu=$(CPU)
+LDFLAGS += -mfloat-abi=hard
+LDFLAGS += -mfpu=fpv4-sp-d16
+LDFLAGS += -mthumb
+LDFLAGS += -mabi=aapcs
+LDFLAGS += -L$(PROJECT_ARCH)
+LDFLAGS += -T$(LD_SCRIPT)
+LDFLAGS += --specs=nano.specs
+LDFLAGS += -Wl,-static
+LDFLAGS += -DELF_LOADER_TEXT=$(ELF_LOADER_TEXT_SIZE)
+LDFLAGS	+= -D$(DEVICE)
+LDFLAGS	+= -D$(BOARD)
+
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	LDFLAGS  += -D$(BLE_REQD)
+	LDFLAGS  += -D$(BTLE_STACK)
+	LDFLAGS  += -DDEBUG_NRF_USER
+	LDFLAGS  += -DDEBUG_NRF
+	LDFLAGS  += -DSOFTDEVICE_PRESENT
+endif
+
+SIZEFLAGS = -A
+OBJOPTS = -O binary
+
+### CPU-dependent directories and  source files
+###
+###
+PROJECT_ARCH_DIRS = . link dev config
+PROJECT_ARCH_DIRS += bsp/drivers
+PROJECT_ARCH_DIRS += bsp/hal
+PROJECT_ARCH_DIRS += bsp/device
+PROJECT_ARCH_DIRS += bsp/hw
+PROJECT_ARCH_DIRS += bsp/segger_rtt
+
+# bsp libs
+PROJECT_ARCH_SOURCEFILES = system_nrf52.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_common.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_clock.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_spi.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_twi.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_wdt.c
+PROJECT_ARCH_SOURCEFILES += sdk_mapped_flags.c
+PROJECT_ARCH_SOURCEFILES += nrf_assert.c
+PROJECT_ARCH_SOURCEFILES += app_util_platform.c
+PROJECT_ARCH_SOURCEFILES += app_error.c
+PROJECT_ARCH_SOURCEFILES += app_error_weak.c
+PROJECT_ARCH_SOURCEFILES += app_timer_freertos.c
+PROJECT_ARCH_SOURCEFILES += nrf_log_frontend.c
+PROJECT_ARCH_SOURCEFILES += nrf_log_backend_serial.c
+PROJECT_ARCH_SOURCEFILES += nrf_delay.c
+PROJECT_ARCH_SOURCEFILES += watchdog-arch.c
+PROJECT_ARCH_SOURCEFILES += bootloader-arch.c
+PROJECT_ARCH_SOURCEFILES += lpm-arch.c
+
+ifeq ($(USE_CONTIKI), 1)
+	PROJECT_ARCH_SOURCEFILES += clock-arch.c
+	PROJECT_ARCH_SOURCEFILES += rand-arch.c
+	PROJECT_ARCH_SOURCEFILES += devid-arch.c
+	CFLAGS += -DUSE_CONTIKI
+	CFLAGS += -DCONTIKI
+endif
+
+ifeq ($(USE_FRAMEWORK),1)
+CFLAGS +=-DUSE_FRAMEWORK
+CFLAGS +=-DFRAMEWORK
+endif
+
+ifeq ($(USE_SPIFFS), 1)
+	PROJECT_ARCH_SOURCEFILES += nrf-spiffs-arch.c
+	CFLAGS += -DUSE_SPIFFS
+endif
+
+ifeq ($(USE_ELFLOADER), 1)
+	PROJECT_ARCH_SOURCEFILES += elfloader-arch.c
+	CFLAGS += -DUSE_ELFLOADER
+endif
+
+ifeq ($(PROD), 1)
+else
+	CFLAGS += -DNRF_LOG_USES_RTT
+	PROJECT_TARGET_SOURCEFILES += RTT_Syscalls_GCC.c
+	PROJECT_TARGET_SOURCEFILES += SEGGER_RTT.c
+	PROJECT_TARGET_SOURCEFILES += syslog-arch.c
+endif
+
+PROJECT_ARCH_DIRS += bsp/util
+PROJECT_ARCH_DIRS += bsp/ble
+
+ifeq ($(NRF_SD_BLE_API_VERSION),3)
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/common
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/s132_3_0
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/s132_3_0/nrf52
+else ifeq ($(NRF_SD_BLE_API_VERSION),2)
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/common
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/s132_2_0
+	PROJECT_ARCH_DIRS += bsp/ble/softdevice/s132_2_0/nrf52
+endif
+
+
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	PROJECT_ARCH_DIRS += bsp/nrf_soc_sd
+	PROJECT_ARCH_SOURCEFILES += nrf_nvic.c
+	PROJECT_ARCH_SOURCEFILES  += softdevice_handler.c
+	PROJECT_ARCH_SOURCEFILES  += ble_srv_common.c
+	PROJECT_ARCH_SOURCEFILES  += ble_conn_params.c
+	PROJECT_ARCH_SOURCEFILES  += ble_advdata.c
+	PROJECT_ARCH_SOURCEFILES  += ble_radio_notification.c
+	PROJECT_ARCH_SOURCEFILES  += ble_conn_state.c
+	PROJECT_ARCH_SOURCEFILES  += softdevice_arch.c
+else
+	PROJECT_ARCH_DIRS += bsp/nrf_soc_nosd
+	PROJECT_ARCH_SOURCEFILES += nrf_soc.c
+	PROJECT_ARCH_SOURCEFILES += nrf_nvic.c
+endif
+
+ifeq ($(USE_FREERTOS),1)
+	PROJECT_ARCH_SOURCEFILES += freertos_port.c
+	PROJECT_ARCH_SOURCEFILES += freertos_cmsis.c
+	PROJECT_ARCH_SOURCEFILES += freertos_cmsis_systick.c
+	CFLAGS += -DUSE_FREERTOS
+	CFLAGS += -DFREERTOS
+	ASFLAGS += -DFREERTOS
+endif
+
+ifeq ($(USE_MPU),1)
+	CFLAGS += -DUSE_MPU
+	PROJECT_ARCH_SOURCEFILES += mwu-arch.c
+endif
+
+# CPU-Peripheral
+ifeq ($(USE_GPIOTE),1)
+	PROJECT_ARCH_SOURCEFILES += gpiote.c
+	CFLAGS += -DUSE_GPIOTE
+endif
+ifeq ($(USE_UART0),1)
+	PROJECT_ARCH_SOURCEFILES += uart0.c
+	CFLAGS += -DUSE_UART0
+endif
+ifeq ($(USE_TWIHW0),1)
+	PROJECT_ARCH_SOURCEFILES += i2c-hw0.c
+	CFLAGS += -DUSE_TWIHW0
+endif
+ifeq ($(USE_TWIHW1),1)
+	PROJECT_ARCH_SOURCEFILES += i2c-hw1.c
+	CFLAGS += -DUSE_TWIHW1
+endif
+ifeq ($(USE_TWISW0),1)
+	PROJECT_ARCH_SOURCEFILES += i2c-sw0.c
+	PROJECT_ARCH_SOURCEFILES += twi_sw_master0.c
+	CFLAGS += -DUSE_TWISW0
+endif
+ifeq ($(USE_TWISW1),1)
+	PROJECT_ARCH_SOURCEFILES += i2c-sw1.c
+	PROJECT_ARCH_SOURCEFILES += twi_sw_master1.c
+	CFLAGS += -DUSE_TWISW1
+endif
+ifeq ($(USE_SPI0),1)
+	PROJECT_ARCH_SOURCEFILES += spi0.c
+	CFLAGS += -DUSE_SPI0
+endif
+ifeq ($(USE_SPI1),1)
+	PROJECT_ARCH_SOURCEFILES += spi1.c
+	CFLAGS += -DUSE_SPI1
+endif
+ifeq ($(USE_SPI2),1)
+	PROJECT_ARCH_SOURCEFILES += spi2.c
+	CFLAGS += -DUSE_SPI2
+endif
+ifeq ($(USE_SPI2),1)
+	PROJECT_ARCH_SOURCEFILES += spi2.c
+	CFLAGS += -DUSE_SPI2
+endif
+ifeq ($(USE_ADC),1)
+	PROJECT_ARCH_SOURCEFILES += nrf_saadc.c
+	PROJECT_ARCH_SOURCEFILES += nrf_drv_saadc.c
+	PROJECT_ARCH_SOURCEFILES += adc-arch.c
+	CFLAGS += -DUSE_ADC
+endif
+
+# Device-Peripheral
+ifeq ($(USE_LOGGER),1)
+	PROJECT_ARCH_SOURCEFILES += logger-arch.c
+	CFLAGS += -DUSE_LOGGER
+endif
+
+ifeq ($(USE_NEST_STACK),1)
+	PROJECT_ARCH_DIRS += nest
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-broadcasting.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-connect.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-disconnect.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-local-addr.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-setdevicename.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-scanner.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gattc-write.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gatts-addcharacteristic.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gatts-addservice.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gatts-handle-value.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-setadvdata.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-gap-ppcp.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver-txpower.c
+	PROJECT_ARCH_SOURCEFILES += nest-driver.c
+	CFLAGS += -DUSE_NEST_STACK
+endif
+
+# Extented Flash define here
+ifeq ($(USE_SPI_FLASH),1)
+	PROJECT_ARCH_DIRS += dev/flash
+	PROJECT_ARCH_SOURCEFILES += spiffs-flash-arch.c
+	CFLAGS += -DUSE_SPI_FLASH
+endif
+
+ifeq ($(USE_HARDWARE),1)
+	CFLAGS += -DUSE_HARDWARE=1
+	ifeq ($(USE_HARDWARE_PIN),1)
+		CFLAGS += -DUSE_HARDWARE_PIN=1
+	endif
+	ifeq ($(USE_HARDWARE_UART),1)
+		CFLAGS += -DUSE_HARDWARE_UART=1
+	endif
+	ifeq ($(USE_HARDWARE_I2C),1)
+		CFLAGS += -DUSE_HARDWARE_I2C=1
+	endif
+	ifeq ($(USE_HARDWARE_SPI),1)
+		CFLAGS += -DUSE_HARDWARE_SPI=1
+	endif
+endif
+
+PROJECT_ARCH_SOURCEFILES += gcc_startup_$(DEVICESERIES).S
+
+CFLAGS += $(BOARD_FLAGS)
+CPPFLAGS += $(BOARD_FLAGS)
+
+PROJECT_SOURCEFILES += $(PROJECT_ARCH_SOURCEFILES)
+
+OBJECTDIR = obj_$(TARGET)
+
+#Create binary files
+UPLOAD_TARGETS = $(PROJECT_MAIN:=.bin)
+TARGET_SIZE = $(PROJECT_MAIN:=.$(TARGET))
+SOFTDEVICE_OUTPUT = $(PROJECT_ARCH)/$(notdir $(SOFTDEVICE_HEX))
+
+obj-bin: $(UPLOAD_TARGETS)
+
+CUSTOM_RULE_LINK = 1
+%.$(TARGET): %.co $(PROJECT_OBJECTFILES) $(PROJECT_LIBRARIES) $(TARGET).a
+	$(LD) $(LDFLAGS) $(TARGET_STARTFILES) ${filter-out %.a,$^} -Wl,-\( ${filter %.a,$^} $(BOARD_LIBS) $(TARGET_LIBFILES) -Wl,-\) -o $@ -lm
+	@echo >> $(TARGET).map
+	@$(SIZE) $(SIZEFLAGS) $@ >> $(TARGET).map
+
+%.bin: %.$(TARGET)
+	@echo
+	@echo "Create binary(.bin) file from: " $<
+	$(OBJCOPY) -O binary $< $@
+
+%.hex: %.$(TARGET)
+	@echo "Create hex(.hex) file from: " $<
+	$(OBJCOPY) -O ihex $< $@
+
+## Find out the size of the compiled file
+size :
+	$(SIZE) $(TARGET_SIZE)
+
+rm.jlink:
+	-rm -rf *.jlink
+
+### Program device/Reset device
+#
+
+# Flash the program
+upload:
+	@echo Flashing: $<
+	nrfjprog.exe --program $(PROJECT_MAIN).hex -f nrf52 --sectorerase
+	nrfjprog.exe --reset -f nrf52
+
+recover:
+	nrfjprog.exe --recover -f nrf52
+	nrfjprog.exe --reset -f nrf52
+
+eraseuicr:
+	nrfjprog.exe --eraseuicr -f nrf52
+	nrfjprog.exe --reset -f nrf52
+
+reset:
+	nrfjprog.exe --reset -f nrf52
+
+.PHONY: build
