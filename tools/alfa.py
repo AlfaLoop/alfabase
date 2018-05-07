@@ -16,6 +16,7 @@ from lib.nest.remove import NestRemoveProcess
 from lib.nest.terminate import NestTerminateProcess
 from lib.nest.boot import NestSetBootProcess
 from lib.nest.boot import NestDelBootProcess
+from lib.nest.airlog import NestAirLogProcess
 
 def abort_and_show_help(parser):
     parser.print_help()
@@ -59,7 +60,8 @@ def delboot_cmd_handler(port, ipaddr):
     process.wait()
 
 def airlog_cmd_handler(port, ipaddr):
-    pass
+    process = NestAirLogProcess(port, ipaddr)
+    process.wait()
 
 def version_cmd_handler():
     print 'Version 0.0.1'
@@ -136,7 +138,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # print vars(args)
-    spcommands = ['install', 'remove', 'ts', 'run', 'kill', 'list', 'setboot', 'delboot', 'log']
+    spcommands = ['install', 'remove', 'ts', 'run', 'kill', 'list', 'setboot', 'delboot', 'airlog']
     projcommands = ['new', 'build', 'clean']
     othercommands = ['version']
     if args.newstate in spcommands:

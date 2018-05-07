@@ -26,8 +26,8 @@ class NestAirLogProcess(NestProcess):
     def data_received(self, data):
         command = self.nsp.command_unpack(data)
         if not command == None:
-            if command.opcode == (NestOpcode.OPCODE_AIRLOG | 0x80):
-                print command.data
+            if command.opcode == (NestOpcode.PIPE_AIRLOG | 0x80):
+                print str(command.data).strip()
 
     def abort_handler(self):
         if self.nsp is not None:

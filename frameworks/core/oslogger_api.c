@@ -17,7 +17,7 @@
 #include "frameworks/app_lifecycle.h"
 #include "frameworks/app_eventpool.h"
 #include "loader/symtab.h"
-#include "dev/syslog.h"
+#include "nest/nest.h"
 #include "dev/rtt.h"
 #include "dev/logger.h"
 #include "errno.h"
@@ -38,6 +38,7 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 static bool uart_enable = false;
+extern TaskHandle_t g_contiki_thread;
 
 /*---------------------------------------------------------------------------*/
 int
@@ -47,6 +48,7 @@ oslog_printf(uint32_t interface, const char *fmt, ...)
 	char buffer[256];
 	va_list args;
 	int offset=0, n=0, k=0;
+	nest_command_data_t output;
 
 	va_start(args, fmt);
 	n = ee_vsprintf(buffer, fmt, args);
@@ -62,6 +64,32 @@ oslog_printf(uint32_t interface, const char *fmt, ...)
 			logger_serial_enable();
 		}
 		logger_serial_printf(buffer, n);
+	}
+
+	if ((interface & LOG_BLE)) {
+		if (nest_central_status() != NEST_CENTRAL_STATUS_PROCESS_COMMAND)
+			return EINVALSTATE;
+
+		memset(&output, 0x00, sizeof(nest_command_data_t));
+		do {
+			if (n > 16) {
+				k = 16;
+			} else {
+				k = n;
+			}
+			n = n - k;
+
+			output.opcode = nest_air_opcode_pipe_airlog;
+			output.len = k;
+			output.response_process = &nest_central_send_process;
+			memset(output.data, 0x00, 16);
+			memcpy(output.data, &buffer[offset], k);
+			nest_command_outbound_enqueue(&output);
+			offset = offset + k;
+		} while (n > 0);
+		nest_command_outbound_process();
+		xTaskNotifyGive( g_contiki_thread );
+	  taskYIELD();
 	}
 	return ENONE;
 }
