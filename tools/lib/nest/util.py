@@ -116,10 +116,12 @@ class NestSerialProcess:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.server_address)
             thread = threading.Thread(target=self.sock_reader, args=(self.sock ,))
+            thread.setDaemon(True)
             thread.start()
         elif interface == NestSerialProcess.NEST_INTERFACE_COM:
             self.sp = serial.Serial(dest, 115200, timeout=1)
             thread = threading.Thread(target=self.serial_reader, args=(self.sp ,))
+            thread.setDaemon(True)
             thread.start()
 
     def parser_timeout(self):
