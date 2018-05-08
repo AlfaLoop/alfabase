@@ -45,7 +45,7 @@ extern "C" {
 #define NEST_SCAN_TIMEOUT                3
 
 #define NEST_MIN_CONNECTION_INTERVAL     10   										/**< Determines minimum connection interval in milliseconds. */
-#define NEST_MAX_CONNECTION_INTERVAL     100    								  /**< Determines maximum connection interval in milliseconds. */
+#define NEST_MAX_CONNECTION_INTERVAL     60    								  /**< Determines maximum connection interval in milliseconds. */
 #define NEST_SLAVE_LATENCY               0                        /**< Determines slave latency in terms of connection events. */
 #define NEST_SUPERVISION_TIMEOUT         4000
 
@@ -224,6 +224,7 @@ typedef struct {
 	nest_blecharacteristic_props_t  			props;
 	nest_blecharacteristic_permission_t   permission;
 	uint8_t 															*init_value;
+	uint8_t 											        init_value_len;
 } nest_blecharacteristic_t;
 
 /**@brief Event structure for @ref BLE_GATTS_EVT_WRITE. */

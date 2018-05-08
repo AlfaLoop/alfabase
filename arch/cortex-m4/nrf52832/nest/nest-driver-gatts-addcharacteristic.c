@@ -122,7 +122,7 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
   memset(&attr_char_value, 0, sizeof(attr_char_value));
   attr_char_value.p_uuid    = &char_uuid;
   attr_char_value.p_attr_md = &attr_md;
-  attr_char_value.init_len  = 0;
+  attr_char_value.init_len  = p_characteristics->init_value_len;
   attr_char_value.init_offs = 0;
   attr_char_value.max_len   = BLE_NEST_FIX_DATA_LEN;
   if (p_characteristics->init_value != NULL)

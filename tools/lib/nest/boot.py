@@ -59,12 +59,9 @@ class NestSetBootProcess(NestProcess):
 
 
 class NestDelBootProcess(NestProcess):
-    def __init__(self, port, ipaddr, path):
+    def __init__(self, port, ipaddr):
         NestProcess.__init__(self)
-        util = ProjectUtil()
         self.nsp = None
-        self.conf_content = util.load_conf(path, True)
-
         if port is not '':
             self.nsp = NestSerialProcess(NestSerialProcess.NEST_INTERFACE_COM, port, self.data_received)
         elif ipaddr is not '':

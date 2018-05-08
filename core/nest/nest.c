@@ -281,12 +281,12 @@ nest_gattc_handle_value_event(uint16_t conn_id, uint16_t handle,
 }
 /*---------------------------------------------------------------------------*/
 void
-nest_gatts_write_event(uint16_t channel_id, uint16_t handle,
-																					uint8_t *data, uint16_t length)
+nest_gatts_write_event(uint16_t conn_id, uint16_t handle,
+																				uint8_t *data, uint16_t length)
 {
   // pass handle to api layer
 #if defined(USE_FRAMEWORK)
-	ble_gatts_write_event_handler(channel_id, handle, data, length);
+	ble_gatts_write_event_handler(conn_id, handle, data, length);
 #endif
 }
 /*---------------------------------------------------------------------------*/

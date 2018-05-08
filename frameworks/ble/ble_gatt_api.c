@@ -104,8 +104,11 @@ ble_gatt_add_service_api(BleGattService *service)
       nest_characteristic.permission.write = 1;
 
 
-    if (bleGattChar->init_value != NULL)
+    if (bleGattChar->init_value != NULL) {
       nest_characteristic.init_value = bleGattChar->init_value;
+      nest_characteristic.init_value_len = bleGattChar->init_value_len;
+    }
+
 
     PRINTF("[ble_gatt_api] add characteristic\n");
     errcode = NEST.gatts_add_characteristic(&nest_bleservice, &nest_characteristic);

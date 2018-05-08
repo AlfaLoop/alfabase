@@ -67,6 +67,7 @@ typedef struct{
   uint16_t                        props;
   uint16_t                        permission;
   uint8_t                         *init_value;
+  uint8_t                         init_value_len;
 } BleGattCharacteristic;
 
 typedef struct

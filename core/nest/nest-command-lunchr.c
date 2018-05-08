@@ -128,7 +128,7 @@ PROCESS_THREAD(nest_lunchr_kill_process, ev, data)
 	m_output.opcode = input->opcode;
 	m_output.response_process = input->response_process;
 
-#ifdef USE_ELFLOADER
+#if defined(USE_ELFLOADER)
 	err_code = lunchr_kill_running_app();
 	m_output.data[0] = err_code;
 	m_output.len = 1;
@@ -160,7 +160,7 @@ PROCESS_THREAD(nest_lunchr_set_boot_process, ev, data)
 	m_output.opcode = input->opcode;
 	m_output.response_process = input->response_process;
 
-#ifdef USE_ELFLOADER
+#if defined(USE_ELFLOADER)
 	err_code = lunchr_set_boot_task(&uuid);
 	if (err_code == ENONE) {
 		m_output.data[1] = (uint8_t)((uuid & 0xFF000000) >> 24);
@@ -191,7 +191,7 @@ PROCESS_THREAD(nest_lunchr_remove_boot_process, ev, data)
 	m_output.opcode = input->opcode;
 	m_output.response_process = input->response_process;
 
-#ifdef ELF_LOADER
+#if defined(USE_ELFLOADER)
 	err_code = lunchr_remove_boot_task();
 	m_output.data[0] = err_code;
 	m_output.len = 1;
@@ -218,7 +218,7 @@ PROCESS_THREAD(nest_lunchr_running_query_process, ev, data)
 	m_output.response_process = input->response_process;
 
 	m_output.data[0] = ENONE;
-#ifdef ELF_LOADER
+#if defined(USE_ELFLOADER)
 	if (lunchr_is_running()) {
 		err_code = lunchr_get_running_task_uuid(&uuid);
 		if (err_code == ENONE) {
@@ -253,7 +253,7 @@ PROCESS_THREAD(nest_lunchr_boot_query_process, ev, data)
 	m_output.opcode = input->opcode;
 	m_output.response_process = input->response_process;
 
-#ifdef USE_ELFLOADER
+#if defined(USE_ELFLOADER)
 	err_code = lunchr_get_boot_task_uuid(&uuid);
 	if (err_code == ENONE) {
 		PRINTF("[nest command lunchr] boot uuid %8x\n", uuid);

@@ -56,7 +56,7 @@ def setboot_cmd_handler(port, ipaddr):
     process.wait()
 
 def delboot_cmd_handler(port, ipaddr):
-    process = NestDelBootProcess(port, ipaddr, os.getcwd())
+    process = NestDelBootProcess(port, ipaddr)
     process.wait()
 
 def airlog_cmd_handler(port, ipaddr):
