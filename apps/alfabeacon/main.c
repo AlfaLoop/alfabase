@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2016 AlfaLoop Technology Co., Ltd.
+* Copyright (C) 2018 AlfaLoop Technology Co., Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License";
 * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ const static uint32_t FILE_KEY_IBEACON_UUID = 0x00000001;
 const static uint32_t FILE_KEY_IBEACON_MAJOR = 0x00000002;
 const static uint32_t FILE_KEY_IBEACON_MINOR = 0x00000003;
 const static uint32_t FILE_KEY_IBEACON_TXM = 0x00000004;
-
 
 static Logger *logger;
 static AdvDataBuilder *adv_builder;
@@ -249,6 +248,8 @@ setup_advertisement(void)
 
   // Add the completed local name
   adv_builder->addCompleteLocalName(&scan_rsp_advdata, device_name, strlen(device_name));
+
+  adv_builder->addService16bitUUID(&scan_rsp_advdata, service_uuid);
 
   // Add the service uuid and data
   service_data_packetes[0] = 0x00;  // device type

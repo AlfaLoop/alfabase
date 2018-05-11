@@ -58,7 +58,7 @@ adv_builder_append_service16_uuid_data(AdvData *advdata, uint16_t uuid)
   uint8_t *p_encoded_data = advdata->data;
 
   // Validate parameters
-  if (uuid == NULL || advdata == NULL)
+  if ( advdata == NULL)
     return EINVAL;
 
   // Check for buffer overflow.
@@ -73,7 +73,7 @@ adv_builder_append_service16_uuid_data(AdvData *advdata, uint16_t uuid)
   offset                 += ADV_LEN_FIELD_SIZE;
   p_encoded_data[offset] = ADV_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE;
   offset                 += ADV_TYPE_FIELD_SIZE;
-  memcpy(&p_encoded_data[offset], uuid, sizeof(uint16_t));
+  memcpy(&p_encoded_data[offset], &uuid, sizeof(uint16_t));
   offset                 += sizeof(uint16_t);
 
   advdata->size = offset;
