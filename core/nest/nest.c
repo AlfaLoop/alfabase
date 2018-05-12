@@ -19,13 +19,13 @@
 #include "spiffs/spiffs.h"
 #include <string.h>
 
-#ifdef USE_FREERTOS
+#if defined(USE_FREERTOS)
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "task.h"
 #endif
 
-#ifdef USE_FRAMEWORK
+#if defined(USE_FRAMEWORK)
 #include "frameworks/ble/ble_api.h"
 #endif
 /*---------------------------------------------------------------------------*/
@@ -91,8 +91,8 @@ PROCESS_THREAD(nest_ble_scan_api_process, ev, data)
 				PROCESS_WAIT_EVENT_UNTIL( (ev == PROCESS_EVENT_EXITED && data == &nest_scan_api_process) ||
 																	(ev == nest_event_central_initiate_conn));
 				if (ev == nest_event_central_initiate_conn) {
-					// process_exit(&nest_scan_api_process);
 					process_post(&nest_scan_api_process, PROCESS_EVENT_EXIT, NULL);
+					PROCESS_WAIT_EVENT_UNTIL( (ev == PROCESS_EVENT_EXITED && data == &nest_scan_api_process));
 					ble_scan_completed(NEST_SCANNER_ABORT);
 					m_nest_initiate_central_flag = false;
 					nest_central_initiate_connection(m_nest_initiate_peer_addr, m_nest_initiate_peer_addr_type);
@@ -238,8 +238,12 @@ PROCESS_THREAD(nest_governor_process, ev, data)
 					PROCESS_WAIT_EVENT_UNTIL( (ev == PROCESS_EVENT_EXITED && data == &nest_scan_central_process) ||
 																		(ev == nest_event_central_initiate_conn));
 					if (ev == nest_event_central_initiate_conn) {
+						PRINTF("[nest governor] post exit evnet to scanner\n");
 						// process_exit(&nest_scan_central_process);
 						process_post(&nest_scan_central_process, PROCESS_EVENT_EXIT, NULL);
+						PRINTF("[nest governor] wait for the exited evnet from scanner\n");
+						PROCESS_WAIT_EVENT_UNTIL( (ev == PROCESS_EVENT_EXITED && data == &nest_scan_central_process));
+						PRINTF("[nest governor] scanner is exited\n");
 						m_nest_initiate_central_flag = false;
 						nest_central_initiate_connection(m_nest_initiate_peer_addr, m_nest_initiate_peer_addr_type);
 					}

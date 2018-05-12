@@ -54,14 +54,8 @@ PROCESS_THREAD(nest_broadcast_api_process, ev, data)
 	err_code = NEST.gap_broadcasting(&adv_params);
 	if (err_code == ENONE) {
 		etimer_set(&send_etimer, NEST_BROADCASTER_SEND_TIMEOUT);
-		PROCESS_WAIT_EVENT_UNTIL( etimer_expired(&send_etimer) /* ||
-									( ev == PROCESS_EVENT_EXIT )*/);
+		PROCESS_WAIT_EVENT_UNTIL( etimer_expired(&send_etimer) );
 		NEST.gap_broadcasting(NULL);
-	/*	if (ev == PROCESS_EVENT_EXIT) {
-			// cancel evnet timer
-			etimer_stop(&send_etimer);
-			break;
-		}*/
 	} else {
 		PRINTF("[nest broadcasting] error %i\n", err_code);
 	}

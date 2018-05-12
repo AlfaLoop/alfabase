@@ -46,7 +46,6 @@
 
 #include "sys/process.h"
 #include "sys/arg.h"
-
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
 #define DEBUG_MODULE 1
@@ -92,22 +91,6 @@ static volatile unsigned char poll_requested;
 #define PROCESS_STATE_CALLED      2
 
 static void call_process(struct process *p, process_event_t ev, process_data_t data);
-
-
-/*---------------------------------------------------------------------------*/
-#if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 0
-#if DEBUG_MODULE
-#include "dev/syslog.h"
-#define PRINTF(...) syslog(__VA_ARGS__)
-#else
-#define PRINTF(...)
-#endif  /* DEBUG_MODULE */
-#else
-#define PRINTF(...)
-#endif  /* DEBUG_ENABLE */
-/*---------------------------------------------------------------------------*/
-
 /*---------------------------------------------------------------------------*/
 process_event_t
 process_alloc_event(void)
