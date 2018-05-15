@@ -71,7 +71,7 @@ adv_builder_append_service16_uuid_data(AdvData *advdata, uint16_t uuid)
   // Complete name field in encoded data.
   p_encoded_data[offset] = (uint8_t)(ADV_TYPE_FIELD_SIZE +  sizeof(uint16_t));
   offset                 += ADV_LEN_FIELD_SIZE;
-  p_encoded_data[offset] = ADV_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE;
+  p_encoded_data[offset] = ADV_TYPE_16BIT_SERVICE_UUID_COMPLETE;
   offset                 += ADV_TYPE_FIELD_SIZE;
   memcpy(&p_encoded_data[offset], &uuid, sizeof(uint16_t));
   offset                 += sizeof(uint16_t);

@@ -23,7 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
-#define API_VERSION		1.1.1
+#define API_VERSION		1.1.2
 /*---------------------------------------------------------------------------*//*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
@@ -609,18 +609,6 @@ Window* UIWindow(void);
 int UIWindowEventAttach(UIWindowEventHandler handler);
 int UIWindowEventDetach(void);
 
-#endif
-
-/*---------------------------------------------------------------------------*/
-#if defined(HKKit)
-// Pedometer
-typedef struct {
-  float* (*getTodayCalories)(void);
-  float* (*getTodayDistance)(void);
-  int* (*getTodaySteps)(void);
-} Pedometer;
-
-Pedometer* HKPedometer(void);
 #endif
 
 /*---------------------------------------------------------------------------*/

@@ -293,7 +293,7 @@ class ProjectCmd:
 
         # add -D flags
         for i in ctx['cflags']:
-            attr.append('-D' + i)
+            attr.append(i)
 
         # add object files
         for o in objs:
@@ -328,7 +328,7 @@ class ProjectCmd:
 
         # add -D flags
         for i in ctx['cflags']:
-            attr.append('-D' + i)
+            attr.append(i)
 
         attr.append('-o')
         attr.append(dst)
