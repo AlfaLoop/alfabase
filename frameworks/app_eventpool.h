@@ -39,8 +39,13 @@ typedef enum {
 	APP_UIKIT_EVENT,
 	APP_PROCESS_EVENT,
 	APP_HW_UART_EVENT,
-	APP_HW_PIN_EVENT
+	APP_HW_GPIO_EVENT
 } app_irq_event_type_t;
+
+typedef struct {
+  uint16_t conn_handle;
+  uint16_t state;
+} app_irq_ble_conn_event_t;
 
 typedef struct {
 	uint8_t 		type;
@@ -51,9 +56,27 @@ typedef struct {
 	uint8_t 		type;
 } app_irq_ble_adv_event_t;
 
+
+typedef struct {
+  uint8_t  type;
+  uint16_t conn_handle;
+  uint16_t handle;
+  uint8_t  value[20];
+  uint16_t length;
+} app_irq_ble_characteristic_event_t;
+
 typedef struct{
   uint8_t id;
 } app_irq_timer_event_t;
+
+typedef struct {
+  uint32_t type;
+} app_irq_process_event_t;
+
+typedef struct{
+	uint32_t pin;
+	uint32_t edge;
+} app_irq_hw_gpio_event_t;
 
 typedef struct{
 	uint8_t data;
@@ -62,25 +85,21 @@ typedef struct{
 typedef struct {
 	uint8_t event_type;
 	union {
-		app_irq_ble_scan_event_t 					ble_scan_event;
-		app_irq_ble_adv_event_t 					ble_adv_event;
-		BleConnEvent 											bleConnEvent;
-		BleCharacteristicEvent						bleCharacteristicEvent;
-		app_irq_timer_event_t							timer_event;
-		OSProcessEvent										processEvent;
-		app_irq_hw_uart_event_t						hw_uart_event;
-		HwPinEvent												hwPinEvent;
+		app_irq_ble_scan_event_t 					  ble_scan_event;
+		app_irq_ble_adv_event_t 					  ble_adv_event;
+		app_irq_ble_conn_event_t 				    ble_conn_event;
+		app_irq_ble_characteristic_event_t	ble_characteristic_event;
+		app_irq_timer_event_t							  timer_event;
+		app_irq_process_event_t						  process_event;
+		app_irq_hw_uart_event_t						  hw_uart_event;
+		app_irq_hw_gpio_event_t						  hw_gpio_event;
 	} params;
 	void   (* event_hook)(void *ptr);
 } app_irq_event_t;
 
-
 // Global variable
 QueueHandle_t g_app_irq_queue_handle;
-
 void app_eventpool_context(void *arg);
-// void app_eventpool_wait(void);
-// void app_eventpool_wait_arch(void);
 
 #ifdef __cplusplus
 }

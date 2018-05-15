@@ -43,19 +43,19 @@
 #define CHECK_UART_ENABLED(pin)                                   \
    do                                                             \
    {                                                              \
-      if (!hw_api_check_pin(pin, HW_PIN_UART))                    \
+      if (!hw_api_check_pin(pin, HW_UART))                        \
         return ENOSUPPORT;                                        \
    } while (0)
 
 
-#define CHECK_PIN_ENABLED(pin)                                    \
+#define CHECK_GPIO_ENABLED(pin)                                    \
    do                                                             \
    {                                                              \
-      if (!hw_api_check_pin(pin, HW_PIN_GPIO))                    \
+      if (!hw_api_check_pin(pin, HW_GPIO))                    \
         return ENOSUPPORT;                                        \
    } while (0)
 
-static PinEventHandler m_pin_event_handler = NULL;
+static GpioEventHandler m_pin_event_handler = NULL;
 static uint8_t *m_enable_pin_list;
 static uint32_t m_enable_pin_size;
 static bool m_interrupt_enable = false;
@@ -76,14 +76,19 @@ hw_uart_rx_irq_hooker(void *ptr)
 static void
 uart_rx_handler(uint8_t data)
 {
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   PRINTF("[bps_init] rx data: %02x\n", data);
 	if (m_uart_handler != NULL) {
 		app_irq_event_t irq_event;
 		irq_event.event_type = APP_HW_UART_EVENT;
 		irq_event.params.hw_uart_event.data = data;
 		irq_event.event_hook = hw_uart_rx_irq_hooker;
-		//xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
-    xQueueSendFromISR( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
+		// xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
+    // xQueueSendFromISR( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
+    xQueueSendFromISR( g_app_irq_queue_handle, &irq_event, &xHigherPriorityTaskWoken );
+    if( xHigherPriorityTaskWoken )  {
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
 	}
 }
 /*---------------------------------------------------------------------------*/
@@ -100,8 +105,8 @@ static uart_config_t m_uart0_arch_config = {
 static int
 hw_api_uart0_open(uint32_t pin_tx, uint32_t pin_rx, uint32_t baudrate, UartRxHandler handler)
 {
-  CHECK_PIN_ENABLED(pin_tx);
-  CHECK_PIN_ENABLED(pin_rx);
+  CHECK_GPIO_ENABLED(pin_tx);
+  CHECK_GPIO_ENABLED(pin_rx);
 
   uint32_t nrf_baudrate = 0;
   // update the baudrate
@@ -173,57 +178,57 @@ hw_api_get_uart0(void)
 }
 /*---------------------------------------------------------------------------*/
 static void
-hw_pin_irq_hooker(void *ptr)
+hw_gpio_irq_hooker(void *ptr)
 {
-	HwPinEvent *p_event = (HwPinEvent *)ptr;
+	app_irq_hw_gpio_event_t *p_event = (app_irq_hw_gpio_event_t *)ptr;
 	if (m_pin_event_handler != NULL) {
 		m_pin_event_handler(p_event->pin, p_event->edge);
 	}
 }
 /*---------------------------------------------------------------------------*/
 static void
-hw_pin_int_event_handler(gpiote_event_t *event)
+hw_gpio_int_event_handler(gpiote_event_t *event)
 {
   uint32_t pin = event->pin_no;
   uint32_t edge;
 
   if (event->pins_low_to_high_mask) {
-    edge = PIN_EDGE_RISING;
+    edge = GPIO_EDGE_RISING;
   } else if (event->pins_high_to_low_mask) {
-    edge = PIN_EDGE_FALLING;
+    edge = GPIO_EDGE_FALLING;
   }
 
 	if (m_pin_event_handler != NULL) {
 		app_irq_event_t irq_event;
-		irq_event.event_type = APP_HW_PIN_EVENT;
-    irq_event.params.hwPinEvent.pin = pin;
-    irq_event.params.hwPinEvent.edge = edge;
-		irq_event.event_hook = hw_pin_irq_hooker;
+		irq_event.event_type = APP_HW_GPIO_EVENT;
+    irq_event.params.hw_gpio_event.pin = pin;
+    irq_event.params.hw_gpio_event.edge = edge;
+		irq_event.event_hook = hw_gpio_irq_hooker;
     xQueueSendFromISR( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
 		// xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
 	}
 }
 /*---------------------------------------------------------------------------*/
-static gpiote_handle_t gpioteh = {.event_handler=hw_pin_int_event_handler,
+static gpiote_handle_t gpioteh = {.event_handler=hw_gpio_int_event_handler,
 								  .pins_mask = 0,
 								  .pins_low_to_high_mask= 0,
 								  .pins_high_to_low_mask= 0,
 								  .sense_high_pins = 0 };
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_setup(uint32_t pin, uint8_t value)
+hw_gpio_setup(uint32_t pin, uint8_t value)
 {
   // PRINTF("[hw arch pin] setup %d value %d\n", pin, value);
-  CHECK_PIN_ENABLED(pin);
+  CHECK_GPIO_ENABLED(pin);
   switch (value) {
-    case PIN_DEFAULT:
+    case GPIO_DEFAULT:
       nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
     break;
-    case PIN_OUTPUT:
+    case GPIO_OUTPUT:
       nrf_gpio_cfg_output(pin);
       nrf_gpio_pin_clear(pin);
     break;
-    case PIN_INPUT:
+    case GPIO_INPUT:
       nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
     break;
     default:
@@ -234,20 +239,20 @@ hw_pin_setup(uint32_t pin, uint8_t value)
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_output(uint32_t pin, uint8_t value)
+hw_gpio_output(uint32_t pin, uint8_t value)
 {
 	// PRINTF("[hw arch pin] output %d value %d\n", pin, value);
-  CHECK_PIN_ENABLED(pin);
+  CHECK_GPIO_ENABLED(pin);
   switch (value) {
-    case PIN_OUTPUT_LOW:
+    case GPIO_OUTPUT_LOW:
       nrf_gpio_pin_clear(pin);
 			// PRINTF("[hw arch pin] output clear %d \n", pin);
     break;
-    case PIN_OUTPUT_HIGH:
+    case GPIO_OUTPUT_HIGH:
       nrf_gpio_pin_set(pin);
 			// PRINTF("[hw arch pin] output set %d \n", pin);
     break;
-		case PIN_OUTPUT_TOGGLE:
+		case GPIO_OUTPUT_TOGGLE:
 			nrf_gpio_pin_toggle(pin);
 			// PRINTF("[hw arch pin] output toggle %d \n", pin);
 		break;
@@ -259,17 +264,17 @@ hw_pin_output(uint32_t pin, uint8_t value)
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_input(uint32_t pin, uint8_t value)
+hw_gpio_input(uint32_t pin, uint8_t value)
 {
-  CHECK_PIN_ENABLED(pin);
+  CHECK_GPIO_ENABLED(pin);
   switch (value) {
-    case PIN_INPUT_FLOATING:
+    case GPIO_INPUT_FLOATING:
         nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
     break;
-    case PIN_INPUT_PULLUP:
+    case GPIO_INPUT_PULLUP:
       nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLUP);
     break;
-    case PIN_INPUT_PULLDOWN:
+    case GPIO_INPUT_PULLDOWN:
       nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLDOWN);
     break;
     default:
@@ -280,27 +285,27 @@ hw_pin_input(uint32_t pin, uint8_t value)
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_read(uint32_t pin)
+hw_gpio_read(uint32_t pin)
 {
-  CHECK_PIN_ENABLED(pin);
+  CHECK_GPIO_ENABLED(pin);
   return nrf_gpio_pin_read(pin);
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_attach_interrupt(uint32_t pin, uint32_t edge, PinEventHandler handler)
+hw_gpio_attach_interrupt(uint32_t pin, uint32_t edge, GpioEventHandler handler)
 {
   uint32_t pins_mask = gpioteh.pins_mask;
   uint32_t rising_edge = gpioteh.pins_low_to_high_mask;
   uint32_t falling_edge = gpioteh.pins_high_to_low_mask;
 
-  CHECK_PIN_ENABLED(pin);
+  CHECK_GPIO_ENABLED(pin);
   pins_mask = pins_mask | (gpioteh.pins_mask | (1U << pin));
 
-  if (edge & PIN_EDGE_RISING) {
+  if (edge & GPIO_EDGE_RISING) {
     rising_edge = rising_edge | (gpioteh.pins_mask | (1U << pin));
   }
 
-  if (edge & PIN_EDGE_FALLING) {
+  if (edge & GPIO_EDGE_FALLING) {
     falling_edge = falling_edge | (gpioteh.pins_mask | (1U << pin));
   }
 
@@ -314,28 +319,28 @@ hw_pin_attach_interrupt(uint32_t pin, uint32_t edge, PinEventHandler handler)
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_pin_detach_interrupt(void)
+hw_gpio_detach_interrupt(void)
 {
   gpiote_unregister(&gpioteh);
   m_interrupt_enable = false;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-Pin*
-bsp_hw_pin_api_retrieve(void)
+Gpio*
+bsp_hw_gpio_api_retrieve(void)
 {
-	static Pin instance;
-  instance.setup = hw_pin_setup;
-  instance.output = hw_pin_output;
-  instance.input = hw_pin_input;
-  instance.read = hw_pin_read;
-  instance.attachInterrupt = hw_pin_attach_interrupt;
-  instance.detachInterrupt = hw_pin_detach_interrupt;
+	static Gpio instance;
+  instance.setup = hw_gpio_setup;
+  instance.output = hw_gpio_output;
+  instance.input = hw_gpio_input;
+  instance.read = hw_gpio_read;
+  instance.attachInterrupt = hw_gpio_attach_interrupt;
+  instance.detachInterrupt = hw_gpio_detach_interrupt;
   return &instance;
 }
 /*---------------------------------------------------------------------------*/
 void
-hw_pin_terminating(void)
+hw_gpio_terminating(void)
 {
   if (m_pin_event_handler != NULL)
     m_pin_event_handler = NULL;

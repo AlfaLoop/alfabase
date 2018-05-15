@@ -31,7 +31,7 @@ int null_p_1_uint32_r_int(uint32_t pin);
 
 int null_pinInfo(uint8_t *pin, uint8_t *size);
 int null_pin_read(uint32_t pin, uint8_t *value);
-int null_pin_watch_set(uint32_t pin_mask, uint32_t edge_mask, PinEventHandler handler);
+int null_pin_watch_set(uint32_t pin_mask, uint32_t edge_mask, GpioEventHandler handler);
 int null_pin_watch_close(void);
 
 int null_uart_open(uint32_t pin_tx, uint32_t pin_rx, uint32_t baudrate, UartRxHandler handler);

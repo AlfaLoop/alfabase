@@ -190,6 +190,14 @@ bsp_hw_api_terminating(void)
 {
 	nrf_gpio_cfg_default(TX_PIN_NUMBER);
 	nrf_gpio_cfg_default(RX_PIN_NUMBER);
+	nrf_gpio_cfg_default(BUTTON0);
+	nrf_gpio_cfg_default(BUTTON1);
+	nrf_gpio_cfg_default(BUTTON2);
+	nrf_gpio_cfg_default(BUTTON3);
+	nrf_gpio_cfg_default(LED0);
+	nrf_gpio_cfg_default(LED1);
+	nrf_gpio_cfg_default(LED2);
+	nrf_gpio_cfg_default(LED3);
 }
 /*---------------------------------------------------------------------------*/
 static int
@@ -203,8 +211,16 @@ bsp_device_init(void)
 
 #if defined(USE_FRAMEWORK)
 	const static hw_pin_mode_t pins[] = {
-		{.pin=TX_PIN_NUMBER, .mode=HW_PIN_GPIO | HW_PIN_UART},
-		{.pin=RX_PIN_NUMBER, .mode=HW_PIN_GPIO | HW_PIN_UART}
+		{.pin=TX_PIN_NUMBER, .mode=HW_GPIO | HW_UART},
+		{.pin=RX_PIN_NUMBER, .mode=HW_GPIO | HW_UART},
+		{.pin=BUTTON0, .mode=HW_GPIO},
+		{.pin=BUTTON1, .mode=HW_GPIO},
+		{.pin=BUTTON2, .mode=HW_GPIO},
+		{.pin=BUTTON3, .mode=HW_GPIO},
+		{.pin=LED0, .mode=HW_GPIO},
+		{.pin=LED1, .mode=HW_GPIO},
+		{.pin=LED2, .mode=HW_GPIO},
+		{.pin=LED3, .mode=HW_GPIO},
 	};
 
 	hw_api_bsp_init(pins, 2, bsp_hw_api_terminating);

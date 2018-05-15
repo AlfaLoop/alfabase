@@ -66,12 +66,12 @@ app_eventpool_context(void *arg)
           break;
           case APP_BLE_CONN_EVENT:
           {
-            app_irq_event.event_hook(&(app_irq_event.params.bleConnEvent));
+            app_irq_event.event_hook(&(app_irq_event.params.ble_conn_event));
           }
           break;
           case APP_BLE_CHARACTERISTIC_EVENT:
           {
-            app_irq_event.event_hook(&(app_irq_event.params.bleCharacteristicEvent));
+            app_irq_event.event_hook(&(app_irq_event.params.ble_characteristic_event));
           }
           break;
           case APP_TIMER_EVENT:
@@ -81,7 +81,7 @@ app_eventpool_context(void *arg)
           break;
           case APP_PROCESS_EVENT:
           {
-            app_irq_event.event_hook(&(app_irq_event.params.processEvent));
+            app_irq_event.event_hook(&(app_irq_event.params.process_event));
           }
           break;
           case APP_HW_UART_EVENT:
@@ -89,9 +89,9 @@ app_eventpool_context(void *arg)
             app_irq_event.event_hook(&(app_irq_event.params.hw_uart_event));
           }
           break;
-          case APP_HW_PIN_EVENT:
+          case APP_HW_GPIO_EVENT:
           {
-            app_irq_event.event_hook(&(app_irq_event.params.hwPinEvent));
+            app_irq_event.event_hook(&(app_irq_event.params.hw_gpio_event));
           }
           break;
         }

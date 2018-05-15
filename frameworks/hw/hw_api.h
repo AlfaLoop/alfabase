@@ -23,33 +23,26 @@ extern "C" {
 #include <stdbool.h>
 #include <string.h>
 
-#include "hw_pin_api.h"
+#include "hw_gpio_api.h"
 #include "hw_i2c_api.h"
 #include "hw_spi_api.h"
 #include "hw_uart_api.h"
 
 /* Framework API */
-Pin* HWPin(void);
+Gpio* HWGpio(void);
 Uart* HWUart(uint8_t number);
 I2c* HWI2c(uint8_t number);
 Spi* HWSpi(uint8_t number);
-
-
 /* Framework API */
 
 /* Back-end */
-typedef struct{
-	uint32_t pin;
-	uint32_t edge;
-} HwPinEvent;
-
-#define HW_PIN_GPIO    0x0001
-#define HW_PIN_UART    0x0002
-#define HW_PIN_I2C     0x0004
-#define HW_PIN_SPI     0x0008
-#define HW_PIN_PWM     0x0010
-#define HW_PIN_ADC     0x0020
-#define HW_PIN_I2S     0x0040
+#define HW_GPIO    0x0001
+#define HW_UART    0x0002
+#define HW_I2C     0x0004
+#define HW_SPI     0x0008
+#define HW_PWM     0x0010
+#define HW_ADC     0x0020
+#define HW_I2S     0x0040
 
 typedef struct {
 	uint8_t pin;

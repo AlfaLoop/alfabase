@@ -49,14 +49,6 @@ BleManager* CKBleManager(void);
 #define BLE_CHARACTERISTIC_WRITE_REQUEST    0x00
 #define BLE_CHARACTERISTIC_READ_REQUEST     0x01
 
-typedef struct {
-  uint8_t  type;
-  uint16_t conn_handle;
-  uint16_t handle;
-  uint8_t  value[20];
-  uint16_t length;
-} BleCharacteristicEvent;
-
 void ble_api_init(void);
 
 // ble scan api

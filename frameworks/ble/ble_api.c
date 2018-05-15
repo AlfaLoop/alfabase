@@ -119,7 +119,7 @@ ble_adv_api_irq_hooker(void *ptr)
 static void
 ble_api_conn_irq_hooker(void *ptr)
 {
-  BleConnEvent *p_event = (BleConnEvent *) ptr;
+  app_irq_ble_conn_event_t *p_event = (app_irq_ble_conn_event_t *) ptr;
   if (m_ble_gatt_server_callback.onConnectionStateChanged != NULL) {
     PRINTF("[ble api] conn irq %d %d\n", p_event->conn_handle, p_event->state);
     m_ble_gatt_server_callback.onConnectionStateChanged(p_event->conn_handle, p_event->state);
@@ -130,7 +130,7 @@ static void
 ble_api_characteristic_irq_hooker(void *ptr)
 {
 
-  BleCharacteristicEvent *p_event = (BleCharacteristicEvent *) ptr;
+  app_irq_ble_characteristic_event_t *p_event = (app_irq_ble_characteristic_event_t *) ptr;
 
   PRINTF("[ble api] characteristic event irq %d %d %d %d\n", p_event->type, p_event->conn_handle, p_event->handle, p_event->length);
   PRINTF("[ble api] write data ");
@@ -490,9 +490,7 @@ ble_scan_api_event_report(nest_scanner_peer_t *report)
 void ble_gatts_write_event_handler(uint16_t conn_handle, uint16_t handle,
                                                 uint8_t *value, uint16_t length)
 {
-  static BleCharacteristicEvent event;
-  // BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
+  static app_irq_ble_characteristic_event_t event;
   if (m_ble_gatt_server_callback.onCharacteristicWriteRequest != NULL) {
     app_irq_event_t irq_event;
     irq_event.event_type = APP_BLE_CHARACTERISTIC_EVENT;
@@ -502,22 +500,16 @@ void ble_gatts_write_event_handler(uint16_t conn_handle, uint16_t handle,
     event.handle = handle;
     memcpy(event.value, value, 20);
     event.length = length;
-
-    memcpy(&(irq_event.params.bleConnEvent), &event, sizeof(BleCharacteristicEvent));
+    memcpy(&(irq_event.params.ble_characteristic_event), &event, sizeof(app_irq_ble_characteristic_event_t));
     irq_event.event_hook = ble_api_characteristic_irq_hooker;
-
     xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
-    // xQueueSendFromISR( g_app_irq_queue_handle, &irq_event, &xHigherPriorityTaskWoken );
-    // if( xHigherPriorityTaskWoken )  {
-    //   portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-    // }
   }
 }
 /*---------------------------------------------------------------------------*/
 void
 ble_api_connection_event_handler(uint16_t conn_handle, uint16_t state)
 {
-  static BleConnEvent event;
+  static app_irq_ble_conn_event_t event;
 
   PRINTF("[ble api] connection event %d %d\n", conn_handle, state);
 
@@ -532,9 +524,8 @@ ble_api_connection_event_handler(uint16_t conn_handle, uint16_t state)
     irq_event.event_type = APP_BLE_CONN_EVENT;
     event.conn_handle = conn_handle;
     event.state = state;
-    memcpy(&(irq_event.params.bleConnEvent), &event, sizeof(BleConnEvent));
+    memcpy(&(irq_event.params.ble_conn_event), &event, sizeof(app_irq_ble_conn_event_t));
     irq_event.event_hook = ble_api_conn_irq_hooker;
-
     xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
   }
 }

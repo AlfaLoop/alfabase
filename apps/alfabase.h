@@ -615,43 +615,43 @@ int UIWindowEventDetach(void);
 // Hardware API
 #if defined(HWKit)
 /*---------------------------------------------------------------------------*/
-// PIN
+// GPIO
 enum {
-  PIN_DEFAULT = 0x00,
-  PIN_OUTPUT = 0x01,
-  PIN_INPUT = 0x02
+  GPIO_DEFAULT = 0x00,
+  GPIO_OUTPUT = 0x01,
+  GPIO_INPUT = 0x02
 };
 
 enum {
-  PIN_OUTPUT_LOW = 0x00,
-  PIN_OUTPUT_HIGH = 0x01,
-  PIN_OUTPUT_TOGGLE
+  GPIO_OUTPUT_LOW = 0x00,
+  GPIO_OUTPUT_HIGH = 0x01,
+  GPIO_OUTPUT_TOGGLE
 };
 
 enum {
-  PIN_INPUT_FLOATING = 0x00,
-  PIN_INPUT_PULLUP = 0x01,
-  PIN_INPUT_PULLDOWN = 0x02
+  GPIO_INPUT_FLOATING = 0x00,
+  GPIO_INPUT_PULLUP = 0x01,
+  GPIO_INPUT_PULLDOWN = 0x02
 };
 
 enum {
-  PIN_EDGE_NONE = 0x00,
-  PIN_EDGE_RISING = 0x01,
-  PIN_EDGE_FALLING = 0x02
+  GPIO_EDGE_NONE = 0x00,
+  GPIO_EDGE_RISING = 0x01,
+  GPIO_EDGE_FALLING = 0x02
 };
 
-typedef void (* PinEventHandler)(uint32_t pin, uint32_t edge);
+typedef void (* GpioEventHandler)(uint32_t pin, uint32_t edge);
 
 typedef struct {
   int (* setup)(uint32_t pin, uint8_t value);
   int (* output)(uint32_t pin, uint8_t value);
   int (* input)(uint32_t pin, uint8_t value);
   int (* read)(uint32_t pin);
-  int (* attachInterrupt)(uint32_t pin, uint32_t edge, PinEventHandler handler);
+  int (* attachInterrupt)(uint32_t pin, uint32_t edge, GpioEventHandler handler);
   int (* detachInterrupt)(void);
-} Pin;
+} Gpio;
 
-Pin* HWPin(void);
+Gpio* HWGpio(void);
 
 /*---------------------------------------------------------------------------*/
 // Uart

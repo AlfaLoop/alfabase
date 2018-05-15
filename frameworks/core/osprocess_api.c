@@ -39,7 +39,7 @@ static bool process_in_background = false;
 static void
 osprocess_irq_hooker(void *ptr)
 {
-  OSProcessEvent *p_event = (OSProcessEvent *) ptr;
+  app_irq_process_event_t *p_event = (app_irq_process_event_t *) ptr;
   if (p_event->type == OSPROCESS_EVENT_TYPE_TERMINATE) {
     if (m_process_callback.onWillTerminate != NULL) {
       m_process_callback.onWillTerminate();
@@ -185,7 +185,7 @@ osprocess_api_terminate(void)
   if (m_process_callback.onWillTerminate != NULL) {
     app_irq_event_t irq_event;
     irq_event.event_type = APP_PROCESS_EVENT;
-    irq_event.params.processEvent.type = OSPROCESS_EVENT_TYPE_TERMINATE;
+    irq_event.params.process_event.type = OSPROCESS_EVENT_TYPE_TERMINATE;
     irq_event.event_hook = osprocess_irq_hooker;
     xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
   }
@@ -198,7 +198,7 @@ osprocess_api_background(void)
   if (m_process_callback.onEnterForeground != NULL) {
     app_irq_event_t irq_event;
     irq_event.event_type = APP_PROCESS_EVENT;
-    irq_event.params.processEvent.type = OSPROCESS_EVENT_TYPE_FOREGROUND;
+    irq_event.params.process_event.type = OSPROCESS_EVENT_TYPE_FOREGROUND;
     irq_event.event_hook = osprocess_irq_hooker;
     xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
   }
@@ -211,7 +211,7 @@ osprocess_api_foreground(void)
   if (m_process_callback.onEnterBackground != NULL) {
     app_irq_event_t irq_event;
     irq_event.event_type = APP_PROCESS_EVENT;
-    irq_event.params.processEvent.type = OSPROCESS_EVENT_TYPE_BACKGROUND;
+    irq_event.params.process_event.type = OSPROCESS_EVENT_TYPE_BACKGROUND;
     irq_event.event_hook = osprocess_irq_hooker;
     xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
   }

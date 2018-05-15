@@ -36,17 +36,17 @@ static hw_pin_mode_t *m_hw_pin_list = NULL;
 static hw_api_bsp_terminating_callback m_terminating_callback = NULL;
 static uint8_t m_total_pins;
 /*---------------------------------------------------------------------------*/
-Pin*
-HWPin(void)
+Gpio*
+HWGpio(void)
 {
-	static Pin null_instance;
+	static Gpio null_instance;
 	null_instance.setup = null_p_2_uint32_r_int;
 	null_instance.output = null_p_2_uint32_r_int;
 	null_instance.input = null_p_2_uint32_r_int;
 	null_instance.read = null_p_1_uint32_r_int;
 	null_instance.attachInterrupt = null_pin_watch_set;
 	null_instance.detachInterrupt = null_pin_watch_close;
-#if defined(USE_HARDWARE_PIN)
+#if defined(USE_HARDWARE_GPIO)
 	if (bsp_hw_pin_api_retrieve() != NULL) {
 		return bsp_hw_pin_api_retrieve();
 	}
@@ -54,9 +54,9 @@ HWPin(void)
 	return &null_instance;
 }
 /*---------------------------------------------------------------------------*/
-static struct symbols symbolHWPin = {
-	.name = "HWPin",
-	.value = (void *)&HWPin
+static struct symbols symbolHWGpio = {
+	.name = "HWGpio",
+	.value = (void *)&HWGpio
 };
 /*---------------------------------------------------------------------------*/
 Uart*
@@ -139,9 +139,9 @@ hw_api_init(void)
 {
 #if defined(USE_HARDWARE)
 	app_lifecycle_register(&lifecycle_event);
-#if defined(USE_HARDWARE_PIN)
-	symtab_add(&symbolHWPin);
-#endif /* USE_HARDWARE_PIN */
+#if defined(USE_HARDWARE_GPIO)
+	symtab_add(&symbolHWGpio);
+#endif /* USE_HARDWARE_GPIO */
 #if defined(USE_HARDWARE_UART)
 	symtab_add(&symbolHWUart);
 #endif /* USE_HARDWARE_UART */
@@ -176,7 +176,6 @@ hw_api_check_pin(uint32_t pin, uint16_t type)
 			break;
 		}
 	}
-
   return enabled;
 }
 /*---------------------------------------------------------------------------*/

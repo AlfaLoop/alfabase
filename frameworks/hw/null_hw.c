@@ -56,7 +56,7 @@ null_pinInfo(uint8_t *pin, uint8_t *size)
 }
 /*---------------------------------------------------------------------------*/
 int
-null_pin_watch_set(uint32_t pin_mask, uint32_t edge_mask, PinEventHandler handler)
+null_pin_watch_set(uint32_t pin_mask, uint32_t edge_mask, GpioEventHandler handler)
 {
   return ENOSUPPORT;
 }

@@ -51,10 +51,6 @@ int OSProcessEventDetach(void);
 #define OSPROCESS_EVENT_TYPE_TERMINATE      0x01
 #define OSPROCESS_EVENT_TYPE_BACKGROUND     0x02
 #define OSPROCESS_EVENT_TYPE_FOREGROUND     0x03
-//
-typedef struct {
-  uint32_t type;
-} OSProcessEvent;
 
 void osprocess_api_init(void);
 void osprocess_api_terminate(void);

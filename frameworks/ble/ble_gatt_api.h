@@ -50,11 +50,6 @@ extern "C" {
 typedef int (* BleGattAccessCallback)(uint16_t conn_handle, uint16_t attr_handle,
                                       void *args);
 
-typedef struct {
-  uint16_t conn_handle;
-  uint16_t state;
-} BleConnEvent;
-
 /*
 typedef struct{
   uint8_t *value;
