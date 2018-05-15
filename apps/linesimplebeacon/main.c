@@ -21,7 +21,7 @@ static FileIO *fileio;
 static AdvData advdata;
 static AdvData scan_rsp_advdata;
 
-static char *device_name = "Simple";
+static char *device_name = "SimpleBeacon";
 
 static uint16_t peripheral_conn_handle;
 static bool is_connected = false;
@@ -32,7 +32,6 @@ static bool adv_event_flag = false;
 static uint16_t ble_service_handle;
 static uint16_t ble_attr_lsb_chr_hwid_handle;
 static uint16_t ble_attr_lsb_chr_dm_handle;
-static uint16_t peripheral_conn_handle;
 
 #define DEAULT_HWID 0x32, 0xAF, 0x51, 0x9E, 0x88
 #define DEFAULT_DEVICE_MESSAGE 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!', '!'
@@ -40,9 +39,11 @@ static uint8_t simplebeacon_packet[20] =
                           {
                             0x02, // SimpleBeacon
                             DEAULT_HWID,
-                            0x7F, // Measured TX power
+                            0x7F, // Measured TX power (fixed field)
                             DEFAULT_DEVICE_MESSAGE,
                           };
+/*---------------------------------------------------------------------------*/
+static void setup_advertisement(void);
 /*---------------------------------------------------------------------------*/
 static BleGattService g_ble_gatt_alfa_lsb_service = {
   .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
@@ -70,6 +71,39 @@ static BleGattService g_ble_gatt_alfa_lsb_service = {
 };
 /*---------------------------------------------------------------------------*/
 static void
+ble_simplebeacon_update_hwid(uint8_t * hwid)
+{
+  memcpy(&simplebeacon_packet[1], hwid, 5);
+  int16_t fd;
+  int ret = fileio->open(&fd, FILE_KEY_LSB_HWID, "w");
+  if (ret == ENONE) {
+    // write default simplebeacon hwid
+    ret = fileio->write(fd, &hwid[0], 5);
+    if (ret == ENONE) {
+      logger->printf(LOG_RTT, "[app] update hwid\n");
+    }
+    fileio->close(fd);
+  }
+}
+/*---------------------------------------------------------------------------*/
+static void
+ble_simplebeacon_update_device_message(uint8_t * dm, uint8_t length)
+{
+  memset(&simplebeacon_packet[7], 0x00, 13);
+  memcpy(&simplebeacon_packet[7], dm, length);
+  int16_t fd;
+  int ret = fileio->open(&fd, FILE_KEY_LSB_DM, "w");
+  if (ret == ENONE) {
+    // write default simplebeacon hwid
+    ret = fileio->write(fd, &simplebeacon_packet[7], 13);
+    if (ret == ENONE) {
+      logger->printf(LOG_RTT, "[app] update device message\n");
+    }
+    fileio->close(fd);
+  }
+}
+/*---------------------------------------------------------------------------*/
+static void
 ble_gatt_charact_write_req(uint16_t conn_handle, uint16_t handle, uint8_t *value, uint16_t length)
 {
   int len = length;
@@ -80,8 +114,11 @@ ble_gatt_charact_write_req(uint16_t conn_handle, uint16_t handle, uint8_t *value
 
   // data from peer
   if (handle == ble_attr_lsb_chr_dm_handle) {
-
+    ble_simplebeacon_update_device_message(value, length);
+    setup_advertisement();
   } else if (handle == ble_attr_lsb_chr_hwid_handle) {
+    ble_simplebeacon_update_hwid(value);
+    setup_advertisement();
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -101,6 +138,26 @@ const static BleGattServerCallback callback = {
   .onCharacteristicReadRequest = NULL,
   .onConnectionStateChanged = ble_gap_conn_evt_handler
 };
+/****************************************************************/
+static void
+setup_advertisement(void)
+{
+  int errcode;
+  // setup the simplebeacon data
+  adv_builder->init(&advdata);
+  uint16_t line_crop_uuid = 0xFE6F;
+  adv_builder->addService16bitUUID(&advdata, line_crop_uuid);
+  adv_builder->addServiceData(&advdata, line_crop_uuid, &simplebeacon_packet[0], 20);
+
+  adv_builder->initScanRsp(&scan_rsp_advdata);
+  adv_builder->addCompleteLocalName(&scan_rsp_advdata, device_name, strlen(device_name));
+
+  errcode = ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT, "[app] setAdvertisementData error %d\n", errcode);
+    return 0;
+  }
+}
 /****************************************************************/
 int main(void)
 {
@@ -155,20 +212,7 @@ int main(void)
     }
   }
 
-  // setup the ibeacon data
-  adv_builder->init(&advdata);
-  uint16_t line_crop_uuid = 0xFE6F;
-  adv_builder->addService16bitUUID(&advdata, line_crop_uuid);
-  adv_builder->addServiceData(&advdata, line_crop_uuid, &simplebeacon_packet[0], 20);
-
-  adv_builder->initScanRsp(&scan_rsp_advdata);
-  adv_builder->addCompleteLocalName(&scan_rsp_advdata, device_name, strlen(device_name));
-
-  errcode = ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
-  if (errcode != ENONE) {
-    logger->printf(LOG_RTT, "[app] setAdvertisementData error %d\n", errcode);
-    return 0;
-  }
+  setup_advertisement();
 
   errcode = ble_manager->addService(&g_ble_gatt_alfa_lsb_service);
   if (errcode != ENONE) {
