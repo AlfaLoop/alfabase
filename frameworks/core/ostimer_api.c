@@ -64,15 +64,6 @@ ostimer_irq_event_hooker(void *ptr)
 	m_ostimer_instances[id].process = 1;
 	m_ostimer_instances[id].timer_handler_func(id);
 	m_ostimer_instances[id].process = 0;
-	// completed
-	// if (id == 0)
-	// 	process_post(&ostimer_0_api, ostimer_event_timeout, NULL);
-	// else if (id == 1)
-	// 	process_post(&ostimer_1_api, ostimer_event_timeout, NULL);
-	// else if (id == 2)
-	// 	process_post(&ostimer_2_api, ostimer_event_timeout, NULL);
-  //
-	// xTaskNotifyGive( g_contiki_thread );
 }
 /*---------------------------------------------------------------------------*/
 static int

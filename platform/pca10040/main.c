@@ -223,7 +223,7 @@ bsp_device_init(void)
 		{.pin=LED3, .mode=HW_GPIO},
 	};
 
-	hw_api_bsp_init(pins, 2, bsp_hw_api_terminating);
+	hw_api_bsp_init(pins, 10, bsp_hw_api_terminating);
 #endif
 
 	return ENONE;

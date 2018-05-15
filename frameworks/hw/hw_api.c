@@ -47,11 +47,12 @@ HWGpio(void)
 	null_instance.attachInterrupt = null_pin_watch_set;
 	null_instance.detachInterrupt = null_pin_watch_close;
 #if defined(USE_HARDWARE_GPIO)
-	if (bsp_hw_pin_api_retrieve() != NULL) {
-		return bsp_hw_pin_api_retrieve();
+	if (bsp_hw_gpio_api_retrieve() != NULL) {
+		return bsp_hw_gpio_api_retrieve();
 	}
-#endif
+#else
 	return &null_instance;
+#endif
 }
 /*---------------------------------------------------------------------------*/
 static struct symbols symbolHWGpio = {
