@@ -16,8 +16,6 @@
 #include "contiki.h"
 #include <stdint.h>
 #include <stdbool.h>
-
-// core/
 #include "sys/clock.h"
 #include "sys/ctimer.h"
 #include "sys/procinit.h"

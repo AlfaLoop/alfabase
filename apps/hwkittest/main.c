@@ -29,17 +29,13 @@ int main(void)
   gpio->output(LED1, GPIO_OUTPUT_LOW);
   gpio->output(LED2, GPIO_OUTPUT_LOW);
   gpio->output(LED3, GPIO_OUTPUT_LOW);
-
   // Get the timer instance 0
   Timer *t = OSTimer();
-
   // Timer 0
   t->start(0, 1000, timer_event_handler);
-
   while (1) {
     // Power saving
     process->waitForEvent();
-
     if (timer_flag) {
       timer_flag = false;
       counter++;
