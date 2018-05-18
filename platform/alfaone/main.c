@@ -53,6 +53,8 @@
 #include "bsp_init.h"
 #include "spiffs-arch.h"
 #include "mpu9250-dmp-arch.h"
+#include "bsp_ieefp4.h"
+#include "bsp_mpudmp.h"
 
 // FreeRTOS
 #if defined(USE_FREERTOS)
@@ -93,13 +95,12 @@ PROCINIT(&etimer_process, &hardfault_process);
 SemaphoreHandle_t g_user_app_task_semaphore;
 TaskHandle_t g_contiki_thread;
 extern const struct uart_driver uart0;
-typedef struct {
-	float value[3];
-	int32_t data[3];
-	uint32_t timestamp;
-} accel_data_t;
 
-static accel_data_t accel_data;
+static ieefp4_data_t ieefp4_data_inst;
+
+static mems_data_t accel_data;
+static mems_data_t gyro_data;
+
 /*---------------------------------------------------------------------------*/
 static void
 nrf_nest_serial_input(uint8_t data)
@@ -204,8 +205,16 @@ static void
 ct_cb_handler(void)
 {
 	HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");
-	mpu->read(&accel_data, sizeof(accel_data_t), 0);
+
+	mpu->read(&accel_data, sizeof(mems_data_t), 0);
 	PRINTF("[main] %f %f %f\n", accel_data.value[0], accel_data.value[1], accel_data.value[2]);
+
+	mpu->read(&gyro_data, sizeof(mems_data_t), 1);
+	PRINTF("[main] %f %f %f\n", gyro_data.value[0], gyro_data.value[1], gyro_data.value[2]);
+
+	HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
+	ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
+	PRINTF("[main] %d %d %d %d\n", ieefp4_data_inst.heel, ieefp4_data_inst.outer_ball, ieefp4_data_inst.inner_ball, ieefp4_data_inst.thumb);
 	ctimer_reset(&ct);
 }
 /*---------------------------------------------------------------------------*/
@@ -219,17 +228,16 @@ bsp_device_init(void)
 	ADC.init(&adc_config);
 
 	// Initialize Sensor
-	mpu9250_dmp_config_t mpu9250_dmp_config = {
-		.data_source = mpu9250_dmp_data_update
-	};
-	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
-	SENSOR_MOTIONFUSION.poweroff(false);
-	// SENSOR_MOTIONFUSION.poweron();
-
+	bsp_hw_mpu9250_dmp_init();
+	bsp_ieefp4_init();
 
 	// HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");
 	// mpu->open(NULL);
 	// PRINTF("[main] HWDriver mpu name %s\n", mpu->name);
+	// ctimer_set(&ct, 100 , ct_cb_handler, (void *)NULL);
+	// HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
+	// ieefp4->open(NULL);
+	// PRINTF("[main] HWDriver ieefp4 name %s\n", ieefp4->name);
 	// ctimer_set(&ct, 100 , ct_cb_handler, (void *)NULL);
 	return ENONE;
 }

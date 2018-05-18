@@ -22,6 +22,7 @@
 #include "frameworks/app_lifecycle.h"
 #include "mpu9250-dmp-arch.h"
 #include "bsp_ieefp4.h"
+#include "bsp_mpudmp.h"
 #include "gpiote.h"
 #include "nrf_gpio.h"
 #include "sys/clock.h"
@@ -39,89 +40,25 @@
 #else
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
-static bool m_mpu9250_active = false;
-static bool m_footpressure_active = false;
-typedef struct {
-	float value[3];
-	int32_t data[3];
-	uint32_t timestamp;
-} accel_data_t;
-
-/*---------------------------------------------------------------------------*/
-void
-mpu9250_dmp_data_update(uint32_t source)
-{
-
-}
-/*---------------------------------------------------------------------------*/
-static int
-hw_bsp_mpu9250_open(void *args)
-{
-  if (m_mpu9250_active) {
-    return EINVALSTATE;
-  }
-
-  SENSOR_MOTIONFUSION.poweron();
-  m_mpu9250_active = true;
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-static int
-hw_bsp_mpu9250_write(const void *buf, uint32_t len, uint32_t *offset)
-{
-
-}
-/*---------------------------------------------------------------------------*/
-static int
-hw_bsp_mpu9250_read(void *buf, uint32_t len, uint32_t offset)
-{
-  int ret;
-  static accel_data_t acc;
-  uint8_t *user_data = (uint8_t*)buf;
-  // uint8_t type = ((uint8_t*)(buf))[0];
-  if (offset == 0) {
-    SENSOR_MOTIONFUSION.get_accel(acc.value, acc.data, acc.timestamp);
-    memcpy(user_data, &acc, len);
-  }
-
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-static int
-hw_bsp_mpu9250_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
-{
-
-}
-/*---------------------------------------------------------------------------*/
-static int
-hw_bsp_mpu9250_close(void *args)
-{
-  if (!m_mpu9250_active) {
-    return EINVALSTATE;
-  }
-  SENSOR_MOTIONFUSION.poweroff(false);
-  m_mpu9250_active = false;
-  return ENONE;
-}
 /*---------------------------------------------------------------------------*/
 const static HWDriver hw_drivers[] = {
   {
     /* mpu9250 dmp */
     .name = "mpu9250_dmp",
-    .open = hw_bsp_mpu9250_open,
-    .write = hw_bsp_mpu9250_write,
-    .read = hw_bsp_mpu9250_read,
-    .subscribe = hw_bsp_mpu9250_subscribe,
-    .close = hw_bsp_mpu9250_close,
+    .open = bsp_hw_mpu9250_dmp_open,
+    .write = bsp_hw_mpu9250_dmp_write,
+    .read = bsp_hw_mpu9250_dmp_read,
+    .subscribe = bsp_hw_mpu9250_dmp_subscribe,
+    .close = bsp_hw_mpu9250_dmp_close,
   },
   {
     /* iee foot pressure4 */
-    .name = "iee_footpressure4",
-    .open = hw_bsp_iee_footpressure4_open,
-    .write = hw_bsp_iee_footpressure4_write,
-    .read = hw_bsp_iee_footpressure4_read,
-    .subscribe = hw_bsp_iee_footpressure4_subscribe,
-    .close = hw_bsp_iee_footpressure4_close,
+    .name = "ieefp4",
+    .open = bsp_ieefp4_open,
+    .write = bsp_ieefp4_write,
+    .read = bsp_ieefp4_read,
+    .subscribe = bsp_ieefp4_subscribe,
+    .close = bsp_ieefp4_close,
   },
 };
 /*---------------------------------------------------------------------------*/

@@ -42,6 +42,9 @@ HWPipe(const char *dev)
 {
 	if (hw_api_bsp_num() == 0)
 		return &m_null_hwdriver;
+	if (hw_api_bsp_pipe(dev) == NULL)
+		return &m_null_hwdriver;
+	
 	return hw_api_bsp_pipe(dev);
 }
 static struct symbols symbolHWPipe = {

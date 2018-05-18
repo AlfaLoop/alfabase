@@ -69,6 +69,7 @@ typedef void (* hw_api_bsp_terminating_callback)(void);
 void hw_api_init(void);
 bool hw_api_check_pin(uint32_t pin, uint16_t type);
 void hw_api_bsp_init(const hw_pin_mode_t *pins, uint8_t num, hw_api_bsp_terminating_callback callback);
+
 int hw_api_bsp_num(void);
 HWDriver* hw_api_bsp_get(uint32_t idx);
 HWDriver* hw_api_bsp_pipe(const char *dev);
