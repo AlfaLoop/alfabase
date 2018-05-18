@@ -229,6 +229,7 @@ endif
 
 PROJECT_ARCH_DIRS += bsp/util
 PROJECT_ARCH_DIRS += bsp/ble
+PROJECT_ARCH_DIRS += drivers
 
 ifeq ($(NRF_SD_BLE_API_VERSION),3)
 	PROJECT_ARCH_DIRS += bsp/ble/softdevice/common
@@ -351,6 +352,12 @@ ifeq ($(USE_SPI_FLASH),1)
 	PROJECT_ARCH_DIRS += dev/flash
 	PROJECT_ARCH_SOURCEFILES += spiffs-flash-arch.c
 	CFLAGS += -DUSE_SPI_FLASH
+endif
+
+ifeq ($(USE_DRIVERS_INV_MPU_DMP),1)
+	PROJECT_ARCH_SOURCEFILES += mpu9250-dmp-arch.c
+	CFLAGS += -DINV_MPU_SELF_TEST_ENABLE_CONF=1
+	CFLAGS += -DINV_MPU_DMP_ENABLE_CONF=1
 endif
 
 ifeq ($(USE_HARDWARE),1)

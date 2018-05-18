@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#include "null_hw.h"
+#include "hw_api_null.h"
 #include "frameworks/app_lifecycle.h"
 #include "frameworks/app_eventpool.h"
 #include "loader/symtab.h"
@@ -30,6 +30,36 @@
 #else
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
+/*---------------------------------------------------------------------------*/
+int
+hw_null_open(void *args)
+{
+  return ENOSUPPORT;
+}
+/*---------------------------------------------------------------------------*/
+int
+hw_null_write(const void *buf, uint32_t len, uint32_t *offset)
+{
+  return ENOSUPPORT;
+}
+/*---------------------------------------------------------------------------*/
+int
+hw_null_read(void *buf, uint32_t len, uint32_t offset)
+{
+  return ENOSUPPORT;
+}
+/*---------------------------------------------------------------------------*/
+int
+hw_null_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
+{
+  return ENOSUPPORT;
+}
+/*---------------------------------------------------------------------------*/
+int
+hw_null_close(void *args)
+{
+  return ENOSUPPORT;
+}
 /*---------------------------------------------------------------------------*/
 int
 null_p_2_uint32_r_int(uint32_t pin, uint8_t value)

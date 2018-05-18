@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#ifndef _NULL_HW_H
-#define _NULL_HW_H
+#ifndef _HW_API_NULL_H
+#define _HW_API_NULL_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,6 +25,11 @@ extern "C" {
 #include "hw_api.h"
 #include "hw_uart_api.h"
 
+int hw_null_open(void *args);
+int hw_null_write(const void *buf, uint32_t len, uint32_t *offset);
+int hw_null_read(void *buf, uint32_t len, uint32_t offset);
+int hw_null_subscribe(void *buf, uint32_t len, HWCallbackHandler handler);
+int hw_null_close(void *args);
 
 int null_p_2_uint32_r_int(uint32_t pin, uint8_t value);
 int null_p_1_uint32_r_int(uint32_t pin);
@@ -51,4 +56,4 @@ int null_spi_close(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NULL_HW_H */
+#endif /* _HW_API_NULL_H */

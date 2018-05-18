@@ -29,6 +29,18 @@ ifeq ($(USE_FRAMEWORK),1)
 	MODULES += frameworks/ble
 endif
 
+ifeq ($(USE_DRIVERS_INV_MPU_DMP),1)
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu/eMPL-hal
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu/mllite
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu/include
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu/mpl
+	PROJECT_SOURCEFILES += inv_mpu.c
+	PROJECT_SOURCEFILES += data_builder.c hal_outputs.c message_layer.c ml_math_func.c mlmath.c mpl.c results_holder.c start_manager.c storage_manager.c
+	PROJECT_SOURCEFILES += inv_mpu_dmp_motion_driver.c
+	PROJECT_SOURCEFILES += eMPL_outputs.c
+endif
+
 ifdef MODULES
   UNIQUEMODULES = $(call uniq,$(MODULES))
   MODULESSUBST = ${subst /,-,$(UNIQUEMODULES)}

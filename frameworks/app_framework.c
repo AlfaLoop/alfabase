@@ -232,10 +232,7 @@ app_framework_init(void)
 	oslocaltime_api_init();
 	osprocess_api_init();
 	ble_api_init();
-
-#if defined(USE_HARDWARE)
 	hw_api_init();
-#endif
 
 #endif  /* USE_ELFLOADER */
 
