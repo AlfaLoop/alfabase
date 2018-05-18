@@ -447,6 +447,20 @@ typedef struct{
 HWDriver* HWPipe(const char *dev);
 HWDriver* HWGet(uint32_t idx);
 int HWNum(void);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*---------------------------------------------------------------------------*/
 #if defined(UIKit)
 // UIWINDOW

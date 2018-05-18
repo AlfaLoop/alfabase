@@ -231,7 +231,7 @@ const static BleGattServerCallback callback = {
   .onCharacteristicReadRequest = NULL,
   .onConnectionStateChanged = ble_gap_conn_evt_handler
 };
-/****************************************************************/
+/*---------------------------------------------------------------------------*/
 static void
 setup_advertisement(void)
 {

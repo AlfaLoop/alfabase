@@ -252,6 +252,7 @@ read_from_mpl(void)
     features.accel_ts = timestamp;
     data_update |= MOTIONFUSION_ACCEL;
     // PRINTF("[mpu9250 arch] AccX/Y/Z: %f %f %f Time: %d ms\n", features.accel[0], features.accel[1], features.accel[2], timestamp);
+    // PRINTF("[mpu9250 arch] AccX/Y/Z: %d %d %d Time: %d ms\n", features.accel_data[0], features.accel_data[1], features.accel_data[2], timestamp);
   }
 
   if (inv_get_sensor_type_gyro(data, &accuracy, &timestamp)) {
