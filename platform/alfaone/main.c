@@ -140,7 +140,7 @@ nest_serial_bsp_disable(void)
 static uint8_t
 pm_bsp_get_charging_status(void)
 {
-	return PM_SOURCE_CHARGING;
+	return PM_SOURCE_BATTERY;
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t
@@ -153,15 +153,15 @@ pm_bsp_get_battery_level(void)
 	uint8_t battery_level;
 
 	// initialized pressure sensor adc configuration
-	channel_config.resistor_p = NRF_SAADC_RESISTOR_DISABLED;
+	channel_config.resistor_p = NRF_SAADC_RESISTOR_PULLDOWN;
 	channel_config.resistor_n = NRF_SAADC_RESISTOR_DISABLED;
-	channel_config.gain = NRF_SAADC_GAIN1_6;
-	channel_config.reference = NRF_SAADC_REFERENCE_INTERNAL;
-	channel_config.acq_time = NRF_SAADC_ACQTIME_10US;
-	channel_config.mode = NRF_SAADC_MODE_SINGLE_ENDED;
-	channel_config.burst = NRF_SAADC_BURST_DISABLED;
-	channel_config.pin_p = (nrf_saadc_input_t)NRF_SAADC_INPUT_VDD;
-	channel_config.pin_n = NRF_SAADC_INPUT_DISABLED;
+	channel_config.gain       = NRF_SAADC_GAIN1_5;
+	channel_config.reference  = NRF_SAADC_REFERENCE_VDD4;
+	channel_config.acq_time   = NRF_SAADC_ACQTIME_40US;
+	channel_config.mode       = NRF_SAADC_MODE_SINGLE_ENDED;
+	channel_config.pin_p      = (nrf_saadc_input_t)(nrf_drv_saadc_gpio_to_ain(BATTERY_ADC_PIN));
+	channel_config.pin_n      = NRF_SAADC_INPUT_DISABLED;
+
 
 	ADC.channel_init(ARCH_BATTERY_ADC_CHANNEL_CONF, (void *)&channel_config);
 	adc_value = ADC.sample(ARCH_BATTERY_ADC_CHANNEL_CONF);
@@ -169,8 +169,8 @@ pm_bsp_get_battery_level(void)
 
 	mvolts = ADC_RESULT_IN_MILLI_VOLTS(adc_value);
 	PRINTF("[main] millivolts: %d\n", mvolts);
-	#define BATTERY_MAX 		3010
-	#define BATTERY_MIN     2800
+	#define BATTERY_MAX 		2820
+	#define BATTERY_MIN     2360
 	if (mvolts < BATTERY_MIN) {
 		battery_level = 0;
 	} else if (mvolts > BATTERY_MAX) {

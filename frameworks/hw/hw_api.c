@@ -44,7 +44,7 @@ HWPipe(const char *dev)
 		return &m_null_hwdriver;
 	if (hw_api_bsp_pipe(dev) == NULL)
 		return &m_null_hwdriver;
-	
+
 	return hw_api_bsp_pipe(dev);
 }
 static struct symbols symbolHWPipe = {
@@ -159,19 +159,6 @@ static struct symbols symbolHWSpi = {
 	.value = (void *)&HWSpi
 };
 /*---------------------------------------------------------------------------*/
-static void
-app_terminating(void)
-{
-	if (m_terminating_callback != NULL) {
-		m_terminating_callback();
-	}
-}
-/*---------------------------------------------------------------------------*/
-static struct app_lifecycle_event lifecycle_event = {
-	.name = "hw_api",
-	.terminating = app_terminating
-};
-/*---------------------------------------------------------------------------*/
 void
 hw_api_init(void)
 {
@@ -186,22 +173,6 @@ hw_api_init(void)
 	symtab_add(&symbolHWGet);
 	symtab_add(&symbolHWPipe);
 	symtab_add(&symbolHWNum);
-
-#if defined(USE_HARDWARE)
-	app_lifecycle_register(&lifecycle_event);
-#if defined(USE_HARDWARE_GPIO)
-	symtab_add(&symbolHWGpio);
-#endif /* USE_HARDWARE_GPIO */
-#if defined(USE_HARDWARE_UART)
-	symtab_add(&symbolHWUart);
-#endif /* USE_HARDWARE_UART */
-#if defined(USE_HARDWARE_I2C)
-	symtab_add(&symbolHWI2c);
-#endif /* USE_HARDWARE_I2C */
-#if defined(USE_HARDWARE_SPI)
-	symtab_add(&symbolHWSpi);
-#endif /* USE_HARDWARE_SPI */
-#endif  /* USE_HARDWARE */
 }
 /*---------------------------------------------------------------------------*/
 bool

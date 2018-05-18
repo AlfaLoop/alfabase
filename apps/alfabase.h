@@ -23,7 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
-#define API_VERSION		1.1.2
+#define API_VERSION		1.1.3
 /*---------------------------------------------------------------------------*//*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
@@ -419,121 +419,6 @@ typedef struct{
 // Singleton instance of HwInfo
 Localtime* OSLocaltime(void);
 /*---------------------------------------------------------------------------*/
-typedef enum {
-  TYPE_ACCELEROMETER,
-  TYPE_MOTION_RAW,
-  TYPE_MOTION_FUSION,
-  TYPE_HEARTRATE,
-  TYPE_FOOT_PRESSURE
-} SensorType;
-
-typedef struct {
-  SensorType type;
-  uint8_t data_len;
-  uint8_t data[24];
-  uint32_t timestamp;
-} SensorEvent;
-
-typedef void (* SensorEventHandler)(SensorEvent *event);
-
-typedef struct {
-  int16_t  (*getRawX)(void);
-  int16_t  (*getRawY)(void);
-  int16_t  (*getRawZ)(void);
-  float  (*getX)(void);
-  float  (*getY)(void);
-  float  (*getZ)(void);
-  void   (*start)(void);
-  void   (*stop)(void);
-} Accelerometer;
-
-enum {
-  MotionRaw_Rate_10hz = 0x00000001,
-  MotionRaw_Rate_20hz,
-  MotionRaw_Rate_40hz,
-  MotionRaw_Rate_50hz,
-  MotionRaw_Rate_100hz
-};
-
-typedef struct {
-  int (* start)(void);
-  int (* stop)(void);
-  int (* setUpdateRate)(uint32_t rate);
-  int (* getAccel)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getGyro)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getCompass)(float *value, int32_t *data, uint32_t *timestamp);
-} MotionRaw;
-
-enum {
-  MotionFusion_Rate_10hz = 0x00000001,
-  MotionFusion_Rate_20hz,
-  MotionFusion_Rate_40hz,
-  MotionFusion_Rate_50hz,
-  MotionFusion_Rate_100hz
-};
-
-enum {
-  MotionFusion_Data_Accel = 0x01,
-  MotionFusion_Data_Gyro = 0x02,
-  MotionFusion_Data_Compass = 0x04,
-  MotionFusion_Data_Quat = 0x08,
-  MotionFusion_Data_Euler = 0x10,
-  MotionFusion_Data_Heading = 0x20,
-  MotionFusion_Data_Linear_Accel = 0x40,
-  MotionFusion_Data_Gravity_Vector = 0x80
-};
-
-typedef struct {
-  int (* start)(void);
-  int (* stop)(void);
-  int (* setUpdateRate)(uint32_t rate);
-  int (* getAccel)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getGyro)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getCompass)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getQuaternion)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getEulerAngle)(float *value, int32_t *data, uint32_t *timestamp);
-  int (* getLinearAccel)(float *value, uint32_t *timestamp);
-  int (* getGravityVector)(float *value, uint32_t *timestamp);
-  int (* getHeading)(float *value, int32_t *data, uint32_t *timestamp);
-} MotionFusion;
-
-typedef struct {
-  int (*start)(void);
-  int (*stop)(void);
-  uint8_t (*getBPM)(void);
-  bool (*isTouch)(void);
-} HeartrateMonitor;
-
-#define FOOTPRESSURE_TYPE_LEFT          0x00;
-#define FOOTPRESSURE_TYPE_RIGHT         0x01;
-
-typedef struct {
-  void (*start)(void);
-  void (*stop)(void);
-  uint8_t (*getType)(void);
-  int16_t (*getThumb)(void);
-  int16_t (*getOuterBall)(void);
-  int16_t (*getInnerBall)(void);
-  int16_t (*getHeel)(void);
-} FootPressure;
-
-typedef struct {
-  bool  (*isAccelerometerExist)(void);
-  bool  (*isMotionRawExist)(void);
-  bool  (*isMotionFusionExist)(void);
-  bool  (*isHeartrateExist)(void);
-  bool  (*isFootPressureExist)(void);
-  Accelerometer* (*getAccelerometer)(void);
-  MotionRaw* (*getMotionRaw)(void);
-  MotionFusion* (*getMotionFusion)(void);
-  HeartrateMonitor* (*getHeartrateMonitor)(void);
-  FootPressure* (*getFootPressure)(void);
-} SensorManager;
-
-SensorManager* OSSensorManager(void);
-int OSSensorEventAttach(SensorEventHandler handler);
-int OSSensorEventDetach(void);
-/*---------------------------------------------------------------------------*/
 // Device
 #define DEVICE_HWID_MAX_LEN									 8
 
@@ -546,6 +431,22 @@ typedef struct{
 
 // Singleton instance of Device
 Device* OSDevice(void);
+/*---------------------------------------------------------------------------*/
+// HW
+typedef void (* HWCallbackHandler)(void *args);
+
+typedef struct{
+	char *name;
+	int (*open)(void *args);
+	int (*write)(const void *buf, uint32_t len, uint32_t *offset);
+	int (*read)(void *buf, uint32_t len, uint32_t offset);
+	int (*subscribe)(void *buf, uint32_t len, HWCallbackHandler handler);
+	int (*close)(void *args);
+} HWDriver;
+
+HWDriver* HWPipe(const char *dev);
+HWDriver* HWGet(uint32_t idx);
+int HWNum(void);
 /*---------------------------------------------------------------------------*/
 #if defined(UIKit)
 // UIWINDOW
