@@ -62,11 +62,11 @@ const static HWDriver hw_drivers[] = {
   {
     /* buzzer */
     .name = "buzzer",
-    .open = bsp_buzzer_open,
+    .open = hw_null_open,
     .write = bsp_buzzer_write,
-    .read = bsp_buzzer_read,
+    .read = hw_null_read,
     .subscribe = hw_null_subscribe,
-    .close = bsp_buzzer_close,
+    .close = hw_null_close,
   },
   {
     /* RF Attenuator */
@@ -80,11 +80,11 @@ const static HWDriver hw_drivers[] = {
   {
     /* Button */
     .name = "button",
-    .open = bsp_button_open,
-    .write = bsp_button_write,
+    .open = hw_null_open,
+    .write = hw_null_write,
     .read = bsp_button_read,
-    .subscribe = hw_null_subscribe,
-    .close = bsp_button_close,
+    .subscribe = bsp_button_subscribe,
+    .close = hw_null_close,
   },
 };
 /*---------------------------------------------------------------------------*/

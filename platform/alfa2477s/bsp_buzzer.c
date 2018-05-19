@@ -37,37 +37,9 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 int
-bsp_buzzer_open(void *args)
-{
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-int
 bsp_buzzer_write(const void *buf, uint32_t len, uint32_t offset)
 {
   return ENOSUPPORT;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_buzzer_read(void *buf, uint32_t len, uint32_t offset)
-{
-  switch (offset) {
-    case 0:
-    {
-    }
-    break;
-    case 1:
-    {
-    }
-    break;
-  }
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_buzzer_close(void *args)
-{
-  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 static void

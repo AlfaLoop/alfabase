@@ -23,10 +23,7 @@ extern "C" {
 #include "frameworks/hw/hw_api.h"
 
 int bsp_buzzer_init(void);
-int bsp_buzzer_open(void *args);
 int bsp_buzzer_write(const void *buf, uint32_t len, uint32_t offset);
-int bsp_buzzer_read(void *buf, uint32_t len, uint32_t offset);
-int bsp_buzzer_close(void *args);
 
 #ifdef __cplusplus
 }

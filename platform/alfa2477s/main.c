@@ -203,7 +203,6 @@ bsp_device_init(void)
 	bsp_buzzer_init();
 	bsp_mpu9250_dmp_init();
 
-
 	return ENONE;
 }
 /*---------------------------------------------------------------------------*/

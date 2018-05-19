@@ -23,10 +23,8 @@ extern "C" {
 #include "frameworks/hw/hw_api.h"
 
 int bsp_button_init(void);
-int bsp_button_open(void *args);
-int bsp_button_write(const void *buf, uint32_t len, uint32_t offset);
 int bsp_button_read(void *buf, uint32_t len, uint32_t offset);
-int bsp_button_close(void *args);
+int bsp_button_subscribe(void *buf, uint32_t len, HWCallbackHandler handler);
 
 #ifdef __cplusplus
 }
