@@ -140,7 +140,7 @@ nest_serial_bsp_disable(void)
 static uint8_t
 pm_bsp_get_charging_status(void)
 {
-	return PM_SOURCE_BATTERY;
+	return PM_SOURCE_CHARGING;
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t
