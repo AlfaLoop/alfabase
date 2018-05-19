@@ -23,10 +23,8 @@ extern "C" {
 #include "frameworks/hw/hw_api.h"
 
 int bsp_rfatte_init(void);
-int bsp_rfatte_open(void *args);
 int bsp_rfatte_write(const void *buf, uint32_t len, uint32_t offset);
 int bsp_rfatte_read(void *buf, uint32_t len, uint32_t offset);
-int bsp_rfatte_close(void *args);
 
 #ifdef __cplusplus
 }

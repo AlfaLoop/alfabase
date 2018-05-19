@@ -71,11 +71,11 @@ const static HWDriver hw_drivers[] = {
   {
     /* RF Attenuator */
     .name = "rf_atte",
-    .open = bsp_rfatte_open,
+    .open = hw_null_open,
     .write = bsp_rfatte_write,
     .read = bsp_rfatte_read,
     .subscribe = hw_null_subscribe,
-    .close = bsp_rfatte_close,
+    .close = hw_null_close,
   },
   {
     /* Button */

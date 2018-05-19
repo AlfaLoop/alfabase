@@ -36,43 +36,111 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-int
-bsp_rfatte_open(void *args)
-{
-  return ENONE;
-}
+#define RADIO_ATT_16dbm          RADIO_PIN_0
+#define RADIO_ATT_8dbm           RADIO_PIN_1
+#define RADIO_ATT_4dbm           RADIO_PIN_2
+#define RADIO_ATT_2dbm           RADIO_PIN_3
+#define RADIO_ATT_1dbm           RADIO_PIN_4
+enum {
+  RADIO_0dBm = 0x00,
+  RADIO_1dBm,
+  RADIO_2dBm,
+  RADIO_4dBm,
+  RADIO_8dBm,
+  RADIO_16dBm,
+  RADIO_31dBm,
+};
 /*---------------------------------------------------------------------------*/
-int
-bsp_rfatte_write(const void *buf, uint32_t len, uint32_t offset)
-{
-  return ENOSUPPORT;
-}
+static uint8_t curr_attenuator = RADIO_0dBm;
 /*---------------------------------------------------------------------------*/
-int
-bsp_rfatte_read(void *buf, uint32_t len, uint32_t offset)
+static void
+set_attenuator(uint8_t att)
 {
-  switch (offset) {
-    case 0:
-    {
-    }
+  PRINTF("[bsp rfatte] set attenuator ");
+  switch (att) {
+    case 0x00:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_0dBm;
+    PRINTF("0dbm\n");
     break;
-    case 1:
-    {
-    }
+    case 0x01:
+    nrf_gpio_pin_clear(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_1dBm;
+    PRINTF("1dbm\n");
+    break;
+    case 0x02:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_2dBm;
+    PRINTF("2dbm\n");
+    break;
+    case 0x03:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_4dBm;
+    PRINTF("4dbm\n");
+    break;
+    case 0x04:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_8dBm;
+    PRINTF("8dbm\n");
+    break;
+    case 0x05:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_16dBm;
+    PRINTF("16dbm\n");
+    break;
+    case 0x06:
+    nrf_gpio_pin_clear(RADIO_ATT_1dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_2dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_4dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_8dbm);
+    nrf_gpio_pin_clear(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_31dBm;
+    PRINTF("31dbm\n");
+    break;
+    default:
+    nrf_gpio_pin_set(RADIO_ATT_1dbm);
+    nrf_gpio_pin_set(RADIO_ATT_2dbm);
+    nrf_gpio_pin_set(RADIO_ATT_4dbm);
+    nrf_gpio_pin_set(RADIO_ATT_8dbm);
+    nrf_gpio_pin_set(RADIO_ATT_16dbm);
+    curr_attenuator = RADIO_0dBm;
+    PRINTF("0dbm\n");
     break;
   }
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_rfatte_close(void *args)
-{
-  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 static void
 app_terminating(void)
 {
+  nrf_gpio_pin_set(RADIO_PIN_0);
+  nrf_gpio_pin_set(RADIO_PIN_1);
+  nrf_gpio_pin_set(RADIO_PIN_2);
+  nrf_gpio_pin_set(RADIO_PIN_3);
+  nrf_gpio_pin_set(RADIO_PIN_4);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
@@ -81,8 +149,32 @@ static struct app_lifecycle_event lifecycle_event = {
 };
 /*---------------------------------------------------------------------------*/
 int
+bsp_rfatte_write(const void *buf, uint32_t len, uint32_t offset)
+{
+  uint8_t *p_attr = (uint8_t*)buf;
+  if (p_attr[0] >= RADIO_0dBm && p_attr[0] <= RADIO_31dBm) {
+    set_attenuator(p_attr[0]);
+    return ENONE;
+  }
+  return EINVAL;
+}
+/*---------------------------------------------------------------------------*/
+int
+bsp_rfatte_read(void *buf, uint32_t len, uint32_t offset)
+{
+  uint8_t *p_attr = (uint8_t*)buf;
+  return ENONE;
+}
+/*---------------------------------------------------------------------------*/
+int
 bsp_rfatte_init(void)
 {
 	app_lifecycle_register(&lifecycle_event);
+  nrf_gpio_cfg_output(RADIO_PIN_0);
+  nrf_gpio_cfg_output(RADIO_PIN_1);
+  nrf_gpio_cfg_output(RADIO_PIN_2);
+  nrf_gpio_cfg_output(RADIO_PIN_3);
+  nrf_gpio_cfg_output(RADIO_PIN_4);
+  set_attenuator(RADIO_0dBm);
 }
 /*---------------------------------------------------------------------------*/
