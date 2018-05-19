@@ -739,7 +739,7 @@
 // <e> PWM_ENABLED - nrf_drv_pwm - PWM peripheral driver
 //==========================================================
 #ifndef PWM_ENABLED
-#define PWM_ENABLED 0
+#define PWM_ENABLED 1
 #endif
 #if  PWM_ENABLED
 // <o> PWM_DEFAULT_CONFIG_OUT0_PIN - Out0 pin  <0-31>
@@ -833,28 +833,28 @@
 // <7=> 7
 
 #ifndef PWM_DEFAULT_CONFIG_IRQ_PRIORITY
-#define PWM_DEFAULT_CONFIG_IRQ_PRIORITY 6
+#define PWM_DEFAULT_CONFIG_IRQ_PRIORITY 7
 #endif
 
 // <q> PWM0_ENABLED  - Enable PWM0 instance
 
 
 #ifndef PWM0_ENABLED
-#define PWM0_ENABLED 0
+#define PWM0_ENABLED 1
 #endif
 
 // <q> PWM1_ENABLED  - Enable PWM1 instance
 
 
 #ifndef PWM1_ENABLED
-#define PWM1_ENABLED 0
+#define PWM1_ENABLED 1
 #endif
 
 // <q> PWM2_ENABLED  - Enable PWM2 instance
 
 
 #ifndef PWM2_ENABLED
-#define PWM2_ENABLED 0
+#define PWM2_ENABLED 1
 #endif
 
 #endif //PWM_ENABLED

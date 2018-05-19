@@ -136,7 +136,7 @@ extern const struct adc_driver nrf_adc_arch_driver;
 
 extern const struct mpu9250_dmp_driver_impl mpu9250_dmp_driver;
 #define SENSOR_MOTIONFUSION mpu9250_dmp_driver
-#define MPU_ADDRESS				0xd0  //0xD2
+#define MPU_ADDRESS				  0xd0   
 
 
 void mpu9250_dmp_data_update(uint32_t source);

@@ -183,6 +183,7 @@ PROJECT_ARCH_SOURCEFILES += nrf_drv_clock.c
 PROJECT_ARCH_SOURCEFILES += nrf_drv_spi.c
 PROJECT_ARCH_SOURCEFILES += nrf_drv_twi.c
 PROJECT_ARCH_SOURCEFILES += nrf_drv_wdt.c
+PROJECT_ARCH_SOURCEFILES += nrf_drv_pwm.c
 PROJECT_ARCH_SOURCEFILES += sdk_mapped_flags.c
 PROJECT_ARCH_SOURCEFILES += nrf_assert.c
 PROJECT_ARCH_SOURCEFILES += app_util_platform.c
