@@ -38,7 +38,7 @@ hw_null_open(void *args)
 }
 /*---------------------------------------------------------------------------*/
 int
-hw_null_write(const void *buf, uint32_t len, uint32_t *offset)
+hw_null_write(const void *buf, uint32_t len, uint32_t offset)
 {
   return ENOSUPPORT;
 }

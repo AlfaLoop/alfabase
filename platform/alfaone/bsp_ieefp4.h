@@ -35,7 +35,7 @@ uint8_t ieefp4_bsp_get_type(void);
 
 int bsp_ieefp4_init(void);
 int bsp_ieefp4_open(void *args);
-int bsp_ieefp4_write(const void *buf, uint32_t len, uint32_t *offset);
+int bsp_ieefp4_write(const void *buf, uint32_t len, uint32_t offset);
 int bsp_ieefp4_read(void *buf, uint32_t len, uint32_t offset);
 int bsp_ieefp4_subscribe(void *buf, uint32_t len, HWCallbackHandler handler);
 int bsp_ieefp4_close(void *args);

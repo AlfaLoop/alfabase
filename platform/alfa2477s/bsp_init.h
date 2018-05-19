@@ -22,7 +22,7 @@ extern "C" {
 #include "nrf_sdm.h"
 
 /** Specify the platform identification */
-#define PLATFORM_DEVICE_NAME	                  "MDBT42-GHGW"
+#define PLATFORM_DEVICE_NAME	                  "ALFA2477s"
 #define PLATFORM_DEVICE_TX_POWER                0
 #define PLATFORM_CODE_CONF                      {0xF1, 0x84 ,0x67, 0x32}
 
@@ -73,7 +73,7 @@ extern "C" {
 #define FREERTOS_APP_IRQ_TASK_PRIORITY_CONF     2
 
 /** ELF loader data and memory size */
-#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x5000
+#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x4600
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration
@@ -127,6 +127,19 @@ extern const struct adc_driver           nrf_adc_arch_driver;
 #else defined(DEBUG_DISABLE)
 #undef DEBUG_ENABLE
 #endif
+
+extern const struct i2c_driver nrf_twi_hw_driver0;
+#define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
+
+extern const struct adc_driver nrf_adc_arch_driver;
+#define ADC nrf_adc_arch_driver
+
+extern const struct mpu9250_dmp_driver_impl mpu9250_dmp_driver;
+#define SENSOR_MOTIONFUSION mpu9250_dmp_driver
+#define MPU_ADDRESS				0xd0  //0xD2
+
+
+void mpu9250_dmp_data_update(uint32_t source);
 
 #include "bsp_pinmap.h"
 

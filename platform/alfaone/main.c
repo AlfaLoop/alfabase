@@ -228,7 +228,7 @@ bsp_device_init(void)
 	ADC.init(&adc_config);
 
 	// Initialize Sensor
-	bsp_hw_mpu9250_dmp_init();
+	bsp_mpu9250_dmp_init();
 	bsp_ieefp4_init();
 
 	// HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");

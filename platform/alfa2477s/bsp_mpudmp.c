@@ -16,8 +16,6 @@
 #include "bsp_mpudmp.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "frameworks/hw/hw_api.h"
-#include "frameworks/hw/hw_api_null.h"
 #include "frameworks/app_eventpool.h"
 #include "frameworks/app_lifecycle.h"
 #include "mpu9250-dmp-arch.h"

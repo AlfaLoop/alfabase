@@ -26,7 +26,7 @@ extern "C" {
 #include "hw_uart_api.h"
 
 int hw_null_open(void *args);
-int hw_null_write(const void *buf, uint32_t len, uint32_t *offset);
+int hw_null_write(const void *buf, uint32_t len, uint32_t offset);
 int hw_null_read(void *buf, uint32_t len, uint32_t offset);
 int hw_null_subscribe(void *buf, uint32_t len, HWCallbackHandler handler);
 int hw_null_close(void *args);

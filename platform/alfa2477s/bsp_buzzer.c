@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#include "hw_api.h"
-#include "frameworks/app_lifecycle.h"
+#include "bsp_buzzer.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "frameworks/app_eventpool.h"
-#include "frameworks/hw/hw_api_null.h"
-#include "loader/symtab.h"
+#include "frameworks/app_lifecycle.h"
+#include "nrf_gpio.h"
 #include "errno.h"
+#include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
 #define DEBUG_MODULE 1
@@ -32,57 +34,53 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-static HWDriver m_null_hwdriver;
-/*---------------------------------------------------------------------------*/
-HWDriver*
-HWPipe(const char *dev)
+int
+bsp_buzzer_open(void *args)
 {
-	if (hw_api_bsp_num() == 0)
-		return &m_null_hwdriver;
-	if (hw_api_bsp_pipe(dev) == NULL)
-		return &m_null_hwdriver;
-
-	return hw_api_bsp_pipe(dev);
+  return ENONE;
 }
-static struct symbols symbolHWPipe = {
-	.name = "HWPipe",
-	.value = (void *)&HWPipe
+/*---------------------------------------------------------------------------*/
+int
+bsp_buzzer_write(const void *buf, uint32_t len, uint32_t offset)
+{
+  return ENOSUPPORT;
+}
+/*---------------------------------------------------------------------------*/
+int
+bsp_buzzer_read(void *buf, uint32_t len, uint32_t offset)
+{
+  switch (offset) {
+    case 0:
+    {
+    }
+    break;
+    case 1:
+    {
+    }
+    break;
+  }
+  return ENONE;
+}
+/*---------------------------------------------------------------------------*/
+int
+bsp_buzzer_close(void *args)
+{
+  return ENONE;
+}
+/*---------------------------------------------------------------------------*/
+static void
+app_terminating(void)
+{
+}
+/*---------------------------------------------------------------------------*/
+static struct app_lifecycle_event lifecycle_event = {
+	.name = "hw_bsp_buzzer",
+	.terminating = app_terminating
 };
 /*---------------------------------------------------------------------------*/
-HWDriver*
-HWGet(uint32_t idx)
+int
+bsp_buzzer_init(void)
 {
-	if (hw_api_bsp_num() == 0 || idx >= hw_api_bsp_num())
-		return &m_null_hwdriver;
-	return hw_api_bsp_get(idx);
-}
-static struct symbols symbolHWGet = {
-	.name = "HWGet",
-	.value = (void *)&HWGet
-};
-/*---------------------------------------------------------------------------*/
-int HWNum(void)
-{
-	return hw_api_bsp_num();
-}
-static struct symbols symbolHWNum = {
-	.name = "HWNum",
-	.value = (void *)&HWNum
-};
-/*---------------------------------------------------------------------------*/
-void
-hw_api_init(void)
-{
-	// initialate null instance
-	m_null_hwdriver.name = "null";
-	m_null_hwdriver.open = hw_null_open;
-	m_null_hwdriver.write = hw_null_write;
-	m_null_hwdriver.read = hw_null_read;
-	m_null_hwdriver.subscribe = hw_null_subscribe;
-	m_null_hwdriver.close = hw_null_close;
-
-	symtab_add(&symbolHWGet);
-	symtab_add(&symbolHWPipe);
-	symtab_add(&symbolHWNum);
+	app_lifecycle_register(&lifecycle_event);
 }
 /*---------------------------------------------------------------------------*/

@@ -48,8 +48,13 @@
 #include "nordic_common.h"
 #include "softdevice_handler.h"
 #include "gpiote.h"
-#include "bsp_init.h"
 #include "spiffs-arch.h"
+#include "bsp_init.h"
+#include "bsp_button.h"
+#include "bsp_led.h"
+#include "bsp_rfatte.h"
+#include "bsp_buzzer.h"
+#include "bsp_mpudmp.h"
 
 // FreeRTOS
 #if defined(USE_FREERTOS)
@@ -183,13 +188,6 @@ assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 	app_error_handler(0xDEADBEEF, line_num, p_file_name);
 }
 /*---------------------------------------------------------------------------*/
-static void
-bsp_hw_api_terminating(void)
-{
-	nrf_gpio_cfg_default(TX_PIN_NUMBER);
-	nrf_gpio_cfg_default(RX_PIN_NUMBER);
-}
-/*---------------------------------------------------------------------------*/
 static int
 bsp_device_init(void)
 {
@@ -199,26 +197,26 @@ bsp_device_init(void)
 	};
 	ADC.init(&adc_config);
 
-#if defined(USE_FRAMEWORK)
-	const static hw_pin_mode_t pins[] = {
-		{.pin=TX_PIN_NUMBER, .mode=HW_PIN_GPIO | HW_PIN_UART},
-		{.pin=RX_PIN_NUMBER, .mode=HW_PIN_GPIO | HW_PIN_UART}
-	};
+	bsp_led_init();
+	bsp_button_init();
+	bsp_rfatte_init();
+	bsp_buzzer_init();
+	bsp_mpu9250_dmp_init();
 
-	hw_api_bsp_init(pins, 2, bsp_hw_api_terminating);
-#endif
 
 	return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-void vApplicationIdleHook( void )
+void
+vApplicationIdleHook( void )
 {
 	watchdog_periodic();
 	lpm_drop();
 	watchdog_periodic();
 }
 /*---------------------------------------------------------------------------*/
-void vApplicationStackOverflowHook( TaskHandle_t task,
+void
+vApplicationStackOverflowHook( TaskHandle_t task,
                                     signed char *pcTaskName )
 {
   PRINTF("[main] application stack overflow: %s !\n", pcTaskName);
@@ -229,7 +227,8 @@ void vApplicationStackOverflowHook( TaskHandle_t task,
   while(1);
 }
 /*---------------------------------------------------------------------------*/
-void vApplicationMallocFailedHook()
+void
+vApplicationMallocFailedHook()
 {
   PRINTF("[main] application malloc failed!\n");
 	nrf_delay_ms(5);

@@ -23,9 +23,6 @@
 #include "mpu9250-dmp-arch.h"
 #include "bsp_ieefp4.h"
 #include "bsp_mpudmp.h"
-#include "gpiote.h"
-#include "nrf_gpio.h"
-#include "sys/clock.h"
 #include "errno.h"
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
@@ -45,11 +42,11 @@ const static HWDriver hw_drivers[] = {
   {
     /* mpu9250 dmp */
     .name = "mpu9250_dmp",
-    .open = bsp_hw_mpu9250_dmp_open,
-    .write = bsp_hw_mpu9250_dmp_write,
-    .read = bsp_hw_mpu9250_dmp_read,
-    .subscribe = bsp_hw_mpu9250_dmp_subscribe,
-    .close = bsp_hw_mpu9250_dmp_close,
+    .open = bsp_mpu9250_dmp_open,
+    .write = bsp_mpu9250_dmp_write,
+    .read = bsp_mpu9250_dmp_read,
+    .subscribe = bsp_mpu9250_dmp_subscribe,
+    .close = bsp_mpu9250_dmp_close,
   },
   {
     /* iee foot pressure4 */

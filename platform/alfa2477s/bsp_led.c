@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#include "bsp_mpudmp.h"
+#include "bsp_led.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "frameworks/hw/hw_api.h"
 #include "frameworks/hw/hw_api_null.h"
 #include "frameworks/app_eventpool.h"
 #include "frameworks/app_lifecycle.h"
-#include "mpu9250-dmp-arch.h"
 #include "nrf_gpio.h"
-#include "sys/clock.h"
 #include "errno.h"
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
@@ -38,90 +36,82 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-
-static bool m_mpu9250_active = false;
-/*---------------------------------------------------------------------------*/
-void
-mpu9250_dmp_data_update(uint32_t source)
-{
-
-}
+static uint8_t led_status = 0x00;
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_open(void *args)
+bsp_led_write(const void *buf, uint32_t len, uint32_t offset)
 {
-  if (m_mpu9250_active) {
-    return EINVALSTATE;
-  }
-
-  SENSOR_MOTIONFUSION.poweron();
-  m_mpu9250_active = true;
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_mpu9250_dmp_write(const void *buf, uint32_t len, uint32_t offset)
-{
-  return ENOSUPPORT;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset)
-{
+  uint8_t *p_led_ctrl = (uint8_t*)buf;
   switch (offset) {
     case 0:
     {
-      mems_data_t *p_acc_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_accel(p_acc_data->value, p_acc_data->data, p_acc_data->timestamp);
+       if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED0);}
+       else { nrf_gpio_pin_clear(LED0);}
     }
     break;
     case 1:
     {
-      mems_data_t *p_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_gyro(p_data->value, p_data->data, p_data->timestamp);
+      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED1);}
+      else { nrf_gpio_pin_clear(LED1);}
+    }
+    break;
+    case 2:
+    {
+      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED2);}
+      else { nrf_gpio_pin_clear(LED2);}
     }
     break;
   }
-  return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-int
-bsp_mpu9250_dmp_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
-{
   return ENOSUPPORT;
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_close(void *args)
+bsp_led_read(void *buf, uint32_t len, uint32_t offset)
 {
-  if (!m_mpu9250_active) {
-    return EINVALSTATE;
+  uint8_t *p_led_ctrl = (uint8_t*)buf;
+  switch (offset) {
+    case 0:
+    {
+      p_led_ctrl[0] = nrf_gpio_pin_read(LED0);
+    }
+    break;
+    case 1:
+    {
+      p_led_ctrl[0] = nrf_gpio_pin_read(LED1);
+    }
+    break;
+    case 2:
+    {
+      p_led_ctrl[0] = nrf_gpio_pin_read(LED2);
+    }
+    break;
   }
-  SENSOR_MOTIONFUSION.poweroff(false);
-  m_mpu9250_active = false;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 static void
 app_terminating(void)
 {
-	bsp_mpu9250_dmp_close(NULL);
+  // disable all led
+  nrf_gpio_pin_clear(LED0);
+  nrf_gpio_pin_clear(LED1);
+  nrf_gpio_pin_clear(LED2);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
-	.name = "hw_bsp_mpudmp",
+	.name = "hw_bsp_led",
 	.terminating = app_terminating
 };
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_init(void)
+bsp_led_init(void)
 {
 	app_lifecycle_register(&lifecycle_event);
-
-  mpu9250_dmp_config_t mpu9250_dmp_config = {
-		.data_source = mpu9250_dmp_data_update
-	};
-	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
-	SENSOR_MOTIONFUSION.poweroff(false);
+  nrf_gpio_cfg_output(LED0);
+  nrf_gpio_cfg_output(LED1);
+  nrf_gpio_cfg_output(LED2);
+  nrf_gpio_pin_clear(LED0);
+  nrf_gpio_pin_clear(LED1);
+  nrf_gpio_pin_clear(LED2);
 }
 /*---------------------------------------------------------------------------*/

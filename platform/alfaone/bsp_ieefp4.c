@@ -156,7 +156,7 @@ bsp_ieefp4_open(void *args)
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_ieefp4_write(const void *buf, uint32_t len, uint32_t *offset)
+bsp_ieefp4_write(const void *buf, uint32_t len, uint32_t offset)
 {
   return ENOSUPPORT;
 }
