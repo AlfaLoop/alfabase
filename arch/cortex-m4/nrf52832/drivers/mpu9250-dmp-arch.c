@@ -238,8 +238,8 @@ read_from_mpl(void)
 
     data_update |= MOTIONFUSION_QUAT;
 
-    PRINTF("[mpu9250 arch] Quat: %f %f %f %f Time: %d ms\n",
-      features.quat[0], features.quat[1], features.quat[2], features.quat[3], timestamp);
+    // PRINTF("[mpu9250 arch] Quat: %f %f %f %f Time: %d ms\n",
+    //   features.quat[0], features.quat[1], features.quat[2], features.quat[3], timestamp);
   }
 
   if (inv_get_sensor_type_accel(data, &accuracy, &timestamp)) {

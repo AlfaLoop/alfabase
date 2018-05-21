@@ -234,7 +234,8 @@ static void
 mpu9250_dmp_data_update(void *params)
 {
 	motion_data_event_t *event = (motion_data_event_t *)params;
-	logger->printf(LOG_RTT,"[app] dmp data update %d\n", event->type);
+	uint8_t type = event->type;
+	// logger->printf(LOG_RTT,"[app] dmp data update %d\n", type);
 
 	if (event->type & MOTIONFUSION_ACCEL) {
 		mpudmp->read(&accel_data, sizeof(mems_data_t), 0);
@@ -441,7 +442,15 @@ int main(void)
     if (timer_flag) {
       timer_flag = false;
       if (is_connected) {
+				// read the foot pressure
         ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
+				memcpy(&ieefp4_tx_buffer[0], &ieefp4_data_inst.heel, sizeof(int16_t));
+				memcpy(&ieefp4_tx_buffer[2], &ieefp4_data_inst.outer_ball, sizeof(int16_t));
+				memcpy(&ieefp4_tx_buffer[4], &ieefp4_data_inst.inner_ball, sizeof(int16_t));
+				memcpy(&ieefp4_tx_buffer[6], &ieefp4_data_inst.thumb, sizeof(int16_t));
+				memcpy(&ieefp4_tx_buffer[8], &ieefp4_data_inst.timestamp, sizeof(uint32_t));
+
+				// notify
         if (is_ieefp4_notify_enabled)
           ble_manager->notifyCharacteristic(peripheral_conn_handle, ble_attr_ieefp4_handle, ieefp4_tx_buffer, 12);
         if (is_accel_notify_enabled)
