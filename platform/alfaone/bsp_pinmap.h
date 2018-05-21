@@ -70,6 +70,7 @@ extern "C" {
 #define LOGGER_UART_RX              UART_RX
 #define LED0                        29u
 #define BATTERY_ADC_PIN		          31u
+#define MPU_ADDRESS				          0xD0
 #elif BOARD_DEV_VERSION == BOARD_FOOT_V3_RIGHT || BOARD_DEV_VERSION == BOARD_FOOT_V3_LEFT
 #define BATTERY_ADC_PIN		          5u
 #define SPI_FLASH_MISO              7u
@@ -88,6 +89,7 @@ extern "C" {
 #define MPU_CS  		                27u
 #define MPU_AUX  		                28u
 #define MPU_INT 		                30u
+#define MPU_ADDRESS				          0xD2
 #endif
 
 #define TX_PIN_NUMBER               UART_TX

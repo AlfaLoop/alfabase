@@ -45,12 +45,18 @@ typedef struct {
 	uint32_t timestamp;
 } heading_data_t;
 
+typedef struct {
+  uint8_t type;
+} motion_data_event_t;
+
 int bsp_mpu9250_dmp_init(void);
 int bsp_mpu9250_dmp_open(void *args);
 int bsp_mpu9250_dmp_write(const void *buf, uint32_t len, uint32_t offset);
 int bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset);
 int bsp_mpu9250_dmp_subscribe(void *buf, uint32_t len, HWCallbackHandler handler);
 int bsp_mpu9250_dmp_close(void *args);
+
+void mpu9250_dmp_data_update(uint8_t source);
 
 #ifdef __cplusplus
 }

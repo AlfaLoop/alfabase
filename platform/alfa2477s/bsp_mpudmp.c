@@ -55,18 +55,17 @@ sensor_api_irq_hooker(void *ptr)
 }
 /*---------------------------------------------------------------------------*/
 void
-mpu9250_dmp_data_update(uint32_t source)
+mpu9250_dmp_data_update(uint8_t source)
 {
-  app_irq_hw_event_t event;
-  motion_data_event_t motion_data;
+  static motion_data_event_t event;
 
   if (m_mpu9250_active) {
     if (m_sensor_event_callback != NULL) {
-      motion_data.type = source;
+      event.type = source;
 
 			app_irq_event_t irq_event;
 			irq_event.event_type = APP_HW_EVENT;
-      irq_event.params.hw_event.params = &motion_data;
+      irq_event.params.hw_event.params = (void *)&event;
 			irq_event.event_hook = sensor_api_irq_hooker;
 			xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
     }
@@ -170,6 +169,7 @@ bsp_mpu9250_dmp_close(void *args)
   }
   SENSOR_MOTIONFUSION.poweroff(false);
   m_mpu9250_active = false;
+  m_sensor_event_callback = NULL;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -177,7 +177,6 @@ static void
 app_terminating(void)
 {
 	bsp_mpu9250_dmp_close(NULL);
-  m_sensor_event_callback = NULL;
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {

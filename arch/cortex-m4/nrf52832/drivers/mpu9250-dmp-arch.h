@@ -49,7 +49,7 @@ extern "C" {
 #define MOTIONFUSION_LINEAR_ACCEL         (0x40)
 #define MOTIONFUSION_GRAVITY_VECTOR       (0x80)
 
-typedef void (* mpu9250_dmp_data_update_func_t)(uint32_t sensor_type);
+typedef void (* mpu9250_dmp_data_update_func_t)(uint8_t sensor_type);
 
 typedef struct _mpu9250_dmp_config_t {
   mpu9250_dmp_data_update_func_t   data_source;

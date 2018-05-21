@@ -176,7 +176,7 @@ struct features_s {
 };
 static struct features_s features = {0};
 static bool motion_active = false;
-static mpu9250_dmp_data_update_func_t 	m_framework_raw_data_func;
+static mpu9250_dmp_data_update_func_t	m_framework_raw_data_func;
 PROCESS(mpu9250_process, "Mpu9250 process");
 process_event_t mpu9250_sensor_event;
 /*---------------------------------------------------------------------------*/
@@ -208,7 +208,7 @@ read_from_mpl(void)
   int8_t accuracy;
   unsigned long timestamp;
   float float_data[3] = {0};
-  uint32_t data_update = 0;
+  uint8_t data_update = 0;
 
   if (!motion_active) {
     return;
@@ -238,8 +238,8 @@ read_from_mpl(void)
 
     data_update |= MOTIONFUSION_QUAT;
 
-    // PRINTF("[mpu9250 arch] Quat: %f %f %f %f Time: %d ms\n",
-    //   features.quat[0], features.quat[1], features.quat[2], features.quat[3], timestamp);
+    PRINTF("[mpu9250 arch] Quat: %f %f %f %f Time: %d ms\n",
+      features.quat[0], features.quat[1], features.quat[2], features.quat[3], timestamp);
   }
 
   if (inv_get_sensor_type_accel(data, &accuracy, &timestamp)) {

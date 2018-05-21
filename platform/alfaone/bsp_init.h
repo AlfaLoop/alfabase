@@ -126,17 +126,11 @@ extern const struct adc_driver nrf_adc_arch_driver;
 
 extern const struct mpu9250_dmp_driver_impl mpu9250_dmp_driver;
 #define SENSOR_MOTIONFUSION mpu9250_dmp_driver
-#define MPU_ADDRESS				0xd0  //0xD2
-
 
 #define ADC_CHANNEL_HEEL                       1
 #define ADC_CHANNEL_INNER                      2
 #define ADC_CHANNEL_OUTTER                     3
 #define ADC_CHANNEL_THUMB                      4
-
-
-
-void mpu9250_dmp_data_update(uint32_t source);
 
 #include "bsp_pinmap.h"
 

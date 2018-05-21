@@ -138,9 +138,6 @@ extern const struct mpu9250_dmp_driver_impl mpu9250_dmp_driver;
 #define SENSOR_MOTIONFUSION mpu9250_dmp_driver
 #define MPU_ADDRESS				  0xd0
 
-
-void mpu9250_dmp_data_update(uint32_t source);
-
 #include "bsp_pinmap.h"
 
 #ifdef __cplusplus
