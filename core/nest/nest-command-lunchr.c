@@ -16,6 +16,7 @@
 #include "contiki.h"
 #include "nest-command-lunchr.h"
 #include "loader/lunchr.h"
+#include "spiffs/spiffs.h"
 
 #if defined(USE_WDUI_STACK)
 #include "wdui/wdui.h"
@@ -115,6 +116,7 @@ PROCESS_THREAD(nest_lunchr_kill_process, ev, data)
 {
 	nest_command_data_t *input;
 	static uint32_t err_code;
+	static uint32_t total, used;
 	PROCESS_BEGIN();
 
 	input = data;
@@ -132,6 +134,9 @@ PROCESS_THREAD(nest_lunchr_kill_process, ev, data)
 	err_code = lunchr_kill_running_app();
 	m_output.data[0] = err_code;
 	m_output.len = 1;
+  SPIFFS_info(&SYSFS, &total, &used);
+  int r = SPIFFS_gc(&SYSFS, total - used);
+	PRINTF("[nest lunchr command] SPIFFS gc ret %d\n", r);
 #endif
 
 #if defined(USE_WDUI_STACK)
@@ -180,6 +185,7 @@ PROCESS_THREAD(nest_lunchr_remove_boot_process, ev, data)
 {
 	nest_command_data_t *input;
 	static uint32_t err_code;
+	static uint32_t total, used;
 
 	PROCESS_BEGIN();
 
@@ -195,6 +201,9 @@ PROCESS_THREAD(nest_lunchr_remove_boot_process, ev, data)
 	err_code = lunchr_remove_boot_task();
 	m_output.data[0] = err_code;
 	m_output.len = 1;
+	SPIFFS_info(&SYSFS, &total, &used);
+	int r = SPIFFS_gc(&SYSFS, total - used);
+	PRINTF("[nest lunchr command] SPIFFS gc ret %d\n", r);
 #endif
 
 	nest_command_send(&m_output);

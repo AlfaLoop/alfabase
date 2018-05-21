@@ -860,6 +860,7 @@ PROCESS_THREAD(nest_bftp_remove_process, ev, data)
 	static nest_command_data_t *input;
 	static char *appname;
 	static uint32_t err_code;
+	static uint32_t total, used;
 	PROCESS_BEGIN();
 
 	input = data;
@@ -941,6 +942,10 @@ PROCESS_THREAD(nest_bftp_remove_process, ev, data)
 		}
 	}
 	SPIFFS_closedir(&d);
+
+	SPIFFS_info(&SYSFS, &total, &used);
+	int r = SPIFFS_gc(&SYSFS, total - used);
+	PRINTF("[nest lunchr bftp] SPIFFS gc ret %d\n", r);
 
 
 #if defined(USE_WDUI_STACK)

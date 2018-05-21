@@ -26,7 +26,7 @@
 #include "softdevice_handler.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 0
+#define DEBUG_MODULE 1
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -128,6 +128,7 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
   if (p_characteristics->init_value != NULL)
     attr_char_value.p_value = p_characteristics->init_value;
 
+  // check pool
   for (idx = 0; idx < POOL_SIZE; idx++) {
     if ( (pool[idx].used) &&
          (pool[idx].char_uuid == p_characteristics->uuid) &&
@@ -139,17 +140,18 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
   }
 
   if (registed) {
-    PRINTF("[nrf add characteristic] registed\n");
+    PRINTF("[nest driver add characteristic] registed\n");
     p_characteristics->value_handle = pool[idx].value_handle;
     p_characteristics->cccd_handle = pool[idx].cccd_handle;
     err_code = ENONE;
   } else {
+    PRINTF("[nest driver add characteristic] gatts characteristic add\n");
     err_code = sd_ble_gatts_characteristic_add(service_handle,
                                              &char_md,
                                              &attr_char_value,
                                              &char_handles);
     if (err_code != NRF_SUCCESS){
-      PRINTF("[nrf add characteristic] error %d\n", err_code);
+      PRINTF("[nest driver add characteristic] error %d\n", err_code);
       if (err_code == NRF_ERROR_INVALID_ADDR) {
         return EFAULT;
       } else if (err_code == NRF_ERROR_NO_MEM) {
@@ -166,6 +168,7 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
         return EINTERNAL;
       }
     } else {
+      // update the list
       for (idx = 0; idx < POOL_SIZE; idx++) {
         if (!pool[idx].used )
         {
@@ -187,6 +190,7 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
 int
 nrf_gatts_init_characteristic_pool(void)
 {
+  PRINTF("[nest driver add characteristic] reset the pool\n");
   for (int i = 0; i < POOL_SIZE; i++) {
     pool[i].used = false;
     pool[i].char_uuid = 0;

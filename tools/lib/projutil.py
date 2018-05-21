@@ -72,7 +72,7 @@ timer_event_handler(void)
 {
   timer_flag = true;
 }
-/****************************************************************/
+/*---------------------------------------------------------------------------*/
 int main(void)
 {
   Process *process = OSProcess();
@@ -307,7 +307,7 @@ class ProjectCmd:
         """
         arm-none-eabi-gcc -MMD -Og -ggdb --std=gnu99 -Wall -mthumb -mabi=aapcs -mlittle-endian -fno-merge-constants -DAUTOSTART_ENABLE -w -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mcpu=cortex-m4 -I. -I../ -o D:\Project\Github\AlfaLoop\iotaos\apps\helloworld\build\start.o -c D:\Project\Github\AlfaLoop\iotaos\apps\helloworld\build\start.c
         """
-
+        substring = 'error'
         ctx = self.conf_content
         gcc = 'arm-none-eabi-gcc '
         attr = ['-MMD', '-Og', '-ggdb', '--std=gnu99', '-Wall', '-mthumb',
@@ -337,5 +337,8 @@ class ProjectCmd:
         attr.append(src)
 
         cmd = " ".join(attr)
-        p = subprocess.Popen(gcc + cmd)
-        p.wait()
+        process = subprocess.Popen(gcc + cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        stdout, stderr = process.communicate(input='aweimeow\n')
+        if stderr.find(substring) is not -1:
+            print stderr
+            exit()

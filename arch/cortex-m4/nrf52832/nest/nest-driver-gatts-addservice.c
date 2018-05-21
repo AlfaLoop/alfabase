@@ -26,7 +26,7 @@
 #include "softdevice_handler.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 0
+#define DEBUG_MODULE 1
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -64,19 +64,41 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
 
   // Add a vendor specfit 128-bit UUID
   if(p_service->bleuuid.type == NEST_BLE_UUID_TYPE_VENDOR) {
+
+    PRINTF("[nest driver gatts addserivce] add vendor uuid\n");
+    // get hte uuid from pool
     registed = false;
     for (idx = 0; idx < POOL_SIZE; idx++) {
-      if ( (pool[idx].used) &&
-           ( memcmp(&pool[idx].vs_uuid[0], &p_service->vendor_uuid.uuid128[0], 16) == 0) )
+      if ( (pool[idx].used) )
       {
-        registed = true;
-        break;
+        PRINTF("[nest driver gatts addserivce] idx %d uuid: ", idx);
+        for (int i = 0; i < 16; i++)
+          PRINTF("%2X ", pool[idx].vs_uuid[i]);
+        PRINTF("\n");
+
+        PRINTF("[nest driver gatts addserivce] service uuid: ");
+        for (int i = 0; i < 16; i++)
+          PRINTF("%2X ", p_service->vendor_uuid.uuid128[i]);
+        PRINTF("\n");
+
+        if ( ( memcmp(&pool[idx].vs_uuid[0], &p_service->vendor_uuid.uuid128[0], 16) == 0)) {
+          PRINTF("[nest driver gatts addserivce] uuid match, registered\n");
+          registed = true;
+          break;
+        } else {
+          PRINTF("[nest driver gatts addserivce] uuid not match, add it\n");
+        }
       }
     }
+
     if (registed) {
       service_uuid.type = BLE_UUID_TYPE_VENDOR_BEGIN;
+      p_service->handle = pool[idx].service_handle;
+      // p_service->bleuuid.type = service_uuid.type;
+      PRINTF("[nest driver gatts addserivce] vendor service already registed\n");
     } else {
       memcpy(vendor_srv_uuid.uuid128, p_service->vendor_uuid.uuid128, sizeof(nest_bleuuid128_t));
+      PRINTF("[nest driver gatts addserivce] sd ble uuid vs add\n");
       err_code = sd_ble_uuid_vs_add(&vendor_srv_uuid, &(service_uuid.type));
       if (err_code != NRF_SUCCESS){
         PRINTF("[nest driver gatts addserivce] nrf add service error %d\n", err_code);
@@ -88,61 +110,90 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
           return EINTERNAL;
         }
       }
-    }
 
-  } else if (p_service->bleuuid.type == NEST_BLE_UUID_TYPE_BLE) {
-    service_uuid.type = BLE_UUID_TYPE_BLE;
-  } else {
-    return EINVAL;
-  }
-
-  service_uuid.uuid = p_service->bleuuid.uuid;
-  p_service->bleuuid.type = service_uuid.type;
-
-  // Add a gatts service
-  registed = false;
-  for (idx = 0; idx < POOL_SIZE; idx++) {
-    if ( (pool[idx].used) &&
-         (pool[idx].service_uuid == p_service->bleuuid.uuid) )
-    {
-      registed = true;
-      break;
-    }
-  }
-  if (registed) {
-    p_service->handle = pool[idx].service_handle;
-  } else {
-
-    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
-                                        &(service_uuid),
-                                        &(p_service->handle));
-    if (err_code != NRF_SUCCESS){
-      PRINTF("[nest driver gatts addserivce] add error %d \n", err_code);
-      if (err_code == NRF_ERROR_INVALID_ADDR) {
-        return EFAULT;
-      } else if (err_code == NRF_ERROR_NO_MEM) {
-        return ENOMEM;
-      } else if (err_code == NRF_ERROR_INVALID_PARAM) {
-        return EINVAL;
-      } else if (err_code == NRF_ERROR_FORBIDDEN) {
-        return EPERM;
-      } else {
-        return EINTERNAL;
+      service_uuid.uuid = p_service->bleuuid.uuid;
+      PRINTF("[nest driver gatts addserivce] sd ble gatts service add\n");
+      err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
+                                          &(service_uuid),
+                                          &(p_service->handle));
+      if (err_code != NRF_SUCCESS){
+        PRINTF("[nest driver gatts addserivce] add error %d \n", err_code);
+        if (err_code == NRF_ERROR_INVALID_ADDR) {
+          return EFAULT;
+        } else if (err_code == NRF_ERROR_NO_MEM) {
+          return ENOMEM;
+        } else if (err_code == NRF_ERROR_INVALID_PARAM) {
+          return EINVAL;
+        } else if (err_code == NRF_ERROR_FORBIDDEN) {
+          return EPERM;
+        } else {
+          return EINTERNAL;
+        }
       }
-    } else {
+
+      // update the pool list
+      PRINTF("[nest driver gatts addserivce] update the pool list\n");
       for (idx = 0; idx < POOL_SIZE; idx++) {
-        if (!pool[idx].used )
-        {
+        if (!pool[idx].used ) {
           pool[idx].used = true;
           pool[idx].service_handle = p_service->handle;
           pool[idx].service_uuid = service_uuid.uuid;
-          if (service_uuid.uuid == BLE_UUID_TYPE_VENDOR_BEGIN) {
-            memcpy(&pool[idx].vs_uuid[0], p_service->vendor_uuid.uuid128[0], 16);
-          }
+          memcpy(&pool[idx].vs_uuid[0], &p_service->vendor_uuid.uuid128[0], 16);
           break;
         }
       }
     }
+  }
+  else if (p_service->bleuuid.type == NEST_BLE_UUID_TYPE_BLE) {
+    service_uuid.type = BLE_UUID_TYPE_BLE;
+    service_uuid.uuid = p_service->bleuuid.uuid;
+
+    registed = false;
+    for (idx = 0; idx < POOL_SIZE; idx++) {
+      if ( (pool[idx].used) &&
+         (pool[idx].service_uuid == p_service->bleuuid.uuid) )
+      {
+        PRINTF("[nest driver gatts addserivce] service 16 bits uuid already registed 0x%4x\n", pool[idx].service_uuid );
+        registed = true;
+        break;
+      }
+    }
+
+    if (registed) {
+      p_service->handle = pool[idx].service_handle;
+      PRINTF("[nest driver gatts addserivce] service uuid already registed\n");
+    } else {
+      err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
+                                          &(service_uuid),
+                                          &(p_service->handle));
+      if (err_code != NRF_SUCCESS){
+        PRINTF("[nest driver gatts addserivce] add error %d \n", err_code);
+        if (err_code == NRF_ERROR_INVALID_ADDR) {
+          return EFAULT;
+        } else if (err_code == NRF_ERROR_NO_MEM) {
+          return ENOMEM;
+        } else if (err_code == NRF_ERROR_INVALID_PARAM) {
+          return EINVAL;
+        } else if (err_code == NRF_ERROR_FORBIDDEN) {
+          return EPERM;
+        } else {
+          return EINTERNAL;
+        }
+      }
+
+      // update the pool list
+      for (idx = 0; idx < POOL_SIZE; idx++) {
+        if (!pool[idx].used ) {
+          pool[idx].used = true;
+          pool[idx].service_handle = p_service->handle;
+          pool[idx].service_uuid = service_uuid.uuid;
+          break;
+        }
+      }
+    }
+  }
+  else {
+    return EINVAL;
   }
   return ENONE;
 }
@@ -150,6 +201,7 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
 int
 nrf_gatts_init_service_pool(void)
 {
+  PRINTF("[nest driver gatts addserivce] reset the service pool\n");
   for (int i = 0; i < POOL_SIZE; i++) {
     pool[i].used = false;
     pool[i].service_handle = 0;

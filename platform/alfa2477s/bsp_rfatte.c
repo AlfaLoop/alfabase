@@ -136,11 +136,7 @@ set_attenuator(uint8_t att)
 static void
 app_terminating(void)
 {
-  nrf_gpio_pin_set(RADIO_PIN_0);
-  nrf_gpio_pin_set(RADIO_PIN_1);
-  nrf_gpio_pin_set(RADIO_PIN_2);
-  nrf_gpio_pin_set(RADIO_PIN_3);
-  nrf_gpio_pin_set(RADIO_PIN_4);
+  set_attenuator(RADIO_0dBm);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
@@ -163,6 +159,7 @@ int
 bsp_rfatte_read(void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_attr = (uint8_t*)buf;
+  p_attr[0] = curr_attenuator;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/

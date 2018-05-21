@@ -35,7 +35,7 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-#define NEST_BROADCASTER_SEND_TIMEOUT 		30
+#define NEST_BROADCASTER_SEND_TIMEOUT 		32
 #if defined(USE_FRAMEWORK)
 /*---------------------------------------------------------------------------*/
 PROCESS(nest_broadcast_api_process, "broadcast api process");
