@@ -124,16 +124,6 @@ hwid_gen(uint8_t *id, int max_len)
 }
 /*---------------------------------------------------------------------------*/
 int
-devcode_gen(uint8_t *id)
-{
-  uint8_t platform_code[4] = PLATFORM_CODE_CONF;
-  id[0] = platform_code[0];
-  id[1] = platform_code[1];
-	id[2] = platform_code[2];
-  id[3] = platform_code[3];
-}
-/*---------------------------------------------------------------------------*/
-int
 devid_reboot(void)
 {
   NVIC_SystemReset();

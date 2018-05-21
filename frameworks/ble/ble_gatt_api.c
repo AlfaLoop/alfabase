@@ -33,8 +33,6 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 
-static int ble_gatt_num_services;
-
 /*---------------------------------------------------------------------------*/
 int
 ble_gatt_add_service_api(BleGattService *service)
@@ -50,7 +48,7 @@ ble_gatt_add_service_api(BleGattService *service)
     return ENULLP;
   }
 
-  if (service->characteristic_count > NEST_ADD_APP_GATTS_SERVICE) {
+  if (service->characteristic_count > NEST_ADD_APP_GATTS_CHARACTERISTIC) {
     return EINVAL;
   }
 

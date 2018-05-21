@@ -23,7 +23,6 @@ extern "C" {
 
 int devid_gen(uint8_t *id, int max_len);
 int hwid_gen(uint8_t *id, int max_len);
-int devcode_gen(uint8_t *id);
 int devid_reboot(void);
 int devid_bootloader_mode(void);
 

@@ -37,7 +37,7 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-#define POOL_SIZE  4
+#define POOL_SIZE NEST_ADD_APP_GATTS_SERVICE
 
 typedef struct {
   bool used;
@@ -47,6 +47,8 @@ typedef struct {
 } nest_service_instance_t;
 
 static nest_service_instance_t pool[POOL_SIZE];
+static int ble_gatt_num_services = 0;
+
 /*---------------------------------------------------------------------------*/
 /* Each service requires: o 1 service, o 1 attribute */
 int
@@ -60,6 +62,10 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
 
   if (p_service == NULL) {
     return ENULLP;
+  }
+
+  if (ble_gatt_num_services >= POOL_SIZE) {
+    return ENOMEM;
   }
 
   // Add a vendor specfit 128-bit UUID
@@ -139,6 +145,7 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
           pool[idx].service_handle = p_service->handle;
           pool[idx].service_uuid = service_uuid.uuid;
           memcpy(&pool[idx].vs_uuid[0], &p_service->vendor_uuid.uuid128[0], 16);
+          ble_gatt_num_services++;
           break;
         }
       }
@@ -202,6 +209,7 @@ int
 nrf_gatts_init_service_pool(void)
 {
   PRINTF("[nest driver gatts addserivce] reset the service pool\n");
+  ble_gatt_num_services = 0;
   for (int i = 0; i < POOL_SIZE; i++) {
     pool[i].used = false;
     pool[i].service_handle = 0;

@@ -33,12 +33,13 @@ extern "C" {
 #endif /* NEST_CONF_DRIVER */
 
 /*---------------------------------------------------------------------------*/
-#define NEST_PROTOCOL_VERSION 		 			 0x03
-#define NEST_SYSTEM_VERSION_H						 NEST_PLATFORM_VERSION_H_CONF
-#define NEST_SYSTEM_VERSION_L						 NEST_PLATFORM_VERSION_L_CONF
-#define NEST_ADV_TYPE_NFD_RSSI			 		 NEST_ADV_TYPE_NFD_RSSI_CONF
-#define NEST_ADD_GATTS_SERVICE			 		 NEST_ADD_GATTS_SERVICE_CONF
-#define NEST_ADD_APP_GATTS_SERVICE			 NEST_ADD_GATTS_SERVICE - 1
+#define NEST_PROTOCOL_VERSION 		 			   0x03
+#define NEST_SYSTEM_VERSION_H						   NEST_PLATFORM_VERSION_H_CONF
+#define NEST_SYSTEM_VERSION_L						   NEST_PLATFORM_VERSION_L_CONF
+#define NEST_ADV_TYPE_NFD_RSSI			 		   NEST_ADV_TYPE_NFD_RSSI_CONF
+#define NEST_ADD_GATTS_SERVICE			 		   NEST_ADD_GATTS_SERVICE_CONF
+#define NEST_ADD_APP_GATTS_SERVICE			   NEST_ADD_GATTS_SERVICE - 1
+#define NEST_ADD_APP_GATTS_CHARACTERISTIC	 NEST_ADD_GATTS_CHARACTERISTIC_CONF
 
 #define NEST_SCAN_INTERVAL               0x00A0                                        /**< 100ms Determines scan interval in units of 0.625 millisecond. */
 #define NEST_SCAN_WINDOW                 0x0050                                        /**< 50ms Determines scan window in units of 0.625 millisecond. */

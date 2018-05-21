@@ -22,9 +22,8 @@ extern "C" {
 #include "nrf_sdm.h"
 
 /** Specify the platform identification */
-#define PLATFORM_DEVICE_NAME	                  "MDBT42-GHGW"
+#define PLATFORM_DEVICE_NAME	                  "PCA10040"
 #define PLATFORM_DEVICE_TX_POWER                0
-#define PLATFORM_CODE_CONF                      {0xF1, 0x84 ,0x67, 0x32}
 
 /** Platform-dependent definitions */
 #define CC_CONF_REGISTER_ARGS                    0
@@ -36,7 +35,7 @@ extern "C" {
 #define SD_CLOCK_SOURCE_CONF                     false      // (false:internal true:Ext)
 #define SD_BLE_MAX_MTU_SIZE_CONF					       23
 #define GAP_CONF_MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)          /**< Minimum acceptable connection interval (0.04 seconds). */
-#define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(100, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
+#define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(60, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
 #define GAP_CONF_SLAVE_LATENCY                   0                                        /**< Slave latency. */
 #define GAP_CONF_CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)          /**< Connection supervisory timeout (4 seconds). */
 
@@ -46,6 +45,7 @@ extern "C" {
 #define NEST_PLATFORM_VERSION_L_CONF            0x01
 #define NEST_ADV_TYPE_NFD_RSSI_CONF            -44
 #define NEST_ADD_GATTS_SERVICE_CONF             5
+#define NEST_ADD_GATTS_CHARACTERISTIC_CONF      20
 #define NEST_CENTRAL_USER_LINK_COUNT_CONF       2
 #define NEST_PERIPHERAL_LINK_COUNT_CONF         1
 #define NEST_CONF_COMMAND_RXQ_ITEMS			        10

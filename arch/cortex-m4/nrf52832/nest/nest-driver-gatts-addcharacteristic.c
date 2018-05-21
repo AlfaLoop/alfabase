@@ -37,7 +37,7 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-#define POOL_SIZE  20
+#define POOL_SIZE  NEST_ADD_APP_GATTS_CHARACTERISTIC
 
 typedef struct {
   bool used;
@@ -48,6 +48,8 @@ typedef struct {
 } nest_characteristic_instance_t;
 
 static nest_characteristic_instance_t pool[POOL_SIZE];
+static int ble_gatt_num_characteristic = 0;
+
 /*---------------------------------------------------------------------------*/
 /* Each characteristic requires: o 1 characteristic, o 2 attributes*/
 int
@@ -64,6 +66,10 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
   uint16_t service_handle = p_service->handle;
   int idx;
   bool registed = false;
+
+  if (ble_gatt_num_characteristic >= POOL_SIZE) {
+    return ENOMEM;
+  }
 
   // This CCCD descriptor will be added automatically for any characteristic that
   // has either the Notify or the Indicate properties.
@@ -177,6 +183,7 @@ nrf_gatts_add_characteristic(nest_bleservice_t *p_service,
           pool[idx].service_handle = service_handle;
           pool[idx].value_handle = char_handles.value_handle;
           pool[idx].cccd_handle = char_handles.cccd_handle;
+          ble_gatt_num_characteristic++;
           break;
         }
       }
@@ -191,6 +198,7 @@ int
 nrf_gatts_init_characteristic_pool(void)
 {
   PRINTF("[nest driver add characteristic] reset the pool\n");
+  ble_gatt_num_characteristic = 0;
   for (int i = 0; i < POOL_SIZE; i++) {
     pool[i].used = false;
     pool[i].char_uuid = 0;
