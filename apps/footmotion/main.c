@@ -15,7 +15,12 @@ typedef struct {
 typedef struct {
 	float value[3];
 	uint32_t timestamp;
-} vector_data_t;
+} linear_accel_data_t;
+
+typedef struct {
+	float value[3];
+	uint32_t timestamp;
+} gravity_vector_t;
 
 typedef struct {
 	float value;
@@ -76,6 +81,7 @@ static bool is_accel_notification_enabled = false;
 static bool is_gyro_notification_enabled = false;
 static mems_data_t accel_data;
 static mems_data_t gyro_data;
+static heading_data_t heading_data;
 static ieefp4_data_t ieefp4_data_inst;
 
 
@@ -241,7 +247,10 @@ int main(void)
       if (is_connected) {
         mpudmp->read(&accel_data, sizeof(mems_data_t), 0);
         mpudmp->read(&gyro_data, sizeof(mems_data_t), 1);
+				mpudmp->read(&heading_data, sizeof(heading_data_t), 7);
         ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
+
+				logger->printf(LOG_RTT,"[app] heading %f\n", errcode);
 
         // copy the ieefp4 data
         ieefp4_tx_buffer[0] = ieefp4_data_inst.heel & 0x00FF;

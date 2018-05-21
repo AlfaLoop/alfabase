@@ -128,7 +128,7 @@ nest_serial_bsp_send(uint8_t *data, uint32_t len)
 void
 nest_serial_bsp_enable(void)
 {
-	uart0.init(&nest_serial_uart_cfg);
+	// uart0.init(&nest_serial_uart_cfg);
 }
 /*---------------------------------------------------------------------------*/
 void
@@ -169,8 +169,14 @@ pm_bsp_get_battery_level(void)
 
 	mvolts = ADC_RESULT_IN_MILLI_VOLTS(adc_value);
 	PRINTF("[main] millivolts: %d\n", mvolts);
+#if BOARD_DEV_VERSION == BOARD_FOOT_V2_RIGHT || BOARD_DEV_VERSION == BOARD_FOOT_V2_LEFT
 	#define BATTERY_MAX 		2820
 	#define BATTERY_MIN     2360
+#elif BOARD_DEV_VERSION == BOARD_FOOT_V3_RIGHT || BOARD_DEV_VERSION == BOARD_FOOT_V3_LEFT
+	#define BATTERY_MAX 		2530
+	#define BATTERY_MIN     2240
+#endif
+
 	if (mvolts < BATTERY_MIN) {
 		battery_level = 0;
 	} else if (mvolts > BATTERY_MAX) {

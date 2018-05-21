@@ -38,9 +38,7 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 #define mainAPPLICATION_INTERRUPT_TASK_PRIORITY         	  ( FREERTOS_APP_IRQ_TASK_PRIORITY_CONF )
-extern TaskHandle_t m_application_main_task_handle;
 extern SemaphoreHandle_t g_user_app_task_semaphore;
-
 /*---------------------------------------------------------------------------*/
 void
 app_eventpool_context(void *arg)
@@ -84,20 +82,14 @@ app_eventpool_context(void *arg)
             app_irq_event.event_hook(&(app_irq_event.params.process_event));
           }
           break;
-          case APP_HW_UART_EVENT:
+          case APP_HW_EVENT:
           {
-            app_irq_event.event_hook(&(app_irq_event.params.hw_uart_event));
-          }
-          break;
-          case APP_HW_GPIO_EVENT:
-          {
-            app_irq_event.event_hook(&(app_irq_event.params.hw_gpio_event));
+            app_irq_event.event_hook(&(app_irq_event.params.hw_event));
           }
           break;
         }
         if( xSemaphoreGive( g_user_app_task_semaphore ) != pdTRUE ) {
         }
-
       }
     }
 	}

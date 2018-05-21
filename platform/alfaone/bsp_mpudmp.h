@@ -37,7 +37,12 @@ typedef struct {
 typedef struct {
 	float value[3];
 	uint32_t timestamp;
-} vector_data_t;
+} linear_accel_data_t;
+
+typedef struct {
+	float value[3];
+	uint32_t timestamp;
+} gravity_vector_t;
 
 typedef struct {
 	float value;

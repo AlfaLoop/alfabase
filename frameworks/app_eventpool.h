@@ -34,12 +34,9 @@ typedef enum {
 	APP_BLE_ADV_EVENT = 0x01,
 	APP_BLE_CONN_EVENT = 0x02,
 	APP_BLE_CHARACTERISTIC_EVENT = 0x03,
-	APP_SENSOR_EVENT,
 	APP_TIMER_EVENT,
-	APP_UIKIT_EVENT,
 	APP_PROCESS_EVENT,
-	APP_HW_UART_EVENT,
-	APP_HW_GPIO_EVENT
+	APP_HW_EVENT
 } app_irq_event_type_t;
 
 typedef struct {
@@ -74,13 +71,8 @@ typedef struct {
 } app_irq_process_event_t;
 
 typedef struct{
-	uint32_t pin;
-	uint32_t edge;
-} app_irq_hw_gpio_event_t;
-
-typedef struct{
-	uint8_t data;
-} app_irq_hw_uart_event_t;
+	void *params ;
+} app_irq_hw_event_t;
 
 typedef struct {
 	uint8_t event_type;
@@ -91,8 +83,7 @@ typedef struct {
 		app_irq_ble_characteristic_event_t	ble_characteristic_event;
 		app_irq_timer_event_t							  timer_event;
 		app_irq_process_event_t						  process_event;
-		app_irq_hw_uart_event_t						  hw_uart_event;
-		app_irq_hw_gpio_event_t						  hw_gpio_event;
+		app_irq_hw_event_t						      hw_event;
 	} params;
 	void   (* event_hook)(void *ptr);
 } app_irq_event_t;

@@ -29,7 +29,7 @@ extern "C" {
 #include "hw_uart_api.h"
 
 /* Framework API */
-typedef void (* HWCallbackHandler)(void *args);
+typedef void (* HWCallbackHandler)(void *params);
 
 typedef struct{
 	char *name;

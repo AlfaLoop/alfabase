@@ -38,13 +38,39 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
+typedef struct {
+  uint8_t type;
+} motion_data_event_t;
 
 static bool m_mpu9250_active = false;
+static HWCallbackHandler m_sensor_event_callback = NULL;
+/*---------------------------------------------------------------------------*/
+static void
+sensor_api_irq_hooker(void *ptr)
+{
+	motion_data_event_t *p_data = (motion_data_event_t *)ptr;
+	if (m_sensor_event_callback != NULL) {
+		m_sensor_event_callback(p_data);
+	}
+}
 /*---------------------------------------------------------------------------*/
 void
 mpu9250_dmp_data_update(uint32_t source)
 {
+  app_irq_hw_event_t event;
+  motion_data_event_t motion_data;
 
+  if (m_mpu9250_active) {
+    if (m_sensor_event_callback != NULL) {
+      motion_data.type = source;
+
+			app_irq_event_t irq_event;
+			irq_event.event_type = APP_HW_EVENT;
+      irq_event.params.hw_event.params = &motion_data;
+			irq_event.event_hook = sensor_api_irq_hooker;
+			xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
+    }
+  }
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -62,7 +88,13 @@ bsp_mpu9250_dmp_open(void *args)
 int
 bsp_mpu9250_dmp_write(const void *buf, uint32_t len, uint32_t offset)
 {
-  return ENOSUPPORT;
+  uint8_t *p_attr = (uint8_t*)buf;
+  if (offset == DEV_MOTION_CONFIG_SAMPLEING_RATE_TYPE) {
+    SENSOR_MOTIONFUSION.config_update(DEV_MOTION_CONFIG_SAMPLEING_RATE_TYPE, p_attr[0]);
+  } else if (offset == DEV_MOTION_CONFIG_RESET_PEDOMETER_TYPE) {
+    SENSOR_MOTIONFUSION.config_update(DEV_MOTION_CONFIG_RESET_PEDOMETER_TYPE, 0);
+  }
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -71,14 +103,52 @@ bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset)
   switch (offset) {
     case 0:
     {
+      // The acceleration force in ‘m/s’ that is applied to a device on all three physical axes (x, y, and z), including the force of gravity.
       mems_data_t *p_acc_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_accel(p_acc_data->value, p_acc_data->data, p_acc_data->timestamp);
+      SENSOR_MOTIONFUSION.get_accel(p_acc_data->value, p_acc_data->data, &p_acc_data->timestamp);
     }
     break;
     case 1:
     {
-      mems_data_t *p_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_gyro(p_data->value, p_data->data, p_data->timestamp);
+      mems_data_t *p_gyro_data = (mems_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_gyro(p_gyro_data->value, p_gyro_data->data, &p_gyro_data->timestamp);
+    }
+    break;
+    case 2:
+    {
+      mems_data_t *p_compass_data = (mems_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_compass(p_compass_data->value, p_compass_data->data, &p_compass_data->timestamp);
+    }
+    break;
+    case 3:
+    {
+      quat_data_t *p_quat_data = (quat_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_quaternion(p_quat_data->value, p_quat_data->data, &p_quat_data->timestamp);
+    }
+    break;
+    case 4:
+    {
+      mems_data_t *p_euler_data = (mems_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_euler(p_euler_data->value, p_euler_data->data, &p_euler_data->timestamp);
+    }
+    break;
+    case 5:
+    {
+      // The acceleration force in ‘m/s’ that is applied to a device on all three physical axes (x, y, and z), excluding the force of gravity.
+      linear_accel_data_t *p_linear_accel_data = (linear_accel_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_linear_accel(p_linear_accel_data->value, &p_linear_accel_data->timestamp);
+    }
+    break;
+    case 6:
+    {
+      gravity_vector_t *p_gravity_vector_data = (gravity_vector_t *)buf;
+      SENSOR_MOTIONFUSION.get_gravity_vector(p_gravity_vector_data->value, &p_gravity_vector_data->timestamp);
+    }
+    break;
+    case 7:
+    {
+      heading_data_t *p_heading_data = (heading_data_t *)buf;
+      SENSOR_MOTIONFUSION.get_heading(&p_heading_data->value, &p_heading_data->data, &p_heading_data->timestamp);
     }
     break;
   }
@@ -88,7 +158,8 @@ bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset)
 int
 bsp_mpu9250_dmp_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
 {
-  return ENOSUPPORT;
+  m_sensor_event_callback = handler;
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -106,6 +177,7 @@ static void
 app_terminating(void)
 {
 	bsp_mpu9250_dmp_close(NULL);
+  m_sensor_event_callback = NULL;
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {

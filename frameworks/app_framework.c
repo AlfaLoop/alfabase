@@ -87,7 +87,7 @@ application_main_context(void *arg)
 	UNUSED_PARAMETER(arg);
 	PRINTF("[app framwork] App Task created \n");
 
-	// contiki photothread exit, doesn't need it any more.
+	// contiki protothread exit, doesn't need it any more.
 	autostart_exit(elfloader_autostart_processes);
 
 	if (m_app_entry != NULL) {
@@ -176,19 +176,10 @@ app_framework_remove_task(void)
 int
 app_framework_task_suspend(void)
 {
-	// uint32_t ulNotificationValue;
 	if (m_application_main_task_handle == NULL) {
 		return EINVALSTATE;
 	}
 
-	// do {
-	// 	ulNotificationValue = ulTaskNotifyTake(pdTRUE,         /* Clear the notification value before exiting (equivalent to the binary semaphore). */
-	// 											portMAX_DELAY); /* Block indefinitely (INCLUDE_vTaskSuspend has to be enabled).*/
-	// 	// PRINTF("[main] ulNotificationValue %d\n", ulNotificationValue);
-	// } while (ulNotificationValue == 4); // Timeout
-	// PRINTF("[app framework] app task suspend\n");
-	// vTaskSuspend(m_application_main_task_handle);
-	// xTaskNotifyGive( g_contiki_thread );
 	if( xSemaphoreTake( g_user_app_task_semaphore, portMAX_DELAY ) == pdTRUE ) {}
 	return ENONE;
 }
