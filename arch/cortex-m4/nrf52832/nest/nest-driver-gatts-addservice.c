@@ -41,6 +41,7 @@
 
 typedef struct {
   bool used;
+  uint8_t service_type;
   uint16_t service_handle;
   uint16_t service_uuid;
   uint8_t vs_uuid[16];
@@ -98,10 +99,13 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
     }
 
     if (registed) {
-      service_uuid.type = BLE_UUID_TYPE_VENDOR_BEGIN;
+      // service_uuid.type = BLE_UUID_TYPE_VENDOR_BEGIN;
+      // p_service->service_type = pool[idx].service_handle;
       p_service->handle = pool[idx].service_handle;
+      p_service->bleuuid.type = pool[idx].service_type;
+      service_uuid.type = pool[idx].service_type;
       // p_service->bleuuid.type = service_uuid.type;
-      PRINTF("[nest driver gatts addserivce] vendor service already registed\n");
+      PRINTF("[nest driver gatts addserivce] vendor service already registed type %d\n", pool[idx].service_type);
     } else {
       memcpy(vendor_srv_uuid.uuid128, p_service->vendor_uuid.uuid128, sizeof(nest_bleuuid128_t));
       PRINTF("[nest driver gatts addserivce] sd ble uuid vs add\n");
@@ -117,6 +121,7 @@ nrf_gatts_add_service(nest_bleservice_t *p_service)
         }
       }
 
+      p_service->bleuuid.type = service_uuid.type;
       service_uuid.uuid = p_service->bleuuid.uuid;
       PRINTF("[nest driver gatts addserivce] sd ble gatts service add\n");
       err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY,
@@ -214,6 +219,7 @@ nrf_gatts_init_service_pool(void)
     pool[i].used = false;
     pool[i].service_handle = 0;
     pool[i].service_uuid = 0;
+    pool[i].service_type = 0;
     memset(&pool[i].vs_uuid[0], 0x00, 16);
   }
 }

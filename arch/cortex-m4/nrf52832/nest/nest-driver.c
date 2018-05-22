@@ -332,7 +332,6 @@ nest_bleservice_init(void)
     PRINTF("[nest driver] add vendor specfic 128-bit UUID error %d \n", err_code);
     return err_code;
   }
-  // PRINTF("[nest driver] add vendor specfic 128-bit tpye:%d\n", service_uuid.type);
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
