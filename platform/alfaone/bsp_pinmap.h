@@ -27,7 +27,7 @@ extern "C" {
 #if defined(BDV)
 #define BOARD_DEV_VERSION              BDV
 #else
-#define BOARD_DEV_VERSION              BOARD_FOOT_V3_RIGHT
+#define BOARD_DEV_VERSION              BOARD_FOOT_V3_LEFT
 #endif
 
 // Board Defintion

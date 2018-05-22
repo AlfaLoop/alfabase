@@ -37,7 +37,12 @@ typedef struct {
 typedef struct {
 	float value[3];
 	uint32_t timestamp;
-} vector_data_t;
+} linear_accel_data_t;
+
+typedef struct {
+	float value[3];
+	uint32_t timestamp;
+} gravity_vector_t;
 
 typedef struct {
 	float value;
@@ -57,6 +62,7 @@ int bsp_mpu9250_dmp_subscribe(void *buf, uint32_t len, HWCallbackHandler handler
 int bsp_mpu9250_dmp_close(void *args);
 
 void mpu9250_dmp_data_update(uint8_t source);
+
 
 #ifdef __cplusplus
 }

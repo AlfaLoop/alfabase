@@ -38,9 +38,6 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-typedef struct {
-  uint8_t type;
-} motion_data_event_t;
 
 static bool m_mpu9250_active = false;
 static HWCallbackHandler m_sensor_event_callback = NULL;
@@ -48,7 +45,10 @@ static HWCallbackHandler m_sensor_event_callback = NULL;
 static void
 sensor_api_irq_hooker(void *ptr)
 {
-	motion_data_event_t *p_data = (motion_data_event_t *)ptr;
+  app_irq_hw_event_t *p_event = (app_irq_hw_event_t *) ptr;
+	motion_data_event_t *p_data = (motion_data_event_t *)p_event->params;
+  // PRINTF("[bsp mpudmp] api irq hooker event %d\n", p_data->type);
+
 	if (m_sensor_event_callback != NULL) {
 		m_sensor_event_callback(p_data);
 	}
@@ -57,6 +57,7 @@ sensor_api_irq_hooker(void *ptr)
 void
 mpu9250_dmp_data_update(uint8_t source)
 {
+  // PRINTF("[bsp mpudmp] data update %d\n", source);
   static motion_data_event_t event;
 
   if (m_mpu9250_active) {
@@ -65,7 +66,7 @@ mpu9250_dmp_data_update(uint8_t source)
 
 			app_irq_event_t irq_event;
 			irq_event.event_type = APP_HW_EVENT;
-      irq_event.params.hw_event.params = (void *)&event;
+      irq_event.params.hw_event.params = &event;
 			irq_event.event_hook = sensor_api_irq_hooker;
 			xQueueSend( g_app_irq_queue_handle,  &irq_event, ( TickType_t ) 0 );
     }
@@ -194,5 +195,6 @@ bsp_mpu9250_dmp_init(void)
 	};
 	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
 	SENSOR_MOTIONFUSION.poweroff(false);
+  // SENSOR_MOTIONFUSION.poweron();
 }
 /*---------------------------------------------------------------------------*/
