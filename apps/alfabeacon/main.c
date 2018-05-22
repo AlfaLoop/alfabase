@@ -41,6 +41,7 @@ static uint8_t m_mac_address[6];
 static bool is_connected = false;
 static uint16_t peripheral_conn_handle;
 static uint8_t service_data_packetes[8];
+static int adv_sendout_counter = 0;
 /*---------------------------------------------------------------------------*/
 /* Framework API instance */
 static Logger *logger;
@@ -360,8 +361,16 @@ setup_advertisement(void)
   adv_builder->addService16bitUUID(&scan_rsp_advdata, service_uuid);
 
   // Add the service uuid and data
-  service_data_packetes[0] = 0x00;  // device type
-  service_data_packetes[1] = 0x64;  // battery level
+#if defined(BOARD_ALFAAA)
+  service_data_packetes[0] = 0x00;
+#elif defined(BOARD_ALFA2477)
+  service_data_packetes[0] = 0x01;
+#elif defined(BOARD_ALFAUSB)
+  service_data_packetes[0] = 0x02;
+#elif defined(BOARD_ALFA2477S)
+  service_data_packetes[0] = 0x03;
+#endif
+  service_data_packetes[1] = device->getBatteryLevel();
   service_data_packetes[2] = m_mac_address[5];
   service_data_packetes[3] = m_mac_address[4];
   service_data_packetes[4] = m_mac_address[3];
@@ -374,10 +383,24 @@ setup_advertisement(void)
   ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
 }
 /*---------------------------------------------------------------------------*/
+static void
+adv_sendout_callback(void)
+{
+  adv_sendout_counter++;
+  if (adv_sendout_counter > 10000) {
+    adv_sendout_counter = 0;
+    setup_advertisement();
+  }
+}
+/*---------------------------------------------------------------------------*/
 const static BleGattServerCallback callback = {
   .onCharacteristicWriteRequest = ble_gatt_chr_write_req,
   .onCharacteristicReadRequest = NULL,
   .onConnectionStateChanged = ble_gap_conn_evt_handler
+};
+/*---------------------------------------------------------------------------*/
+const static BleAdvertiseCallback adv_callback = {
+  .onSendout = adv_sendout_callback
 };
 /*---------------------------------------------------------------------------*/
 static void
@@ -389,7 +412,7 @@ ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state)
     ble_manager->stopAdvertising();
   } else if (state == BLE_GATT_STATE_DISCONNECTED) {
     is_connected = false;
-    ble_manager->startAdvertising(interval_handle_value, NULL, &callback);
+    ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -494,7 +517,7 @@ int main(void)
 #endif
 
   // start advertising
-  errcode = ble_manager->startAdvertising(interval_handle_value, NULL, &callback);
+  errcode = ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] startAdvertising error %d\n", errcode);
     return 0;

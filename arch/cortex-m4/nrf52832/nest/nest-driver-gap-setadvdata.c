@@ -42,7 +42,16 @@ static uint8_t m_adv_data[31];
 static uint16_t m_adv_data_size;
 static uint8_t m_scanrsp_adv_data[31];
 static uint16_t m_scanrsp_adv_data_size;
-
+/*
+* @retval ::NRF_SUCCESS Advertising data successfully updated or cleared.
+* @retval ::NRF_ERROR_INVALID_PARAM Invalid parameter(s) supplied, both p_data and p_sr_data cannot be NULL.
+* @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
+* @retval ::NRF_ERROR_INVALID_FLAGS Invalid combination of advertising flags supplied.
+* @retval ::NRF_ERROR_INVALID_DATA Invalid data type(s) supplied, check the advertising data format specification.
+* @retval ::NRF_ERROR_INVALID_LENGTH Invalid data length(s) supplied.
+* @retval ::NRF_ERROR_NOT_SUPPORTED Unsupported data type.
+* @retval ::BLE_ERROR_GAP_UUID_LIST_MISMATCH Invalid UUID list supplied.
+*/
 /*---------------------------------------------------------------------------*/
 int
 nrf_gap_set_adv_data(uint8_t *adv_data, uint16_t advsize, uint8_t *advsrp_data, uint16_t adv_scan_rsp_size)
@@ -72,7 +81,11 @@ nrf_gap_set_adv_data(uint8_t *adv_data, uint16_t advsize, uint8_t *advsrp_data, 
 
   if (err_code != NRF_SUCCESS) {
 		PRINTF("[gap driver setadvdata] error %d\n", err_code);
-		return EINVAL;
+		if (err_code == NRF_ERROR_NOT_SUPPORTED) {
+		  return ENOSUPPORT;
+	  } else {
+			return EINVAL;
+		}
 	}
   return ENONE;
 }

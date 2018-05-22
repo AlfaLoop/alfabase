@@ -134,7 +134,7 @@ nest_serial_bsp_disable(void)
 static uint8_t
 pm_bsp_get_charging_status(void)
 {
-	return PM_SOURCE_CHARGING;
+	return PM_SOURCE_BATTERY;
 }
 /*---------------------------------------------------------------------------*/
 static uint8_t
@@ -163,8 +163,8 @@ pm_bsp_get_battery_level(void)
 
 	mvolts = ADC_RESULT_IN_MILLI_VOLTS(adc_value);
 	PRINTF("[main] millivolts: %d\n", mvolts);
-	#define BATTERY_MAX 		3010
-	#define BATTERY_MIN     2800
+	#define BATTERY_MAX 		2600
+	#define BATTERY_MIN     2400
 	if (mvolts < BATTERY_MIN) {
 		battery_level = 0;
 	} else if (mvolts > BATTERY_MAX) {

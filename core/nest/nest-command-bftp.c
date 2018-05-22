@@ -913,7 +913,9 @@ PROCESS_THREAD(nest_bftp_remove_process, ev, data)
 	char *search_prefix = m_concat_ext_buffer;
 	SPIFFS_opendir(&SFS, "/", &d);
 	while ((pe = SPIFFS_readdir(&d, pe))) {
+		PRINTF("[nest command bftp] remove readdir: %s\n", (char *)pe->name);
 		if (0 == strncmp(search_prefix, (char *)pe->name, 11)) {
+
 			// found one
 			fd = SPIFFS_open_by_dirent(&SFS, pe, SPIFFS_RDWR, 0);
 			if (fd < 0) {
@@ -931,22 +933,22 @@ PROCESS_THREAD(nest_bftp_remove_process, ev, data)
 				m_output.len = 1;
 				goto response;
 			}
-			res = SPIFFS_close(&SFS, fd);
+			SPIFFS_close(&SFS, fd);
+			/*res = SPIFFS_close(&SFS, fd);
 			if (res < 0) {
 				PRINTF("[nest command bftp] close errno %i\n", SPIFFS_errno(&SFS));
 				SPIFFS_closedir(&d);
 				m_output.data[0] = EINTERNAL;
 				m_output.len = 1;
 				goto response;
-			}
+			}*/
 		}
 	}
 	SPIFFS_closedir(&d);
 
 	SPIFFS_info(&SYSFS, &total, &used);
 	int r = SPIFFS_gc(&SYSFS, total - used);
-	PRINTF("[nest lunchr bftp] SPIFFS gc ret %d\n", r);
-
+	PRINTF("[nest command bftp] SPIFFS gc ret %d\n", r);
 
 #if defined(USE_WDUI_STACK)
 	wdui_nest_event_notify(NEST_BFTP_REMOVE, NULL);
