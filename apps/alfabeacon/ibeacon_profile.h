@@ -24,12 +24,13 @@ extern "C" {
 #define DEFAULT_IBEACON_BEACON_INFO_LENGTH          0x17                              /**< Total length of information advertised by the Beacon. */
 #define DEFAULT_IBEACON_DEVICE_TYPE                 0x02                              /**< 0x02 refers to Beacon. */
 #define DEFAULT_IBEACON_ADV_DATA_LENGTH             0x15                              /**< Length of manufacturer specific data in the advertisement. */
-#define DEFAULT_IBEACON_UUID            0x15, 0x34, 0x51, 0x64, \
-                                        0x67, 0xAB, 0x3E, 0x49, \
-                                        0xF9, 0xD6, 0xE2, 0x90, \
-                                        0x00, 0x00, 0x00, 0x08            /**< Proprietary UUID for Beacon. */
-#define DEFAULT_IBEACON_MAJOR_VALUE                 0x17, 0x74                        /**< Major value used to identify Beacons. */
-#define DEFAULT_IBEACON_MINOR_VALUE                 0x00, 0x09                        /**< Minor value used to identify Beacons. */
+// E2C56DB5DFFB48D2B060D0F5A71096E0
+#define DEFAULT_IBEACON_UUID                        0xE2, 0xC5, 0x6D, 0xB5, \
+                                                    0xDF, 0xFB, 0x48, 0xD2, \
+                                                    0xB0, 0x60, 0xD0, 0xF5, \
+                                                    0xA7, 0x10, 0x96, 0xE0
+#define DEFAULT_IBEACON_MAJOR_VALUE                 0x03, 0xE9                        /**< Major value used to identify Beacons. */
+#define DEFAULT_IBEACON_MINOR_VALUE                 0x00, 0x01                        /**< Minor value used to identify Beacons. */
 #define DEFAULT_IBEACON_MEASURED_RSSI               0xC3                              /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
 
 // AlfaBeacon iBeacon Profile

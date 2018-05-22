@@ -159,6 +159,7 @@ ble_gap_get_mac_addr(uint8_t *address)
 static int
 ble_gap_set_adv_tx_power(int8_t power)
 {
+  // check the tx power is suppoted;
   m_tx_power = power;
   return ENONE;
 }

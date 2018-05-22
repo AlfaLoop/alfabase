@@ -54,6 +54,29 @@ int
 nrf_gap_set_txpower(int tx_power)
 {
   uint32_t err_code = NRF_SUCCESS;
+
+  if (tx_power <= -40) {
+    tx_power = -40;
+  } else if (tx_power <= -20) {
+    tx_power = -20;
+  } else if (tx_power <= -16) {
+    tx_power = -16;
+  } else if (tx_power <= -12) {
+    tx_power = -12;
+  } else if (tx_power <= -8) {
+    tx_power = -8;
+  } else if (tx_power <= -4) {
+    tx_power = -4;
+  } else if (tx_power <= 0) {
+    tx_power = 0;
+  } else if (tx_power <= 3) {
+    tx_power = 3;
+  } else if (tx_power <= 4) {
+    tx_power = 4;
+  } else {
+    tx_power = 0;
+  }
+
   err_code = sd_ble_gap_tx_power_set(tx_power);
   if (err_code == NRF_SUCCESS) {
     err_code = ENONE;

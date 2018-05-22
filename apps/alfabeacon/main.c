@@ -15,6 +15,7 @@
 */
 #include "alfabase.h"
 #include "ibeacon_profile.h"
+#include "radio_profile.h"
 
 #if defined(BOARD_ALFAAA)
 #elif defined(BOARD_ALFA2477)
@@ -24,18 +25,23 @@
 #else
 #error need define the BOARD_TYPE in cflag setting (app.conf)
 #endif
-
-
+/*---------------------------------------------------------------------------*/
 const static uint32_t FILE_KEY_IBEACON_UUID = 0x00000001;
 const static uint32_t FILE_KEY_IBEACON_MAJOR = 0x00000002;
 const static uint32_t FILE_KEY_IBEACON_MINOR = 0x00000003;
 const static uint32_t FILE_KEY_IBEACON_TXM = 0x00000004;
-
+const static uint32_t FILE_KEY_RADIO_INTERVAL = 0x00000005;
+const static uint32_t FILE_KEY_RADIO_TXPOWER = 0x00000006;
+#if defined(BOARD_ALFA2477S)
+const static uint32_t FILE_KEY_2477S_RF_ATTE = 0x00000007;
+#endif
+/*---------------------------------------------------------------------------*/
 const static char *device_name = "AlfaBeacon";
 static uint8_t m_mac_address[6];
-static uint16_t peripheral_conn_handle;
 static bool is_connected = false;
-
+static uint16_t peripheral_conn_handle;
+static uint8_t service_data_packetes[8];
+/*---------------------------------------------------------------------------*/
 /* Framework API instance */
 static Logger *logger;
 static Process *process;
@@ -45,38 +51,33 @@ static Device *device;
 static AdvData advdata;
 static AdvData scan_rsp_advdata;
 static FileIO *fileio;
-
+/*---------------------------------------------------------------------------*/
 #if defined(BOARD_ALFA2477S)
 static HWDriver *hwdriver_rfatte;
 static HWDriver *hwdriver_led;
 static HWDriver *hwdriver_button;
 static HWDriver *hwdriver_buzzer;
 #endif
-
-
+/*---------------------------------------------------------------------------*/
 /* ble ibeacon service handle */
 static uint16_t ble_srv_ibeacon_handle;
 static uint16_t ble_attr_ibeacon_uuid_handle;
 static uint16_t ble_attr_ibeacon_major_handle;
 static uint16_t ble_attr_ibeacon_minor_handle;
 static uint16_t ble_attr_ibeacon_txm_handle;
-static uint8_t service_data_packetes[8];
-
-/*---------------------------------------------------------------------------*/
 static uint8_t
 ble_adv_manu_ibeacon_data[DEFAULT_IBEACON_BEACON_INFO_LENGTH] =                    /**< Information advertised by the Beacon. */
 {
-    DEFAULT_IBEACON_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
-                         // implementation.
-    DEFAULT_IBEACON_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
-                         // manufacturer specific data in this implementation.
-    DEFAULT_IBEACON_UUID,     // 128 bit UUID value.
-    DEFAULT_IBEACON_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
-    DEFAULT_IBEACON_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
-    DEFAULT_IBEACON_MEASURED_RSSI    // Manufacturer specific information. The Beacon's measured TX power in
-                         // this implementation.
+  DEFAULT_IBEACON_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                       // implementation.
+  DEFAULT_IBEACON_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                       // manufacturer specific data in this implementation.
+  DEFAULT_IBEACON_UUID,     // 128 bit UUID value.
+  DEFAULT_IBEACON_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+  DEFAULT_IBEACON_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+  DEFAULT_IBEACON_MEASURED_RSSI    // Manufacturer specific information. The Beacon's measured TX power in this implementation.
 };
-
+/*---------------------------------------------------------------------------*/
 static BleGattService g_ble_gatt_alfa_ibeacon_service = {
   .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
   .uuid = &gatt_alfa_ibeacon_service_uuid,
@@ -115,7 +116,36 @@ static BleGattService g_ble_gatt_alfa_ibeacon_service = {
   }}
 };
 /*---------------------------------------------------------------------------*/
-
+static uint16_t ble_srv_radio_handle;
+static uint16_t ble_attr_radio_interval_handle;
+static uint16_t ble_attr_radio_txpower_handle;
+static uint16_t interval_handle_value = ADV_INTERVAL_LEVEL_1;
+static int8_t txpower_handle_value = 0;
+/*---------------------------------------------------------------------------*/
+static BleGattService g_ble_gatt_alfa_radio_service = {
+  .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
+  .uuid = &gatt_alfa_radio_service_uuid,
+  .handle = &ble_srv_radio_handle,
+  .characteristic_count = 2,
+  .characteristics = (BleGattCharacteristic[]) { {
+    .uuid = &gatt_alfa_radio_chr_interval,
+    .value_handle = &ble_attr_radio_interval_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &interval_handle_value,
+    .init_value_len = 2,
+  }, {
+    .uuid = &gatt_alfa_radio_chr_tx_power,
+    .value_handle = &ble_attr_radio_txpower_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &txpower_handle_value,
+    .init_value_len = 1,
+  }, {
+    0, /* End: No more characteristics in this service */
+  }}
+};
+/*---------------------------------------------------------------------------*/
 static uint16_t ble_srv_alfa_2477s_handle;
 static uint16_t ble_attr_alfa_2477s_rfatte_handle;
 static uint16_t ble_attr_alfa_2477s_button_handle;
@@ -125,7 +155,7 @@ static uint16_t ble_attr_alfa_2477s_led_handle;
 static uint8_t rfatte_handle_value = 0x00;
 static uint8_t buzzer_handle_value = 0x00;
 static uint8_t led_handle_value = 0x00;
-
+/*---------------------------------------------------------------------------*/
 static BleGattService g_ble_gatt_alfa_2477s_service = {
   .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
   .uuid = &gatt_alfa_2477s_service_uuid,
@@ -165,6 +195,7 @@ static BleGattService g_ble_gatt_alfa_2477s_service = {
 };
 /*---------------------------------------------------------------------------*/
 static void setup_advertisement(void);
+static void ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state);
 static int upsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len);
 static int qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len);
 /*---------------------------------------------------------------------------*/
@@ -206,64 +237,53 @@ qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
 }
 /*---------------------------------------------------------------------------*/
 static void
-ble_ibeacon_update_uuid(uint8_t *value)
-{
-  int ret;
-  memcpy(&ble_adv_manu_ibeacon_data[2], value, 16);
-  ret = upsert_storage_data(FILE_KEY_IBEACON_UUID, &ble_adv_manu_ibeacon_data[2], 16);
-  if (ret != ENONE) {
-    logger->printf(LOG_RTT, "[app] update uuid error %d\n", ret);
-  }
-}
-/*---------------------------------------------------------------------------*/
-static void
-ble_ibeacon_update_major(uint8_t *value)
-{
-  int ret;
-  memcpy(&ble_adv_manu_ibeacon_data[18], value, 2);
-  ret = upsert_storage_data(FILE_KEY_IBEACON_MAJOR, &ble_adv_manu_ibeacon_data[18], 2);
-  if (ret != ENONE) {
-    logger->printf(LOG_RTT, "[app] update major error %d\n", ret);
-  }
-}
-/*---------------------------------------------------------------------------*/
-static void
-ble_ibeacon_update_minor(uint8_t *value)
-{
-  int ret;
-  memcpy(&ble_adv_manu_ibeacon_data[20], value, 2);
-  ret = upsert_storage_data(FILE_KEY_IBEACON_MINOR, &ble_adv_manu_ibeacon_data[20], 2);
-  if (ret != ENONE) {
-    logger->printf(LOG_RTT, "[app] update minor error %d\n", ret);
-  }
-}
-/*---------------------------------------------------------------------------*/
-static void
-ble_ibeacon_update_txm(uint8_t value)
-{
-  int ret;
-  ble_adv_manu_ibeacon_data[22] = value;
-  ret = upsert_storage_data(FILE_KEY_IBEACON_MINOR, &ble_adv_manu_ibeacon_data[22], 1);
-  if (ret != ENONE) {
-    logger->printf(LOG_RTT, "[app] update minor error %d\n", ret);
-  }
-}
-/*---------------------------------------------------------------------------*/
-static void
 ibeacon_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 {
+  int ret;
   if (handle == ble_attr_ibeacon_uuid_handle) {
-    logger->printf(LOG_RTT, "[app] update uuid len %d\n", length);
-    ble_ibeacon_update_uuid(value);
+    memcpy(&ble_adv_manu_ibeacon_data[2], value, 16);
+    ret = upsert_storage_data(FILE_KEY_IBEACON_UUID, &ble_adv_manu_ibeacon_data[2], 16);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update uuid error %d\n", ret);
+    }
   } else if (handle == ble_attr_ibeacon_major_handle) {
-    logger->printf(LOG_RTT, "[app] update major len %d\n", length);
-    ble_ibeacon_update_major(value);
+    memcpy(&ble_adv_manu_ibeacon_data[18], value, 2);
+    ret = upsert_storage_data(FILE_KEY_IBEACON_MAJOR, &ble_adv_manu_ibeacon_data[18], 2);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update major error %d\n", ret);
+    }
   } else if (handle == ble_attr_ibeacon_minor_handle) {
-    logger->printf(LOG_RTT, "[app] update minor len %d\n", length);
-    ble_ibeacon_update_minor(value);
+    memcpy(&ble_adv_manu_ibeacon_data[20], value, 2);
+    ret = upsert_storage_data(FILE_KEY_IBEACON_MINOR, &ble_adv_manu_ibeacon_data[20], 2);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update minor error %d\n", ret);
+    }
   } else if (handle == ble_attr_ibeacon_txm_handle) {
-    logger->printf(LOG_RTT, "[app] update txm len %d\n", length);
-    ble_ibeacon_update_txm(*value);
+    ble_adv_manu_ibeacon_data[22] = value[0];
+    ret = upsert_storage_data(FILE_KEY_IBEACON_MINOR, &ble_adv_manu_ibeacon_data[22], 1);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update txm error %d\n", ret);
+    }
+  }
+}
+/*---------------------------------------------------------------------------*/
+static void
+radio_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
+{
+  int ret;
+  if (handle == ble_attr_radio_interval_handle) {
+    memcpy(&interval_handle_value, value, 2);
+    ret = upsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update radio interval error %d\n", ret);
+    }
+  } else if (handle == ble_attr_radio_txpower_handle) {
+    memcpy(&txpower_handle_value, value, 1);
+    ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
+    }
+    ble_manager->setTxPower(txpower_handle_value);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -271,16 +291,23 @@ ibeacon_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 static void
 alfa2477s_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 {
+  int ret;
   uint8_t led_params;
   if (handle == ble_attr_alfa_2477s_rfatte_handle) {
     if (length == 1) {
-      hwdriver_rfatte->write(value[0], 0, 0);
+      rfatte_handle_value = value[0];
+      ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+      if (ret != ENONE) {
+        logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
+      }
+      hwdriver_rfatte->write(value[0], 1, 0);
     }
   } else if (handle == ble_attr_alfa_2477s_button_cccdhandle) {
-
+    // TODO:
   } else if (handle == ble_attr_alfa_2477s_buzzer_handle) {
-
+    // TODO:
   } else if (handle == ble_attr_alfa_2477s_led_handle) {
+    // TODO:
     if (length == 1) {
       // led blink
       if (value[0] == 0x01) {
@@ -305,6 +332,7 @@ ble_gatt_chr_write_req(uint16_t conn_handle, uint16_t handle, uint8_t *value, ui
   int len = length;
   if (conn_handle == peripheral_conn_handle) {
     ibeacon_ble_write_evt_handler(handle, value, length);
+    radio_ble_write_evt_handler(handle, value, length);
 #if defined(BOARD_ALFA2477S)
     alfa2477s_write_evt_handler(handle, value, length);
 #endif
@@ -346,22 +374,24 @@ setup_advertisement(void)
   ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
 }
 /*---------------------------------------------------------------------------*/
+const static BleGattServerCallback callback = {
+  .onCharacteristicWriteRequest = ble_gatt_chr_write_req,
+  .onCharacteristicReadRequest = NULL,
+  .onConnectionStateChanged = ble_gap_conn_evt_handler
+};
+/*---------------------------------------------------------------------------*/
 static void
 ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state)
 {
   peripheral_conn_handle = conn_handle;
   if (state == BLE_GATT_STATE_CONNECTED) {
     is_connected = true;
+    ble_manager->stopAdvertising();
   } else if (state == BLE_GATT_STATE_DISCONNECTED) {
     is_connected = false;
+    ble_manager->startAdvertising(interval_handle_value, NULL, &callback);
   }
 }
-/*---------------------------------------------------------------------------*/
-const static BleGattServerCallback callback = {
-  .onCharacteristicWriteRequest = ble_gatt_chr_write_req,
-  .onCharacteristicReadRequest = NULL,
-  .onConnectionStateChanged = ble_gap_conn_evt_handler
-};
 /*---------------------------------------------------------------------------*/
 int main(void)
 {
@@ -414,9 +444,42 @@ int main(void)
     return 0;
   }
 
+  // Get default parameters: Radio interval
+  errcode = qsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get radio interval error %d\n", errcode);
+    return 0;
+  }
+
+  // Get default parameters: Radio interval
+  errcode = qsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get radio txpower error %d\n", errcode);
+    return 0;
+  }
+
+  // Get default parameters:  2477s rf atte
+#if defined(BOARD_ALFA2477S)
+  errcode = qsert_storage_data(FILE_KEY_2477S_RF_ATTE, &rfatte_handle_value, 1);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get rf atte error %d\n", errcode);
+    return 0;
+  }
+  hwdriver_rfatte->write(&rfatte_handle_value, 1, 0);
+#endif
+
+  // setup the tx power
+  ble_manager->setTxPower(txpower_handle_value);
+
   setup_advertisement();
 
   errcode = ble_manager->addService(&g_ble_gatt_alfa_ibeacon_service);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] add service error %d\n", errcode);
+    return 0;
+  }
+
+  errcode = ble_manager->addService(&g_ble_gatt_alfa_radio_service);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] add service error %d\n", errcode);
     return 0;
@@ -430,7 +493,8 @@ int main(void)
   }
 #endif
 
-  errcode = ble_manager->startAdvertising(ADV_INTERVAL_LEVEL_1, NULL, &callback);
+  // start advertising
+  errcode = ble_manager->startAdvertising(interval_handle_value, NULL, &callback);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] startAdvertising error %d\n", errcode);
     return 0;

@@ -269,6 +269,15 @@ nest_central_disconnect_event(uint16_t conn_id, uint8_t reason)
 {
   PRINTF("[nest central] disconnect %d reason %d\n", conn_id, reason);
   nest_central_init();
+
+  // if app is not running, reset the ble stack
+#if defined(USE_ELFLOADER)
+  nest_command_bftp_reset();
+  if (!lunchr_is_running() && !nest_command_bftp_is_processing()) {
+    PRINTF("[nest central] nest driver reset\n");
+    NEST.reset();
+  }
+#endif
 }
 /*---------------------------------------------------------------------------*/
 void

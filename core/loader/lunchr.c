@@ -21,24 +21,8 @@
 #include "dev/syslog.h"
 #include "spiffs/spiffs.h"
 #include "sys/bootloader.h"
+#include "nest/nest.h"
 #include "bsp_init.h"
-
-#ifdef USE_MICROPYTHON
-#include "py/mpconfig.h"
-#include "py/mpstate.h"
-#include "py/mphal.h"
-#include "py/mperrno.h"
-#include "py/nlr.h"
-#include "py/compile.h"
-#include "py/runtime.h"
-#include "py/repl.h"
-#include "py/gc.h"
-#include "py/lexer.h"
-#include "dev/uart.h"
-#include "ringbuffer.h"
-#include "lib/utils/pyexec.h"
-#include "readline.h"
-#endif
 
 #ifdef USE_ELFLOADER
 #include "loader/symtab.h"
@@ -263,7 +247,9 @@ lunchr_kill_running_app(void)
 		errcode = app_framework_remove_task();
 		if (errcode == ENONE) {
 			PRINTF("[lunchr] user process kick out! \n");
-
+			if (nest_central_status == NEST_CENTRAL_STATUS_NONE) {
+				NEST.reset();
+			}
 			return ENONE;
 		}
 	}
