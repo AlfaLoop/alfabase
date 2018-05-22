@@ -86,7 +86,7 @@ nrf_gap_broadcasting(nest_broadcast_params_t *params)
     fs_processing = is_fs_arch_processing();
   } while(fs_processing);
 
-	PRINTF("[nest driver broadcast] interval %d\n", interval);
+	// PRINTF("[nest driver broadcast] interval %d\n", interval);
 	// sd_ble_gap_adv_stop();
 
 	err_code = sd_ble_gap_adv_start(&adv_params);

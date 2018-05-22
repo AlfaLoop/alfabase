@@ -121,7 +121,7 @@ ble_api_conn_irq_hooker(void *ptr)
 {
   app_irq_ble_conn_event_t *p_event = (app_irq_ble_conn_event_t *) ptr;
   if (m_ble_gatt_server_callback.onConnectionStateChanged != NULL) {
-    PRINTF("[ble api] conn irq %d %d\n", p_event->conn_handle, p_event->state);
+    // PRINTF("[ble api] conn irq %d %d\n", p_event->conn_handle, p_event->state);
     m_ble_gatt_server_callback.onConnectionStateChanged(p_event->conn_handle, p_event->state);
   }
 }
@@ -132,12 +132,14 @@ ble_api_characteristic_irq_hooker(void *ptr)
 
   app_irq_ble_characteristic_event_t *p_event = (app_irq_ble_characteristic_event_t *) ptr;
 
+#if DEBUG_MODULE > 1
   PRINTF("[ble api] characteristic event irq %d %d %d %d\n", p_event->type, p_event->conn_handle, p_event->handle, p_event->length);
   PRINTF("[ble api] write data ");
   for (int i = 0; i < p_event->length; i++) {
     PRINTF("0x%02x ", p_event->value[i]);
   }
   PRINTF("\n");
+#endif
 
   if (p_event->type == BLE_CHARACTERISTIC_WRITE_REQUEST) {
     if (m_ble_gatt_server_callback.onCharacteristicWriteRequest != NULL) {
@@ -273,11 +275,11 @@ ble_adv_start_api(AdvIntervalLevel level, const BleAdvertiseCallback *advCallbac
   // start advertising
   m_ble_adv_started = true;
 
-  PRINTF("[ble api] process post ble adv api\n");
+  // PRINTF("[ble api] process post ble adv api\n");
   process_post(&nest_ble_adv_api_process, PROCESS_EVENT_CONTINUE, NULL);
   xTaskNotifyGive( g_contiki_thread );
   taskYIELD();
-  PRINTF("[ble api] task notify complete\n");
+  // PRINTF("[ble api] task notify complete\n");
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -511,7 +513,7 @@ ble_api_connection_event_handler(uint16_t conn_handle, uint16_t state)
 {
   static app_irq_ble_conn_event_t event;
 
-  PRINTF("[ble api] connection event %d %d\n", conn_handle, state);
+  // PRINTF("[ble api] connection event %d %d\n", conn_handle, state);
 
   if (state == BLE_GATT_STATE_CONNECTED) {
     m_ble_pheripheral_connected = true;
