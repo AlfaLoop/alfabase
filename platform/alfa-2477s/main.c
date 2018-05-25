@@ -89,6 +89,8 @@
 #define DIODE_FWD_VOLT_DROP_MILLIVOLTS       270
 #define ADC_RESULT_IN_MILLI_VOLTS(ADC_VALUE)\
 				((((ADC_VALUE) * ADC_REF_VOLTAGE_IN_MILLIVOLTS) / 1023) * ADC_PRE_SCALING_COMPENSATION)
+#define BATTERY_MAX 		2600
+#define BATTERY_MIN     1950
 /*---------------------------------------------------------------------------*/
 PROCINIT(&etimer_process, &hardfault_process);
 /*---------------------------------------------------------------------------*/
@@ -163,8 +165,6 @@ pm_bsp_get_battery_level(void)
 
 	mvolts = ADC_RESULT_IN_MILLI_VOLTS(adc_value);
 	PRINTF("[main] millivolts: %d\n", mvolts);
-	#define BATTERY_MAX 		2600
-	#define BATTERY_MIN     2400
 	if (mvolts < BATTERY_MIN) {
 		battery_level = 0;
 	} else if (mvolts > BATTERY_MAX) {

@@ -432,6 +432,15 @@ eraseuicr:
 	nrfjprog.exe --eraseuicr -f nrf52
 	nrfjprog.exe --reset -f nrf52
 
+backup:
+	nrfjprog.exe -f nrf52 --readcode $(TARGET)_fw.hex
+	nrfjprog.exe --reset -f nrf52
+
+restore:
+	nrfjprog.exe --eraseall -f nrf52
+	nrfjprog.exe -f nrf52 --program $(TARGET)_fw.hex
+	nrfjprog.exe --reset -f nrf52
+
 reset:
 	nrfjprog.exe --reset -f nrf52
 

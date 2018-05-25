@@ -1,0 +1,73 @@
+# Platform makefile
+PROJECT_MAIN = main
+all: PROJECT_MAIN
+
+TARGET := alfa-aa
+
+PROJECT = ../..
+
+include $(PROJECT)/Makefile.vars
+
+$(info $(PROJECT)/platform/$(TARGET))
+
+# Core usage configuration
+USE_FREERTOS = 1
+USE_NEST_STACK = 1
+USE_CONTIKI = 1
+USE_FRAMEWORK=1
+USE_SPIFFS=1
+USE_MPU=0
+USE_ELFLOADER = 1
+CONF_ELF_LOADER_TEXT_SIZE := 0x5000
+
+# Use CPU-peripherals
+USE_UART0 = 1
+USE_GPIOTE = 1
+USE_SPI0 = 1
+USE_SPI1 = 0
+USE_SPI2 = 0
+USE_TWIHW0 = 1
+USE_TWIHW1 = 0
+USE_TWISW0 = 0
+USE_TWISW1 = 0
+USE_ADC = 1
+
+# Use Device-peripherals
+USE_SPI_FLASH=0
+USE_MOTOR=0
+USE_LOGGER=1
+
+# Use Device-sensors
+USE_DRIVERS_INV_MPU_DMP = 0
+
+### Nordic nRF Softdevice
+USE_ARCH_SOFTDEVICE = 1
+NRF_SD_BLE_API_VERSION=3
+CHIP_VERSION := aab0
+STACK_SIZE := 1800
+HEAP_SIZE := 32
+
+PROJECT_TARGET_DIRS = .
+PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c bsp_button.c
+
+BOARD_FLAGS :=
+BOARD_LIBS :=
+ifeq ($(PROD), 1)
+	BOARD_FLAGS += -DDEBUG_DISABLE
+else
+	BOARD_FLAGS += -DDEBUG_ENABLE
+endif
+
+$(info $(PROJECT_TARGET_SOURCEFILES))
+
+PROJECT_SOURCEFILES += $(PROJECT_TARGET_SOURCEFILES)
+
+CLEAN += *.$(TARGET)
+BOARD := BOARD_ALFA_AA
+
+### Define the Arch directory
+PROJECT_ARCH=$(PROJECT)/arch/cortex-m4/nrf52832
+PROJECT_BOARD=$(PROJECT)/platform/$(TARGET)
+
+include $(PROJECT_ARCH)/Makefile.nrf52
+include $(PROJECT)/Makefile.include

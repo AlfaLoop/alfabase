@@ -147,6 +147,7 @@ static BleGattService g_ble_gatt_alfa_radio_service = {
   }}
 };
 /*---------------------------------------------------------------------------*/
+#if defined(BOARD_ALFA2477S)
 static uint16_t ble_srv_alfa_2477s_handle;
 static uint16_t ble_attr_alfa_2477s_rfatte_handle;
 static uint16_t ble_attr_alfa_2477s_button_handle;
@@ -194,6 +195,7 @@ static BleGattService g_ble_gatt_alfa_2477s_service = {
     0, /* End: No more characteristics in this service */
   }}
 };
+#endif
 /*---------------------------------------------------------------------------*/
 static void setup_advertisement(void);
 static void ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state);
@@ -274,12 +276,14 @@ radio_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
   int ret;
   if (handle == ble_attr_radio_interval_handle) {
     memcpy(&interval_handle_value, value, 2);
+    logger->printf(LOG_RTT, "[app] update radio interval %d\n", interval_handle_value);
     ret = upsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update radio interval error %d\n", ret);
     }
   } else if (handle == ble_attr_radio_txpower_handle) {
     memcpy(&txpower_handle_value, value, 1);
+    logger->printf(LOG_RTT, "[app] update radio txpower %d\n", txpower_handle_value);
     ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
@@ -297,6 +301,7 @@ alfa2477s_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
   if (handle == ble_attr_alfa_2477s_rfatte_handle) {
     if (length == 1) {
       rfatte_handle_value = value[0];
+      logger->printf(LOG_RTT, "[app] update alfa2477s rfatte %d\n", rfatte_handle_value);
       ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
       if (ret != ENONE) {
         logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);

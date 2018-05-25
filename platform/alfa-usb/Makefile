@@ -2,7 +2,7 @@
 PROJECT_MAIN = main
 all: PROJECT_MAIN
 
-TARGET := alfa2477s
+TARGET := alfausb
 
 PROJECT = ../..
 
@@ -38,7 +38,7 @@ USE_MOTOR=0
 USE_LOGGER=1
 
 # Use Device-sensors
-USE_DRIVERS_INV_MPU_DMP = 1
+USE_DRIVERS_INV_MPU_DMP = 0
 
 ### Nordic nRF Softdevice
 USE_ARCH_SOFTDEVICE = 1
@@ -48,10 +48,10 @@ STACK_SIZE := 1800
 HEAP_SIZE := 32
 
 PROJECT_TARGET_DIRS = .
-PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_mpudmp.c bsp_led.c bsp_buzzer.c bsp_button.c bsp_rfatte.c
+PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c bsp_button.c
 
-BOARD_FLAGS := -DMPU9250 -DEMPL_TARGET_NRF5X -DEMPL -DUSE_DMP -DREMOVE_LOGGING -DMPL_LOG_NDEBUG=0
-BOARD_LIBS := libmplmpu.alib
+BOARD_FLAGS :=
+BOARD_LIBS :=
 ifeq ($(PROD), 1)
 	BOARD_FLAGS += -DDEBUG_DISABLE
 else
@@ -63,7 +63,7 @@ $(info $(PROJECT_TARGET_SOURCEFILES))
 PROJECT_SOURCEFILES += $(PROJECT_TARGET_SOURCEFILES)
 
 CLEAN += *.$(TARGET)
-BOARD := BOARD_ALFA2477S
+BOARD := BOARD_ALFAUSB
 
 ### Define the Arch directory
 PROJECT_ARCH=$(PROJECT)/arch/cortex-m4/nrf52832
