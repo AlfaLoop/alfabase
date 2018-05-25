@@ -22,7 +22,7 @@ extern "C" {
 #include "nrf_sdm.h"
 
 /** Specify the platform identification */
-#define PLATFORM_DEVICE_NAME	                  "alfa-aa"
+#define PLATFORM_DEVICE_NAME	                  "alfa-usb"
 #define PLATFORM_DEVICE_TX_POWER                0
 
 /** Platform-dependent definitions */
@@ -51,7 +51,7 @@ extern "C" {
 #define NEST_CONF_COMMAND_RXQ_ITEMS			        10
 #define NEST_CONF_SCANNER_RXQ_ITEMS             8
 #define NEST_CHANNEL_CENTRAL_CONF               1
-#define NEST_CHANNEL_SERIAL_CONF                1
+#define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
 #define NEST_COMMAND_BFTP_ENABLE_CONF           1
 #define NEST_COMMAND_CORE_ENABLE_CONF           1
@@ -100,9 +100,6 @@ extern "C" {
 #define WDUI_SCREEN_HRM_CONF               0
 #define WDUI_SCREEN_IOTA_CONF              0
 #define WDUI_MLCD_FONT_DRIVER_CONF         spi2_driver
-
-//#define ATCMD_CONF_DRIVER                 atcmd_bsp_driver
-//#define ATCMD_LINE_CONF_BUFSIZE           256
 
 extern const struct adc_driver           nrf_adc_arch_driver;
 #define ADC                              nrf_adc_arch_driver

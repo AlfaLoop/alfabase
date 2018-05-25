@@ -93,42 +93,6 @@ PROCINIT(&etimer_process, &hardfault_process);
 /*---------------------------------------------------------------------------*/
 SemaphoreHandle_t g_user_app_task_semaphore;
 TaskHandle_t g_contiki_thread;
-extern const struct uart_driver uart0;
-/*---------------------------------------------------------------------------*/
-static void
-nrf_nest_serial_input(uint8_t data)
-{
-	PRINTF("[main] serial input 0x%02X\n", data);
-	nest_serial_input(data);
-}
-/*---------------------------------------------------------------------------*/
-static uart_config_t nest_serial_uart_cfg = {
-	.tx = TX_PIN_NUMBER,
-	.rx = RX_PIN_NUMBER,
-	.cts = CTS_PIN_NUMBER,
-	.rts = RTS_PIN_NUMBER,
-	.baudrate = UART_BAUDRATE_BAUDRATE_Baud115200,
-	.hwfc = UART_HWFC,
-	.cb = nrf_nest_serial_input
-};
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_send(uint8_t *data, uint32_t len)
-{
-	uart0.tx(data, len);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_enable(void)
-{
-	uart0.init(&nest_serial_uart_cfg);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_disable(void)
-{
-	uart0.disable();
-}
 /*---------------------------------------------------------------------------*/
 static uint8_t
 pm_bsp_get_charging_status(void)

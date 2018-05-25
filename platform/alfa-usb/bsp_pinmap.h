@@ -23,10 +23,6 @@ extern "C" {
 /*---------------------------------------------------------------------------*/
 #define XL1		                   0u
 #define XL2		                   1u
-#define BUTTON0                  2u
-#define BUTTON1                  3u
-#define BUTTON2                  4u
-#define BUTTON3                  5u
 #define LED0                     28u
 #define RX_PIN_NUMBER            22u
 #define TX_PIN_NUMBER            23u

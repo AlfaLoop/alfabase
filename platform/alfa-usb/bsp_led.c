@@ -42,50 +42,16 @@ int
 bsp_led_write(const void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_led_ctrl = (uint8_t*)buf;
-  switch (offset) {
-    case 0:
-    {
-       if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED0);}
-       else { nrf_gpio_pin_clear(LED0);}
-    }
-    break;
-    case 1:
-    {
-      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED1);}
-      else { nrf_gpio_pin_clear(LED1);}
-    }
-    break;
-    case 2:
-    {
-      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED2);}
-      else { nrf_gpio_pin_clear(LED2);}
-    }
-    break;
-  }
-  return ENOSUPPORT;
+  if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED0);}
+  else { nrf_gpio_pin_clear(LED0);}
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
 bsp_led_read(void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_led_ctrl = (uint8_t*)buf;
-  switch (offset) {
-    case 0:
-    {
-      p_led_ctrl[0] = nrf_gpio_pin_read(LED0);
-    }
-    break;
-    case 1:
-    {
-      p_led_ctrl[0] = nrf_gpio_pin_read(LED1);
-    }
-    break;
-    case 2:
-    {
-      p_led_ctrl[0] = nrf_gpio_pin_read(LED2);
-    }
-    break;
-  }
+  p_led_ctrl[0] = nrf_gpio_pin_read(LED0);
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -94,8 +60,6 @@ app_terminating(void)
 {
   // disable all led
   nrf_gpio_pin_clear(LED0);
-  nrf_gpio_pin_clear(LED1);
-  nrf_gpio_pin_clear(LED2);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
@@ -108,10 +72,6 @@ bsp_led_init(void)
 {
 	app_lifecycle_register(&lifecycle_event);
   nrf_gpio_cfg_output(LED0);
-  nrf_gpio_cfg_output(LED1);
-  nrf_gpio_cfg_output(LED2);
   nrf_gpio_pin_clear(LED0);
-  nrf_gpio_pin_clear(LED1);
-  nrf_gpio_pin_clear(LED2);
 }
 /*---------------------------------------------------------------------------*/

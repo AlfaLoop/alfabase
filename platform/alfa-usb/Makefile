@@ -2,7 +2,7 @@
 PROJECT_MAIN = main
 all: PROJECT_MAIN
 
-TARGET := alfausb
+TARGET := alfa-usb
 
 PROJECT = ../..
 
@@ -48,7 +48,7 @@ STACK_SIZE := 1800
 HEAP_SIZE := 32
 
 PROJECT_TARGET_DIRS = .
-PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c bsp_button.c
+PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c
 
 BOARD_FLAGS :=
 BOARD_LIBS :=
@@ -63,7 +63,7 @@ $(info $(PROJECT_TARGET_SOURCEFILES))
 PROJECT_SOURCEFILES += $(PROJECT_TARGET_SOURCEFILES)
 
 CLEAN += *.$(TARGET)
-BOARD := BOARD_ALFAUSB
+BOARD := BOARD_ALFA_USB
 
 ### Define the Arch directory
 PROJECT_ARCH=$(PROJECT)/arch/cortex-m4/nrf52832
