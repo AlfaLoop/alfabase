@@ -62,7 +62,6 @@ btn_event_handler(gpiote_event_t *event)
 {
 	static int release = 0;
 	uint32_t btn0_mask = (1u << BUTTON0);
-  uint32_t btn1_mask = (1u << BUTTON1);
 	uint32_t data;
 
 	if (event->pin_no == btn0_mask) {
@@ -82,9 +81,9 @@ btn_event_handler(gpiote_event_t *event)
 }
 /*---------------------------------------------------------------------------*/
 static gpiote_handle_t gpioteh = {.event_handler=btn_event_handler,
-								  .pins_mask = (1 << BUTTON0) /*| (1 << BUTTON1)*/,
-								  .pins_low_to_high_mask=  (1 << BUTTON0) /*| (1 << BUTTON1)*/,
-								  .pins_high_to_low_mask=  (1 << BUTTON0) /*| (1 << BUTTON1)*/,
+								  .pins_mask = (1 << BUTTON0),
+								  .pins_low_to_high_mask=  (1 << BUTTON0),
+								  .pins_high_to_low_mask=  (1 << BUTTON0),
 								  .sense_high_pins = 0};
 /*---------------------------------------------------------------------------*/
 static void
@@ -136,7 +135,9 @@ int
 bsp_button_init(void)
 {
   nrf_gpio_cfg_input(BUTTON0, NRF_GPIO_PIN_PULLUP);
-  // nrf_gpio_cfg_input(BUTTON1, NRF_GPIO_PIN_PULLUP);
+  nrf_gpio_cfg_input(BUTTON1, NRF_GPIO_PIN_PULLUP);
+  nrf_gpio_cfg_input(BUTTON2, NRF_GPIO_PIN_PULLUP);
+  nrf_gpio_cfg_input(BUTTON3, NRF_GPIO_PIN_PULLUP);
 
 	app_lifecycle_register(&lifecycle_event);
 	gpiote_register(&gpioteh);

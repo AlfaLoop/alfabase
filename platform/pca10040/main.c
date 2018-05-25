@@ -50,8 +50,10 @@
 #include "nordic_common.h"
 #include "softdevice_handler.h"
 #include "gpiote.h"
-#include "bsp_init.h"
 #include "spiffs-arch.h"
+#include "bsp_init.h"
+#include "bsp_led.h"
+#include "bsp_button.h"
 
 // FreeRTOS
 #if defined(USE_FREERTOS)
@@ -91,42 +93,6 @@ PROCINIT(&etimer_process, &hardfault_process);
 /*---------------------------------------------------------------------------*/
 SemaphoreHandle_t g_user_app_task_semaphore;
 TaskHandle_t g_contiki_thread;
-extern const struct uart_driver uart0;
-/*---------------------------------------------------------------------------*/
-static void
-nrf_nest_serial_input(uint8_t data)
-{
-	PRINTF("[main] serial input 0x%02X\n", data);
-	nest_serial_input(data);
-}
-/*---------------------------------------------------------------------------*/
-static uart_config_t nest_serial_uart_cfg = {
-	.tx = TX_PIN_NUMBER,
-	.rx = RX_PIN_NUMBER,
-	.cts = CTS_PIN_NUMBER,
-	.rts = RTS_PIN_NUMBER,
-	.baudrate = UART_BAUDRATE_BAUDRATE_Baud115200,
-	.hwfc = UART_HWFC,
-	.cb = nrf_nest_serial_input
-};
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_send(uint8_t *data, uint32_t len)
-{
-	uart0.tx(data, len);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_enable(void)
-{
-	uart0.init(&nest_serial_uart_cfg);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_disable(void)
-{
-	uart0.disable();
-}
 /*---------------------------------------------------------------------------*/
 static uint8_t
 pm_bsp_get_charging_status(void)
@@ -185,21 +151,6 @@ assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 	app_error_handler(0xDEADBEEF, line_num, p_file_name);
 }
 /*---------------------------------------------------------------------------*/
-static void
-bsp_hw_api_terminating(void)
-{
-	nrf_gpio_cfg_default(TX_PIN_NUMBER);
-	nrf_gpio_cfg_default(RX_PIN_NUMBER);
-	nrf_gpio_cfg_default(BUTTON0);
-	nrf_gpio_cfg_default(BUTTON1);
-	nrf_gpio_cfg_default(BUTTON2);
-	nrf_gpio_cfg_default(BUTTON3);
-	nrf_gpio_cfg_default(LED0);
-	nrf_gpio_cfg_default(LED1);
-	nrf_gpio_cfg_default(LED2);
-	nrf_gpio_cfg_default(LED3);
-}
-/*---------------------------------------------------------------------------*/
 static int
 bsp_device_init(void)
 {
@@ -209,22 +160,8 @@ bsp_device_init(void)
 	};
 	ADC.init(&adc_config);
 
-#if defined(USE_FRAMEWORK)
-	const static hw_pin_mode_t pins[] = {
-		{.pin=TX_PIN_NUMBER, .mode=HW_GPIO | HW_UART},
-		{.pin=RX_PIN_NUMBER, .mode=HW_GPIO | HW_UART},
-		{.pin=BUTTON0, .mode=HW_GPIO},
-		{.pin=BUTTON1, .mode=HW_GPIO},
-		{.pin=BUTTON2, .mode=HW_GPIO},
-		{.pin=BUTTON3, .mode=HW_GPIO},
-		{.pin=LED0, .mode=HW_GPIO},
-		{.pin=LED1, .mode=HW_GPIO},
-		{.pin=LED2, .mode=HW_GPIO},
-		{.pin=LED3, .mode=HW_GPIO},
-	};
-
-	hw_api_bsp_init(pins, 10, bsp_hw_api_terminating);
-#endif
+	bsp_led_init();
+	bsp_button_init();
 
 	return ENONE;
 }
