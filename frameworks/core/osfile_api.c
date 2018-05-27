@@ -283,6 +283,7 @@ file_size(const uint32_t key)
 	if (res != SPIFFS_OK) {
 	  return 0;
 	}
+  PRINTF("[osfile] size %d\n", s.size);
   return s.size;
 }
 /*---------------------------------------------------------------------------*/

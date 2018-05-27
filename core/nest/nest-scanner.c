@@ -123,8 +123,8 @@ PROCESS_THREAD(nest_scan_central_process, ev, data)
 		params.interval = DEFAULT_MIN_WINDOW;
 		params.window = DEFAULT_MIN_WINDOW;
 	} else {
-		params.interval = 100;
-		params.window = 100;
+		params.interval = 60;
+		params.window = 60;
 	}
 	ret = NEST.gap_scan(&params);
 	if (ret == ENONE) {

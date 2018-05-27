@@ -324,8 +324,7 @@ spiffs_flash_arch_init(uint8_t format)
 
   PRINTF("[flash dev] Manufacturer ID %d \n", result[0]);
   PRINTF("[flash dev] Memory Type %d \n", result[1]);
-//  PRINTF("Capacity %d \n", result[2]);
- //while(1){};
+  PRINTF("[flash dev] Capacity %d \n", result[2]);
 
 	//spiffs_flash_arch_format();
   // mount filesystem

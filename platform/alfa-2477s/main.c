@@ -277,11 +277,9 @@ contiki_task(void *arg)
 	spiffs_flash_arch_init(1);
 #endif
 
-
 	// initialate board-supported function
 	bsp_device_init();
 	pm_init();
-
 
 #if defined(USE_FRAMEWORK)
 	app_framework_init();

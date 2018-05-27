@@ -33,11 +33,11 @@ USE_TWISW1 = 0
 USE_ADC = 1
 
 # Use Device-peripherals
-USE_SPI_FLASH=1
 USE_MOTOR=0
 USE_LOGGER=1
 
 # Use Device-sensors
+USE_SPI_FLASH=1
 USE_DRIVERS_INV_MPU_DMP = 1
 
 ### Nordic nRF Softdevice

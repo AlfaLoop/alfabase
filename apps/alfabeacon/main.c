@@ -206,11 +206,17 @@ static int
 upsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
 {
   int16_t fd;
-  int ret = fileio->open(&fd, key, "w");
+  logger->printf(LOG_RTT, "[app] upsert key 0x%8X len %d\n", key, len);
+
+  int ret = fileio->open(&fd, key, "w+");
+  logger->printf(LOG_RTT, "[app] upsert open %d\n", ret);
   if (ret == ENONE) {
     // write default ibeacon uuid
-    fileio->close(fd);
+    logger->printf(LOG_RTT, "[app] upsert write file len %d\n", len);
+    ret = fileio->write(fd, data, len);
+    logger->printf(LOG_RTT, "[app] upsert write file ret %d\n", ret);
   }
+  fileio->close(fd);
   return ret;
 }
 /*---------------------------------------------------------------------------*/
@@ -221,7 +227,10 @@ qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
   int ret;
 
   int ret_size = fileio->size(key);
+  logger->printf(LOG_RTT, "[app] qsert key 0x%8X ret_size %d\n", key, ret_size);
+
   if (ret_size) {
+    logger->printf(LOG_RTT, "[app] qsert exist, read %d\n", ret_size);
     ret = fileio->open(&fd, key, "r");
     if (ret == ENONE) {
       // read 16 bytes for ibeacon uuid
@@ -229,12 +238,13 @@ qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
     }
     fileio->close(fd);
   } else {
+    logger->printf(LOG_RTT, "[app] qsert create.\n");
     ret = fileio->open(&fd, key, "w+");
     if (ret == ENONE) {
       // write default ibeacon uuid
       ret = fileio->write(fd, data, len);
-      fileio->close(fd);
     }
+    fileio->close(fd);
   }
   return ret;
 }
@@ -263,7 +273,7 @@ ibeacon_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
     }
   } else if (handle == ble_attr_ibeacon_txm_handle) {
     ble_adv_manu_ibeacon_data[22] = value[0];
-    ret = upsert_storage_data(FILE_KEY_IBEACON_MINOR, &ble_adv_manu_ibeacon_data[22], 1);
+    ret = upsert_storage_data(FILE_KEY_IBEACON_TXM, &ble_adv_manu_ibeacon_data[22], 1);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update txm error %d\n", ret);
     }
@@ -275,8 +285,12 @@ radio_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 {
   int ret;
   if (handle == ble_attr_radio_interval_handle) {
-    memcpy(&interval_handle_value, value, 2);
+    interval_handle_value = 0;
+    interval_handle_value = value[1];
+    interval_handle_value = interval_handle_value << 8;
+    interval_handle_value = interval_handle_value | value[0];
     logger->printf(LOG_RTT, "[app] update radio interval %d\n", interval_handle_value);
+    // memcpy(&interval_handle_value, value, 2);
     ret = upsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update radio interval error %d\n", ret);
@@ -473,7 +487,7 @@ int main(void)
   }
 
   // Get default parameters: Radio interval
-  errcode = qsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
+  errcode = qsert_storage_data(FILE_KEY_RADIO_INTERVAL, (uint8_t*)&interval_handle_value, 2);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] get radio interval error %d\n", errcode);
     return 0;
@@ -520,6 +534,8 @@ int main(void)
     return 0;
   }
 #endif
+
+  logger->printf(LOG_RTT,"[app] startAdvertising interval %d\n", interval_handle_value);
 
   // start advertising
   errcode = ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);

@@ -24,17 +24,8 @@
 #ifdef USE_ELFLOADER
 #include "loader/elfloader.h"
 #endif
-#ifdef USE_FRAMEWORK
-#include "frameworks/core/osfile_api.h"
-#endif
-
-#ifdef USE_HAYES
-#include "hayes/atcmd.h"
-#endif
-
-#if defined(USE_WDUI_STACK)
-#include "wdui/wdui.h"
-#endif
+// #ifdef USE_FRAMEWORK
+// #include "frameworks/core/osfile_api.h"
 
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
@@ -54,11 +45,10 @@
 #else
 #define SFS SYSFS
 #endif
-#define TEST_MODE 1
 /*---------------------------------------------------------------------------*/
 static sys_bsp_init_func bsp_callback = NULL;
 /*---------------------------------------------------------------------------*/
-#ifdef USE_FRAMEWORK
+#if defined(USE_FRAMEWORK)
 static void
 load_default_boot_app(void)
 {
@@ -121,28 +111,6 @@ exam_filesystem(void)
 		SPIFFS_close(&SYSFS, fd);
 	}
 
-#ifdef USE_MICROPYTHON
-	char pybuf[30];
-	int pyres;
-	spiffs_stat pystat;
-	const char *scripy = "import udisplay\r\nudisplay.on()\n";
-	pyres = SPIFFS_stat(&SYSFS, "boot.py", &pystat);
-	PRINTF("[init] exist %s res %d\n", "boot.py", pyres);
-  if (pyres != SPIFFS_OK) {
-		PRINTF("[init] No boot.py file, creating!\n");
-		fd = SPIFFS_open(&SYSFS, "boot.py", SPIFFS_CREAT | SPIFFS_RDWR, 0);
-		if (SPIFFS_write(&SYSFS, fd, (u8_t *)scripy, strlen(scripy)) < 0) {
-			PRINTF("[init] write boot.py error %i\n", SPIFFS_errno(&SYSFS));
-		}
-	} else {
-		PRINTF("[init] boot.py exist\n");
-		fd = SPIFFS_open(&SYSFS, "boot.py", SPIFFS_RDWR, 0);
-		SPIFFS_read(&SYSFS, fd, (u8_t *)pybuf, strlen(scripy));
-		PRINTF("[init] boot.py content\n%s\n", pybuf);
-	}
-	SPIFFS_close(&SYSFS, fd);
-#endif
-
 #ifdef USE_SPI_FLASH
 	total = 0;
 	used = 0;
@@ -158,7 +126,6 @@ exam_filesystem(void)
 	SPIFFS_closedir(&d);
 #endif
 
-
 	//SPIFFS_vis(&SFS);
 }
 /*---------------------------------------------------------------------------*/
@@ -171,13 +138,8 @@ PROCESS_THREAD(sys_init_process, ev, data)
 	etimer_set(&et, 500);
 	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 
-#ifdef USE_HAYES
-	atcmd_init();
-#endif
-
 	if (bsp_callback != NULL)
 		bsp_callback();
-
 
 	// exam the filesystem
 	exam_filesystem();
@@ -185,18 +147,8 @@ PROCESS_THREAD(sys_init_process, ev, data)
 	// init system time
 	systime_init();
 
-	// initialize application framework layer
-// #ifdef USE_FRAMEWORK
-// 	app_framework_init();
-// #endif
-//
-	// pm_init();
-
-	// if (!process_is_running(&nest_governor_process))
-	// 	process_start(&nest_governor_process, NULL);
-
 	// load the default application
-#ifdef USE_ELFLOADER
+#if defined(USE_ELFLOADER)
 	load_default_boot_app();
 #endif
 
