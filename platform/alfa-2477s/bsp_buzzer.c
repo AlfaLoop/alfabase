@@ -273,6 +273,7 @@ bsp_buzzer_init(void)
   uint32_t                   err_code;
 
 	app_lifecycle_register(&lifecycle_event);
+
   nrf_gpio_cfg_output(BUZZER_PIN);
   nrf_gpio_pin_clear(BUZZER_PIN);
 

@@ -51,7 +51,7 @@ extern "C" {
 #define NEST_CONF_COMMAND_RXQ_ITEMS			        10
 #define NEST_CONF_SCANNER_RXQ_ITEMS             8
 #define NEST_CHANNEL_CENTRAL_CONF               1
-#define NEST_CHANNEL_SERIAL_CONF                1
+#define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
 #define NEST_COMMAND_BFTP_ENABLE_CONF           1
 #define NEST_COMMAND_CORE_ENABLE_CONF           1

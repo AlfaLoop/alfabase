@@ -193,8 +193,11 @@ bsp_mpu9250_dmp_init(void)
   mpu9250_dmp_config_t mpu9250_dmp_config = {
 		.data_source = mpu9250_dmp_data_update
 	};
+  PRINTF("[bsp mpu9250 dmp] call arch module init \n");
 	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
-	SENSOR_MOTIONFUSION.poweroff(false);
   // SENSOR_MOTIONFUSION.poweron();
+	SENSOR_MOTIONFUSION.poweroff(false);
+  // SENSOR_MOTIONFUSION.poweroff(false);
+
 }
 /*---------------------------------------------------------------------------*/

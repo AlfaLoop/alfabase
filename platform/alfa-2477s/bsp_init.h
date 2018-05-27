@@ -51,7 +51,7 @@ extern "C" {
 #define NEST_CONF_COMMAND_RXQ_ITEMS			        10
 #define NEST_CONF_SCANNER_RXQ_ITEMS             8
 #define NEST_CHANNEL_CENTRAL_CONF               1
-#define NEST_CHANNEL_SERIAL_CONF                1
+#define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
 #define NEST_COMMAND_BFTP_ENABLE_CONF           1
 #define NEST_COMMAND_CORE_ENABLE_CONF           1
@@ -73,7 +73,7 @@ extern "C" {
 #define FREERTOS_APP_IRQ_TASK_PRIORITY_CONF     2
 
 /** ELF loader data and memory size */
-#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x4600
+#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x4000
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration
@@ -91,24 +91,9 @@ extern "C" {
 #define ARCH_BATTERY_ADC_VENDOR_CONF        "Not defined"
 #define ARCH_BATTERY_ADC_CHANNEL_CONF       0
 
-#define WDUI_DRIVER_CONF				         wdui_ssd1316_driver
-#define WDUI_MLCD_DRIVER_CONF            spi1_driver
-#define WDUI_SCREEN_CLOCKFACE_CONF         0
-#define WDUI_SCREEN_STEPS_CONF             0
-#define WDUI_SCREEN_BURNED_CONF            0
-#define WDUI_SCREEN_DISTANCE_CONF          0
-#define WDUI_SCREEN_HRM_CONF               0
-#define WDUI_SCREEN_IOTA_CONF              0
-#define WDUI_MLCD_FONT_DRIVER_CONF         spi2_driver
-
-//#define ATCMD_CONF_DRIVER                 atcmd_bsp_driver
-//#define ATCMD_LINE_CONF_BUFSIZE           256
-
-extern const struct adc_driver           nrf_adc_arch_driver;
-#define ADC                              nrf_adc_arch_driver
 
 #define USE_SPIFFS_CACHE                            1
-#define STORAGE_SYSC_INTERNAL_CONF                  1
+#define STORAGE_SYSC_INTERNAL_CONF                  2
 #if STORAGE_SYSC_INTERNAL_CONF == 1
   #define STORAGE_SYSC_FS_INSTANCE_CONF nrf_spiffs
 #elif STORAGE_SYSC_INTERNAL_CONF == 2
@@ -128,8 +113,14 @@ extern const struct adc_driver           nrf_adc_arch_driver;
 #undef DEBUG_ENABLE
 #endif
 
-extern const struct i2c_driver nrf_twi_hw_driver0;
-#define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
+// extern const struct i2c_driver nrf_twi_hw_driver0;
+// #define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
+
+extern const struct i2c_driver nrf_twi_sw_driver0;
+#define INV_MPU_TWI_DRIVER_CONF nrf_twi_sw_driver0
+
+extern const struct spi_driver spi1_driver;
+#define SPI_FLASH_DRIVER_CONF spi1_driver
 
 extern const struct adc_driver nrf_adc_arch_driver;
 #define ADC nrf_adc_arch_driver

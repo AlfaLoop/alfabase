@@ -136,6 +136,7 @@ int
 bsp_button_init(void)
 {
   nrf_gpio_cfg_input(BUTTON0, NRF_GPIO_PIN_PULLUP);
+  nrf_gpio_cfg_input(BUTTON0, NRF_GPIO_PIN_NOPULL);
   // nrf_gpio_cfg_input(BUTTON1, NRF_GPIO_PIN_PULLUP);
 
 	app_lifecycle_register(&lifecycle_event);

@@ -26,9 +26,9 @@ extern "C" {
 #define BUTTON0                  2u
 #define BUZZER_PIN               3u
 #define LED0                     4u
+#define SPI_FLASH_MISO           5u
 #define SPI_FLASH_CS             6u
 #define SPI_FLASH_SCLK           7u
-#define SPI_FLASH_MISO           5u
 #define SPI_FLASH_MOSI           8u
 #define LED1                     11u
 #define GPIO_EXT0                12u

@@ -48,6 +48,7 @@
 #include "nordic_common.h"
 #include "softdevice_handler.h"
 #include "gpiote.h"
+#include "spiffs-flash-arch.h"
 #include "spiffs-arch.h"
 #include "bsp_init.h"
 #include "bsp_button.h"
@@ -90,7 +91,7 @@
 #define ADC_RESULT_IN_MILLI_VOLTS(ADC_VALUE)\
 				((((ADC_VALUE) * ADC_REF_VOLTAGE_IN_MILLIVOLTS) / 1023) * ADC_PRE_SCALING_COMPENSATION)
 #define BATTERY_MAX 		2600
-#define BATTERY_MIN     1950
+#define BATTERY_MIN     2000
 /*---------------------------------------------------------------------------*/
 PROCINIT(&etimer_process, &hardfault_process);
 /*---------------------------------------------------------------------------*/
@@ -201,6 +202,7 @@ bsp_device_init(void)
 	bsp_button_init();
 	bsp_rfatte_init();
 	bsp_buzzer_init();
+	PRINTF("[main] bsp_mpu9250_dmp_init!\n");
 	bsp_mpu9250_dmp_init();
 
 	return ENONE;
@@ -218,8 +220,8 @@ void
 vApplicationStackOverflowHook( TaskHandle_t task,
                                     signed char *pcTaskName )
 {
-  PRINTF("[main] application stack overflow: %s !\n", pcTaskName);
-  vTaskDelete(task);
+
+	PRINTF("[main] application stack overflow: %s !\n", pcTaskName);
 	nrf_delay_ms(5);
   watchdog_reboot();
   //NVIC_SystemReset();
@@ -239,6 +241,8 @@ vApplicationMallocFailedHook()
 static void
 board_init(void)
 {
+	NRF_POWER->DCDCEN = 1;
+
 	ret_code_t err_code;
 	err_code = nrf_drv_clock_init();
 	APP_ERROR_CHECK(err_code);
@@ -270,11 +274,14 @@ contiki_task(void *arg)
 // Initialize low-level driver of file system
 #if defined(USE_SPIFFS)
 	nrf_spiffs_arch_init(1);
+	spiffs_flash_arch_init(1);
 #endif
+
 
 	// initialate board-supported function
 	bsp_device_init();
 	pm_init();
+
 
 #if defined(USE_FRAMEWORK)
 	app_framework_init();

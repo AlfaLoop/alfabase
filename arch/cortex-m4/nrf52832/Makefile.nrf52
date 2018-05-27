@@ -350,7 +350,6 @@ endif
 
 # Extented Flash define here
 ifeq ($(USE_SPI_FLASH),1)
-	PROJECT_ARCH_DIRS += dev/flash
 	PROJECT_ARCH_SOURCEFILES += spiffs-flash-arch.c
 	CFLAGS += -DUSE_SPI_FLASH
 endif

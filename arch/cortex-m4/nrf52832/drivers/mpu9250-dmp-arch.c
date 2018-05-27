@@ -281,8 +281,8 @@ read_from_mpl(void)
 
     data_update |= MOTIONFUSION_COMPASS;
 
-    // PRINTF("[mpu9250 arch] CompassX/Y/Z: %f %f %f Time: %d ms\n",
-    //     features.compass[0], features.compass[1], features.compass[2], timestamp);
+    PRINTF("[mpu9250 arch] CompassX/Y/Z: %f %f %f Time: %d ms\n",
+        features.compass[0], features.compass[1], features.compass[2], timestamp);
   }
 
   if (inv_get_sensor_type_euler(data, &accuracy, &timestamp)) {
@@ -745,6 +745,7 @@ static int
 mpu9250_arch_init(mpu9250_dmp_config_t *config)
 {
 	// initialize i2c interface
+  PRINTF("[mpu9250 arch] init \n");
   nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
 
   nrf_gpio_cfg_output(MPU_CS);
@@ -768,6 +769,8 @@ mpu9250_arch_init(mpu9250_dmp_config_t *config)
   if (!process_is_running(&mpu9250_process)) {
     process_start(&mpu9250_process, NULL);
   }
+
+  PRINTF("[mpu9250 arch] init completed\n");
   // mpu_init(NULL);
   // mpu_set_sensors(0);
 	return ENONE;
@@ -872,8 +875,8 @@ mpu9250_arch_poweroff(bool enable_wakeup_threshold)
 
 	// gpiote_unregister(&gpioteh);
 	motion_active = false;
-	// nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
-	// mpu_set_sensors(0);
+	nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
+	mpu_set_sensors(0);
 }
 /*---------------------------------------------------------------------------*/
 static int
