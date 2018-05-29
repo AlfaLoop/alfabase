@@ -79,33 +79,10 @@ extern "C" {
 // Crypto stack configuration
 #define CRYPTO_PLATFORM_ARCH                    nrf_ecb_driver
 
-// Framework API usage configuration
-#define FRAMEWORK_USE_HEALTHKIT_CONF                0
-#define FRAMEWORK_USE_SENSOR_ACCELEROMETE_CONF      0
-#define FRAMEWORK_USE_SENSOR_MOTION_RAW_CONF        0
-#define FRAMEWORK_USE_SENSOR_MOTION_FUSION_CONF     0
-#define FRAMEWORK_USE_SENSOR_HEARTRATE_CONF         0
-#define FRAMEWORK_USE_SENSOR_FOOT_PRESSURE_CONF     0
 
 #define PM_CONF_DRIVER                      pm_bsp_driver
 #define ARCH_BATTERY_ADC_VENDOR_CONF        "Not defined"
 #define ARCH_BATTERY_ADC_CHANNEL_CONF       0
-
-#define WDUI_DRIVER_CONF				         wdui_ssd1316_driver
-#define WDUI_MLCD_DRIVER_CONF            spi1_driver
-#define WDUI_SCREEN_CLOCKFACE_CONF         0
-#define WDUI_SCREEN_STEPS_CONF             0
-#define WDUI_SCREEN_BURNED_CONF            0
-#define WDUI_SCREEN_DISTANCE_CONF          0
-#define WDUI_SCREEN_HRM_CONF               0
-#define WDUI_SCREEN_IOTA_CONF              0
-#define WDUI_MLCD_FONT_DRIVER_CONF         spi2_driver
-
-//#define ATCMD_CONF_DRIVER                 atcmd_bsp_driver
-//#define ATCMD_LINE_CONF_BUFSIZE           256
-
-extern const struct adc_driver           nrf_adc_arch_driver;
-#define ADC                              nrf_adc_arch_driver
 
 #define USE_SPIFFS_CACHE                            1
 #define STORAGE_SYSC_INTERNAL_CONF                  1

@@ -22,7 +22,7 @@ extern "C" {
 #include "nrf_sdm.h"
 
 /** Specify the platform identification */
-#define PLATFORM_DEVICE_NAME	                  "alfa-2477"
+#define PLATFORM_DEVICE_NAME	                  "mdbt42-ghgw"
 #define PLATFORM_DEVICE_TX_POWER                0
 
 /** Platform-dependent definitions */
@@ -32,7 +32,7 @@ extern "C" {
 #define CC_CONF_VA_ARGS                          1
 #define CC_CONF_INLINE                           inline
 #define SD_BLE_GATTS_ATTR_TAB_SIZE_CONF				   0x600
-#define SD_CLOCK_SOURCE_CONF                     true      // (false:internal true:Ext)
+#define SD_CLOCK_SOURCE_CONF                     false      // (false:internal true:Ext)
 #define SD_BLE_MAX_MTU_SIZE_CONF					       23
 #define GAP_CONF_MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)          /**< Minimum acceptable connection interval (0.04 seconds). */
 #define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(60, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
@@ -78,6 +78,14 @@ extern "C" {
 
 // Crypto stack configuration
 #define CRYPTO_PLATFORM_ARCH                    nrf_ecb_driver
+
+// Framework API usage configuration
+#define FRAMEWORK_USE_HEALTHKIT_CONF                0
+#define FRAMEWORK_USE_SENSOR_ACCELEROMETE_CONF      0
+#define FRAMEWORK_USE_SENSOR_MOTION_RAW_CONF        0
+#define FRAMEWORK_USE_SENSOR_MOTION_FUSION_CONF     0
+#define FRAMEWORK_USE_SENSOR_HEARTRATE_CONF         0
+#define FRAMEWORK_USE_SENSOR_FOOT_PRESSURE_CONF     0
 
 #define PM_CONF_DRIVER                      pm_bsp_driver
 #define ARCH_BATTERY_ADC_VENDOR_CONF        "Not defined"

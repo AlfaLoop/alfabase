@@ -79,18 +79,9 @@ extern "C" {
 // Crypto stack configuration
 #define CRYPTO_PLATFORM_ARCH                    nrf_ecb_driver
 
-// Framework API usage configuration
-#define FRAMEWORK_USE_HEALTHKIT_CONF                0
-#define FRAMEWORK_USE_SENSOR_ACCELEROMETE_CONF      0
-#define FRAMEWORK_USE_SENSOR_MOTION_RAW_CONF        0
-#define FRAMEWORK_USE_SENSOR_MOTION_FUSION_CONF     0
-#define FRAMEWORK_USE_SENSOR_HEARTRATE_CONF         0
-#define FRAMEWORK_USE_SENSOR_FOOT_PRESSURE_CONF     0
-
 #define PM_CONF_DRIVER                      pm_bsp_driver
 #define ARCH_BATTERY_ADC_VENDOR_CONF        "Not defined"
 #define ARCH_BATTERY_ADC_CHANNEL_CONF       0
-
 
 #define USE_SPIFFS_CACHE                            1
 #define STORAGE_SYSC_INTERNAL_CONF                  2
