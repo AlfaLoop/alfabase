@@ -206,7 +206,7 @@ static int
 upsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
 {
   int16_t fd;
-  logger->printf(LOG_RTT, "[app] upsert key 0x%8X len %d\n", key, len);
+  logger->printf(LOG_RTT, "[app] upsert key 0x%08X len %d\n", key, len);
 
   int ret = fileio->open(&fd, key, "w+");
   logger->printf(LOG_RTT, "[app] upsert open %d\n", ret);
@@ -227,7 +227,7 @@ qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
   int ret;
 
   int ret_size = fileio->size(key);
-  logger->printf(LOG_RTT, "[app] qsert key 0x%8X ret_size %d\n", key, ret_size);
+  logger->printf(LOG_RTT, "[app] qsert key 0x%08X ret_size %d\n", key, ret_size);
 
   if (ret_size) {
     logger->printf(LOG_RTT, "[app] qsert exist, read %d\n", ret_size);
@@ -316,11 +316,11 @@ alfa2477s_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
     if (length == 1) {
       rfatte_handle_value = value[0];
       logger->printf(LOG_RTT, "[app] update alfa2477s rfatte %d\n", rfatte_handle_value);
-      ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+      ret = upsert_storage_data(FILE_KEY_2477S_RF_ATTE, &rfatte_handle_value, 1);
       if (ret != ENONE) {
-        logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
+        logger->printf(LOG_RTT, "[app] update rfatte error %d\n", ret);
       }
-      hwdriver_rfatte->write(value[0], 1, 0);
+      hwdriver_rfatte->write(&rfatte_handle_value, 1, 0);
     }
   } else if (handle == ble_attr_alfa_2477s_button_cccdhandle) {
     // TODO:

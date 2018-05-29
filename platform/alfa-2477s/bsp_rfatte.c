@@ -148,8 +148,10 @@ int
 bsp_rfatte_write(const void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_attr = (uint8_t*)buf;
-  if (p_attr[0] >= RADIO_0dBm && p_attr[0] <= RADIO_31dBm) {
-    set_attenuator(p_attr[0]);
+  uint8_t value = p_attr[0];
+  PRINTF("[bsp rfatte] write %d\n", value);
+  if (value >= RADIO_0dBm && value <= RADIO_31dBm) {
+    set_attenuator(value);
     return ENONE;
   }
   return EINVAL;

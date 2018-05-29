@@ -241,8 +241,6 @@ vApplicationMallocFailedHook()
 static void
 board_init(void)
 {
-	NRF_POWER->DCDCEN = 1;
-
 	ret_code_t err_code;
 	err_code = nrf_drv_clock_init();
 	APP_ERROR_CHECK(err_code);
@@ -274,7 +272,13 @@ contiki_task(void *arg)
 // Initialize low-level driver of file system
 #if defined(USE_SPIFFS)
 	nrf_spiffs_arch_init(1);
-	spiffs_flash_arch_init(1);
+	nrf_gpio_cfg_input(BUTTON0, NRF_GPIO_PIN_NOPULL);
+	nrf_delay_ms(10);
+	PRINTF("[main] button .....%d\n", nrf_gpio_pin_read(BUTTON0));
+	if (nrf_gpio_pin_read(BUTTON0))
+		spiffs_flash_arch_init(1);
+	else
+		spiffs_flash_arch_init(0);
 #endif
 
 	// initialate board-supported function

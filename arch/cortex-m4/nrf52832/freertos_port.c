@@ -191,6 +191,7 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
       process_post(&hardfault_process, PROCESS_EVENT_CONTINUE, &dump);
       vTaskNotifyGiveFromISR(g_contiki_thread, &yield_req);
       portYIELD_FROM_ISR(yield_req);
+      watchdog_reboot();
       while(1){};
     }
     // BusError
