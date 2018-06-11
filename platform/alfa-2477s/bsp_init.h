@@ -38,6 +38,8 @@ extern "C" {
 #define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(60, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
 #define GAP_CONF_SLAVE_LATENCY                   0                                        /**< Slave latency. */
 #define GAP_CONF_CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)          /**< Connection supervisory timeout (4 seconds). */
+#define SYS_HARDFAULT_KILL_BOOT_APP              0
+#define SYS_HARDFAULT_DIRECT_REBOOT              1
 
 /** Nest communication stack configuration */
 #define NEST_CONF_DRIVER				                nrf_nest_driver
@@ -90,10 +92,10 @@ extern "C" {
 #elif STORAGE_SYSC_INTERNAL_CONF == 2
   #define STORAGE_SYSC_FS_INSTANCE_CONF extfs
   #include "spiffs-flash-arch.h"
-  #define STORAGE_SYSC_FS_FLSAH_SIZE_CONF          W25Q20_SIZE
-  #define STORAGE_SYSC_FS_FLSAH_PAGES_CONF         W25Q20_PAGES
-  #define STORAGE_SYSC_FS_FLSAH_PAGE_SIZE_CONF     W25Q20_PAGE_SIZE
-  #define STORAGE_SYSC_FS_FLSAH_SECTOR_SIZE_CONF   W25Q20_SECTOR_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_SIZE_CONF          W25Q80_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_PAGES_CONF         W25Q80_PAGES
+  #define STORAGE_SYSC_FS_FLSAH_PAGE_SIZE_CONF     W25Q80_PAGE_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_SECTOR_SIZE_CONF   W25Q80_SECTOR_SIZE
 #endif
 
 /** System log configuration */

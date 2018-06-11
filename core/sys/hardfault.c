@@ -1,22 +1,23 @@
 /**
- *  Copyright (c) 2016 AlfaLoop Technology Co., Ltd. All Rights Reserved.
+ * © Copyright AlfaLoop Technology Co., Ltd. 2018
  *
- *  Unauthorized copying of this file, via any medium is strictly prohibited
- *  Proprietary and confidential.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Attribution - You must give appropriate credit, provide a link to the license, and
- *  indicate if changes were made. You may do so in any reasonable manner, but not in any
- *  way that suggests the licensor endorses you or your use.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  NonCommercial - You may not use the material for commercial purposes under unauthorized.
- *
- *  NoDerivatives - If you remix, transform, or build upon the material, you may not
- *  distribute the modified material.
- */
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 #include "hardfault.h"
 #include "spiffs/spiffs.h"
 #include "loader/lunchr.h"
 #include "nest/nest.h"
+#include "bsp_init.h"
 
 #ifdef USE_FRAMEWORK
 #include "frameworks/app_framework.h"
@@ -59,10 +60,15 @@ PROCESS_THREAD(hardfault_process, ev, data)
 	  PRINTF ("[hardfault] PC [R15] = %x  program counter\n", dump->pc);
 	  PRINTF ("[hardfault] PSR = %x\n", dump->psr);
 
-#ifdef USE_FRAMEWORK
+#if defined(USE_FRAMEWORK)
     if (lunchr_is_running()) {
+
+#if SYS_HARDFAULT_KILL_BOOT_APP == 1
       lunchr_remove_boot_task();
       lunchr_kill_running_app();
+#else
+      devid_reboot();
+#endif
 
 #if defined(USE_WDUI_STACK)
 		wdui_nest_event_notify(NEST_LUNCHR_KILL, NULL);

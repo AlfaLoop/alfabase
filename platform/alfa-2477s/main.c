@@ -292,7 +292,7 @@ contiki_task(void *arg)
 	// Initialize Nest Stack
 #if defined(USE_NEST_STACK)
 	const static nest_init_config_t config = {
-		.scan_sleep_time = {7000, 8000, 9000, 10000}
+		.scan_sleep_time = {14000, 16000, 18000, 20000}
 	};
 	nest_stack_init(&config);
 #endif

@@ -38,6 +38,8 @@ extern "C" {
 #define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(60, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
 #define GAP_CONF_SLAVE_LATENCY                   0                                        /**< Slave latency. */
 #define GAP_CONF_CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)          /**< Connection supervisory timeout (4 seconds). */
+#define SYS_HARDFAULT_KILL_BOOT_APP              0
+#define SYS_HARDFAULT_DIRECT_REBOOT              1
 
 /** Nest communication stack configuration */
 #define NEST_CONF_DRIVER				                nrf_nest_driver

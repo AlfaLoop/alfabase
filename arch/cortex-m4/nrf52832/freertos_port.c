@@ -131,6 +131,8 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
   stacked_pc = ((unsigned long) hardfault_args[6]);
   stacked_psr = ((unsigned long) hardfault_args[7]);
 
+
+#if DEBUG_MODULE > 1
   PRINTF ("\n\n[Hard fault handler - all numbers in hex]\n");
   PRINTF ("R0 = %x\n", stacked_r0);
   PRINTF ("R1 = %x\n", stacked_r1);
@@ -146,6 +148,7 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
   PRINTF ("DFSR = %x\n", (*((volatile unsigned long *)(0xE000ED30))));
   PRINTF ("AFSR = %x\n", (*((volatile unsigned long *)(0xE000ED3C))));
   PRINTF ("SCB_SHCSR = %x\n", SCB->SHCSR);
+#endif
 
   dump.type = HADRFAULT_NONE_DEFINE;
   dump.r0 = stacked_r0;
@@ -162,7 +165,7 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
   if ((SCB->HFSR & (1 << 30)) != 0) {
     // UsageError
     if((SCB->CFSR & 0xFFFF0000) != 0) {
-      PRINTF("Usage fault: ");
+      PRINTF("[freertos port] Usage fault: ");
       uint32_t CFSRValue = SCB->CFSR >> 16;
       if((CFSRValue & (1 << 9)) != 0) {
         PRINTF("Divide by zero\n");
@@ -188,11 +191,6 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
         PRINTF("Undefined instruction\n");
         dump.type = HADRFAULT_UNDEFINED_INSTRUCTION;
       }
-      process_post(&hardfault_process, PROCESS_EVENT_CONTINUE, &dump);
-      vTaskNotifyGiveFromISR(g_contiki_thread, &yield_req);
-      portYIELD_FROM_ISR(yield_req);
-      watchdog_reboot();
-      while(1){};
     }
     // BusError
     if((SCB->CFSR & 0xFF00) != 0) {
@@ -208,24 +206,24 @@ void hard_fault_handler_c(unsigned int * hardfault_args)
       However, if the fault is caused by a stack corruption you might not be able to do that.
       Then finally I would question if skipping a faulting instruction is right. If a bus fault is reported, skipping the faulting instruction doesn't mean the remaining part of the program can continue correctly. As you say, all read operations on Cortex-M3/M4 are precise so you can use bus fault to handle parity / ECC error.
       */
-      PRINTF("Bus fault\n");
+      PRINTF("[freertos port] Bus fault\n");
       dump.type = HADRFAULT_BUS;
-      // if (lunchr_is_running()) {
-      //   lunchr_remove_boot_task();
-      //   lunchr_kill_running_app();
-      // }
-      // devid_reboot();
-      watchdog_reboot();
-      while(1){};
     }
     // MemoryManagementError
     if((SCB->CFSR & 0xFF) != 0) {
-      PRINTF("MemoryManagement fault\n");
+      PRINTF("[freertos port] MemoryManagement fault\n");
       dump.type = HADRFAULT_MEMORT_MANAGEMENT;
-      while(1){};
     }
   }
-  // taskYIELD();
+
+#if SYS_HARDFAULT_DIRECT_REBOOT == 1
+  watchdog_reboot();
+#else
+  process_post(&hardfault_process, PROCESS_EVENT_CONTINUE, &dump);
+  vTaskNotifyGiveFromISR(g_contiki_thread, &yield_req);
+  portYIELD_FROM_ISR(yield_req);
+  taskYIELD();
+#endif
 }
 
 void xPortHardFaultHandler( void )

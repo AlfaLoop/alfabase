@@ -390,13 +390,18 @@ setup_advertisement(void)
   service_data_packetes[0] = 0x03;
 #endif
   service_data_packetes[1] = device->getBatteryLevel();
-  service_data_packetes[2] = m_mac_address[5];
-  service_data_packetes[3] = m_mac_address[4];
-  service_data_packetes[4] = m_mac_address[3];
-  service_data_packetes[5] = m_mac_address[2];
-  service_data_packetes[6] = m_mac_address[1];
-  service_data_packetes[7] = m_mac_address[0];
-  adv_builder->addServiceData(&scan_rsp_advdata, service_uuid, &service_data_packetes[0], 8);
+  service_data_packetes[2] = ble_adv_manu_ibeacon_data[18];
+  service_data_packetes[3] = ble_adv_manu_ibeacon_data[19];
+  service_data_packetes[4] = ble_adv_manu_ibeacon_data[20];
+  service_data_packetes[5] = ble_adv_manu_ibeacon_data[21];
+  service_data_packetes[6] = ble_adv_manu_ibeacon_data[22];
+  // service_data_packetes[2] = m_mac_address[5];
+  // service_data_packetes[3] = m_mac_address[4];
+  // service_data_packetes[4] = m_mac_address[3];
+  // service_data_packetes[5] = m_mac_address[2];
+  // service_data_packetes[6] = m_mac_address[1];
+  // service_data_packetes[7] = m_mac_address[0];
+  adv_builder->addServiceData(&scan_rsp_advdata, service_uuid, &service_data_packetes[0], 7);
 
   // setup the advertisement
   ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
