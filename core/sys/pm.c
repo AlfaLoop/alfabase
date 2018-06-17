@@ -63,6 +63,7 @@ PROCESS_THREAD(pm_process, ev, data)
 	static struct etimer st;
   static uint8_t mode;
 	PROCESS_BEGIN();
+  current_mode = PM_NORMAL_MODE;
   current_battery_level = PM.get_battery_level();
   mode = PM.get_charging_status();
 

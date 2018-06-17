@@ -60,7 +60,10 @@ load_default_boot_app(void)
 #if defined(USE_WDUI_STACK)
 		// err_code = wdui_switch_screen(SCR_EXTENSION, m_uuid);
 #else
-		lunchr_load_app_with_uuid(uuid);
+		if (lunchr_load_app_with_uuid(uuid) != ENONE) {
+			PRINTF("[init] load boot file failed: remove file\n");
+			lunchr_remove_boot_task();
+		}
 #endif
 	} else if (err_code == ENOENT) {
 		PRINTF("[init] no boot file\n");

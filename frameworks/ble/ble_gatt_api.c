@@ -42,7 +42,7 @@ ble_gatt_add_service_api(BleGattService *service)
   uint16_t uuid16;
   nest_bleservice_t nest_bleservice;
   nest_blecharacteristic_t nest_characteristic;
-  PRINTF("[ble_gatt_api] NEST.gatts_add_service\n");
+  // PRINTF("[ble_gatt_api] NEST.gatts_add_service\n");
 
   if (service == NULL) {
     return ENULLP;
@@ -69,11 +69,11 @@ ble_gatt_add_service_api(BleGattService *service)
 
   // retrive the service handle
   *service->handle = nest_bleservice.handle;
-   PRINTF("[ble_gatt_api] service handle %d %d\n", nest_bleservice.handle, *service->handle);
+  // PRINTF("[ble_gatt_api] service handle %d %d\n", nest_bleservice.handle, *service->handle);
 
   // start to add charateristic
   total_characteristic = service->characteristic_count;
-  PRINTF("[ble_gatt_api] total_characteristic %d \n", total_characteristic);
+  // PRINTF("[ble_gatt_api] total_characteristic %d \n", total_characteristic);
   for (uint8_t i = 0; i < total_characteristic; i++) {
     BleGattCharacteristic *bleGattChar = &service->characteristics[i];
 
@@ -107,15 +107,14 @@ ble_gatt_add_service_api(BleGattService *service)
       nest_characteristic.init_value_len = bleGattChar->init_value_len;
     }
 
-
-    PRINTF("[ble_gatt_api] add characteristic\n");
+    // PRINTF("[ble_gatt_api] add characteristic\n");
     errcode = NEST.gatts_add_characteristic(&nest_bleservice, &nest_characteristic);
     if (errcode != ENONE) {
       PRINTF("[ble_gatt_api] NEST.gatts_add_characteristic error %d\n", errcode);
       return errcode;
     }
 
-    PRINTF("[ble_gatt_api] value_handle %d cccd_handle %d\n", nest_characteristic.value_handle, nest_characteristic.cccd_handle);
+    // PRINTF("[ble_gatt_api] value_handle %d cccd_handle %d\n", nest_characteristic.value_handle, nest_characteristic.cccd_handle);
 
     *bleGattChar->value_handle = nest_characteristic.value_handle;
     *bleGattChar->cccd_handle = nest_characteristic.cccd_handle;

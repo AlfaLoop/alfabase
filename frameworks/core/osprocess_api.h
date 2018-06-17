@@ -39,6 +39,7 @@ typedef struct{
   uint32_t (*getClockTick)(void);
   void (*delay)(uint16_t millis);
   void (*delayUs)(uint16_t microseconds);
+  int (*getEnv)(void *params, int size);
 } Process;
 
 // Singleton instance of OSLog

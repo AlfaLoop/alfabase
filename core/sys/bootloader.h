@@ -22,6 +22,7 @@ extern "C" {
 
 #include <stdint.h>
 
+uint32_t bootloader_settings_get(void *p_settings, int size);
 uint32_t bootloader_start(void);
 
 #ifdef __cplusplus

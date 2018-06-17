@@ -18,6 +18,7 @@
 #include "frameworks/app_eventpool.h"
 #include "loader/symtab.h"
 #include "sys/clock.h"
+#include "sys/bootloader.h"
 #include "dev/logger.h"
 #include "errno.h"
 /*---------------------------------------------------------------------------*/
@@ -97,6 +98,12 @@ osprocess_delayus(uint16_t microseconds)
   return;
 }
 /*---------------------------------------------------------------------------*/
+static int
+osprocess_getenv(void *params, int size)
+{
+  return bootloader_settings_get(params, size);
+}
+/*---------------------------------------------------------------------------*/
 Process*
 OSProcess(void)
 {
@@ -107,6 +114,7 @@ OSProcess(void)
   process.getClockTick = osprocess_get_clock_tick;
   process.delay = osprocess_delay;
   process.delayUs = osprocess_delayus;
+  process.getEnv = osprocess_getenv;
 	return &process;
 }
 static struct symbols symbolOSProcess = {

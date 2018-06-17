@@ -23,7 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
-#define API_VERSION		1.1.3
+#define API_VERSION		1.1.4
 /*---------------------------------------------------------------------------*//*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
@@ -396,6 +396,7 @@ typedef struct{
   uint32_t (*getClockTick)(void);
   void (*delay)(uint16_t millis);
   void (*delayUs)(uint16_t microseconds);
+  int (*getEnv)(void *params, int size);
 } Process;
 
 // Singleton instance of OSLog
@@ -447,156 +448,6 @@ typedef struct{
 HWDriver* HWPipe(const char *dev);
 HWDriver* HWGet(uint32_t idx);
 int HWNum(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*---------------------------------------------------------------------------*/
-#if defined(UIKit)
-// UIWINDOW
-#define UIWINDOW_CONTROL_EVENT_CLICK            0x00000001
-#define UIWINDOW_CONTROL_EVENT_DOUBLE_TAP       0x00000002
-#define UIWINDOW_CONTROL_EVENT_PAUSE            0x00000004
-#define UIWINDOW_CONTROL_EVENT_RESUME           0x00000008
-
-typedef void (* UIWindowEventHandler)(uint32_t type);
-
-typedef enum {
-  FONT_KEY_SERIF_6 = 0x00000001,
-  FONT_KEY_SERIF_7,
-  FONT_KEY_SERIF_9,
-  FONT_KEY_SERIF_12,
-} GRAPHICS_FONT_KEYS;
-
-typedef enum {
-  BITMAP_COLOR_WHITE = 0x00000000,
-  BITMAP_COLOR_BLOCK,
-} BITMAP_COLOR_KEYS;
-
-typedef struct {
-  int (* clear)(void);
-  int (* update)(void);
-  int (* drawPixel)(int16_t x, int16_t y);
-  int (* drawLine)(int16_t x0, int16_t y0, int16_t x1, int16_t y1);
-  int (* drawRect)(int16_t x, int16_t y, int16_t width, int16_t height);
-  int (* fillRect)(int16_t x, int16_t y, int16_t width, int16_t height);
-  int (* drawCircle)(int16_t x, int16_t y, int16_t radius);
-  int (* fillCircle)(int16_t x, int16_t y, int16_t radius);
-  int (* drawHorizontalLine)(int16_t x, int16_t y, int16_t length);
-  int (* drawVerticalLine)(int16_t x, int16_t y, int16_t length);
-  int (* drawProgressBar)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint8_t progress);
-  int (* drawBitmap)(uint8_t *bitmap, uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color);
-  int (* drawText)(const char *text, int len, uint32_t x, uint32_t y);
-  int (* drawChar)(char text, uint32_t x, uint32_t y);
-  int (* setCursor)(int16_t x, int16_t y);
-  int (* setFont)(uint32_t font_key);
-  int (* setRotation)(uint8_t rotation);
-} Canvas;
-
-typedef struct {
-  int (*shortPulse)(void);
-  int (*longPulse)(void);
-  int (*doublePulse)(void);
-} Vibrator;
-
-typedef struct {
-  Canvas* (*getCanvas)(void);
-  int (*displayOff)(void);
-  int (*displayOn)(void);
-  int (*getDisplayWidth)(void);
-  int (*getDisplayHeight)(void);
-  int (*setBackgroundMode)(bool enable);
-  Vibrator* (*getVibrator)(void);
-} Window;
-
-// Singleton instance of Window
-Window* UIWindow(void);
-int UIWindowEventAttach(UIWindowEventHandler handler);
-int UIWindowEventDetach(void);
-
-#endif
-
-/*---------------------------------------------------------------------------*/
-// Hardware API
-#if defined(HWKit)
-/*---------------------------------------------------------------------------*/
-// GPIO
-enum {
-  GPIO_DEFAULT = 0x00,
-  GPIO_OUTPUT = 0x01,
-  GPIO_INPUT = 0x02
-};
-
-enum {
-  GPIO_OUTPUT_LOW = 0x00,
-  GPIO_OUTPUT_HIGH = 0x01,
-  GPIO_OUTPUT_TOGGLE
-};
-
-enum {
-  GPIO_INPUT_FLOATING = 0x00,
-  GPIO_INPUT_PULLUP = 0x01,
-  GPIO_INPUT_PULLDOWN = 0x02
-};
-
-enum {
-  GPIO_EDGE_NONE = 0x00,
-  GPIO_EDGE_RISING = 0x01,
-  GPIO_EDGE_FALLING = 0x02
-};
-
-typedef void (* GpioEventHandler)(uint32_t pin, uint32_t edge);
-
-typedef struct {
-  int (* setup)(uint32_t pin, uint8_t value);
-  int (* output)(uint32_t pin, uint8_t value);
-  int (* input)(uint32_t pin, uint8_t value);
-  int (* read)(uint32_t pin);
-  int (* attachInterrupt)(uint32_t pin, uint32_t edge, GpioEventHandler handler);
-  int (* detachInterrupt)(void);
-} Gpio;
-
-Gpio* HWGpio(void);
-
-/*---------------------------------------------------------------------------*/
-// Uart
-enum {
-	BAUDRATE_1200 = 1200,
-  BAUDRATE_2400 = 2400,
-  BAUDRATE_4800 = 4800,
-  BAUDRATE_9600 = 9600,
-	BAUDRATE_19200 = 19200,
-  BAUDRATE_38400 = 28400,
-  BAUDRATE_57600 = 57600,
-  BAUDRATE_115200 = 115200,
-};
-
-typedef void (* UartRxHandler)(uint8_t data);
-
-typedef struct {
-	int (* open)(uint32_t pin_tx, uint32_t pin_rx, uint32_t baudrate, UartRxHandler handler);
-  int (* close)(void);
-  int (* send)(uint8_t *data, uint32_t length);
-} Uart;
-
-Uart* HWUart(uint8_t number);
-/*---------------------------------------------------------------------------*/
-// I2c
-// I2c* HWI2c(uint8_t number);
-/*---------------------------------------------------------------------------*/
-// Spi
-// Spi* HWSpi(uint8_t number);
-#endif  /*  HWKit */
 
 #ifdef __cplusplus
 }

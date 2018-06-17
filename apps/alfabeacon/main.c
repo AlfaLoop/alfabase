@@ -36,7 +36,14 @@ const static uint32_t FILE_KEY_RADIO_TXPOWER = 0x00000006;
 const static uint32_t FILE_KEY_2477S_RF_ATTE = 0x00000007;
 #endif
 /*---------------------------------------------------------------------------*/
-const static char *device_name = "AlfaBeacon";
+typedef struct {
+	uint8_t uuid[16];
+	uint8_t major[2];
+	uint8_t minor[2];
+} __attribute__((packed, aligned(4))) param_settings_t;
+/*---------------------------------------------------------------------------*/
+const static char *device_name = "AlfaLoop";
+static param_settings_t settings;
 static uint8_t m_mac_address[6];
 static bool is_connected = false;
 static uint16_t peripheral_conn_handle;
@@ -395,13 +402,13 @@ setup_advertisement(void)
   service_data_packetes[4] = ble_adv_manu_ibeacon_data[20];
   service_data_packetes[5] = ble_adv_manu_ibeacon_data[21];
   service_data_packetes[6] = ble_adv_manu_ibeacon_data[22];
-  // service_data_packetes[2] = m_mac_address[5];
-  // service_data_packetes[3] = m_mac_address[4];
-  // service_data_packetes[4] = m_mac_address[3];
-  // service_data_packetes[5] = m_mac_address[2];
-  // service_data_packetes[6] = m_mac_address[1];
-  // service_data_packetes[7] = m_mac_address[0];
-  adv_builder->addServiceData(&scan_rsp_advdata, service_uuid, &service_data_packetes[0], 7);
+  service_data_packetes[7] = m_mac_address[5];
+  service_data_packetes[8] = m_mac_address[4];
+  service_data_packetes[9] = m_mac_address[3];
+  service_data_packetes[10] = m_mac_address[2];
+  service_data_packetes[11] = m_mac_address[1];
+  service_data_packetes[12] = m_mac_address[0];
+  adv_builder->addServiceData(&scan_rsp_advdata, service_uuid, &service_data_packetes[0], 13);
 
   // setup the advertisement
   ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
@@ -458,6 +465,20 @@ int main(void)
   hwdriver_rfatte = HWPipe("rf_atte");
   hwdriver_led = HWPipe("led");
 #endif
+
+  process->getEnv(&settings, sizeof(param_settings_t));
+  logger->printf(LOG_RTT, "[app] param settings uuid:");
+  for (int i = 0; i < 16; i++) {
+    logger->printf(LOG_RTT, "0x%02X ", settings.uuid[i]);
+  }
+  logger->printf(LOG_RTT, "\n[app] param settings major:");
+  logger->printf(LOG_RTT, "0x%02X%02X\n", settings.major[0], settings.major[1]);
+  logger->printf(LOG_RTT, "[app] param settings minor:");
+  logger->printf(LOG_RTT, "0x%02X%02X\n", settings.minor[0], settings.minor[1]);
+
+  memcpy(&ble_adv_manu_ibeacon_data[2], &settings.uuid[0], 16);
+  memcpy(&ble_adv_manu_ibeacon_data[18], &settings.major[0], 2);
+  memcpy(&ble_adv_manu_ibeacon_data[20], &settings.minor[0], 2);
 
   // Get the mac address
   ble_manager->getMacAddress(m_mac_address);

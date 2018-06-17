@@ -146,10 +146,20 @@ bootloader_util_reset(uint32_t start_addr)
 	sd_softdevice_disable();
 	NVIC_ClearPendingIRQ(SWI2_IRQn);
 	interrupts_disable();
-  PRINTF("[bootloader-arch] watchdog reboot\n");
+  // PRINTF("[bootloader-arch] watchdog reboot\n");
   NVIC_SystemReset();
   // watchdog_reboot();
 	while(1){};
+}
+/*---------------------------------------------------------------------------*/
+uint32_t
+bootloader_settings_get(void *p_settings, int size)
+{
+  if (size > 4096) {
+    return EINVAL;
+  }
+	nrf_spiffs_flash_read(BOOTLOADER_SETTINGS_ADDRESS, (uint8_t*)p_settings, size);
+	return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 uint32_t
