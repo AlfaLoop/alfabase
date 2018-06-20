@@ -132,6 +132,10 @@ PROCESS(nest_bftp_remove_process, "nest-bftp_remove");
 NEST_COMMAND(bftp_remove_command,
 	      nest_air_opcode_bftp_remove,
 	      &nest_bftp_remove_process);
+PROCESS(nest_bftp_remove_app_files_process, "nest-bftp_remove_app_files");
+NEST_COMMAND(bftp_remove_app_files_command,
+nest_air_opcode_bftp_remove_app_files,
+&nest_bftp_remove_app_files_process);
 PROCESS(nest_bftp_stat_process, "nest-bftp_stat");
 NEST_COMMAND(bftp_stat_command,
 	      nest_air_opcode_bftp_stat,
@@ -1216,9 +1220,87 @@ PROCESS_THREAD(bftp_timeout_process, ev, data)
 	}
 	PROCESS_END();
 }
+/*---------------------------------------------------------------------------*/
+PROCESS_THREAD(nest_bftp_remove_app_files_process, ev, data)
+{
+	static nest_command_data_t *input;
+	static char *appname;
+	static uint32_t err_code;
+	static uint32_t total, used;
+	PROCESS_BEGIN();
 
+	input = data;
+
+#if DEBUG_MODULE > 1
+	PRINTF("nest command bftp_remove process\n");
+	for (uint8_t i = 0; i < input->len; i++) {
+		PRINTF("%2x ", input->data[i]);
+	}
+	PRINTF("\n");
 #endif
 
+	clear_output_data();
+
+	m_output.opcode = input->opcode;
+	m_output.response_process = input->response_process;
+
+	// uuid (4 bytes) + reserve (12 bytes)
+	if (input->len != 4) {
+		PRINTF("[nest command bftp] wrong params\n");
+		m_output.data[0] = EINVAL;
+		m_output.len = 1;
+		goto response;
+	}
+
+	m_file_uuid = ((uint32_t)input->data[0] << 24) | ((uint32_t)input->data[1] << 16) |
+				((uint32_t)input->data[2] << 8) | ((uint32_t)input->data[3]);
+
+	int res;
+	spiffs_DIR d;
+	struct spiffs_dirent e;
+	struct spiffs_dirent *pe = &e;
+	spiffs_file fd = -1;
+	sprintf(m_concat_ext_buffer, "s/%08x", m_file_uuid);
+	m_concat_ext_buffer[10] = '/';
+	char *search_prefix = m_concat_ext_buffer;
+	SPIFFS_opendir(&SFS, "/", &d);
+	while ((pe = SPIFFS_readdir(&d, pe))) {
+		PRINTF("[nest command bftp] remove readdir: %s\n", (char *)pe->name);
+		if (0 == strncmp(search_prefix, (char *)pe->name, 11)) {
+
+			// found one
+			fd = SPIFFS_open_by_dirent(&SFS, pe, SPIFFS_RDWR, 0);
+			if (fd < 0) {
+				PRINTF("[nest command bftp] open dirent errno %i\n", SPIFFS_errno(&SFS));
+				SPIFFS_closedir(&d);
+				m_output.data[0] = EINTERNAL;
+				m_output.len = 1;
+				goto response;
+			}
+			res = SPIFFS_fremove(&SFS, fd);
+			if (res < 0) {
+				PRINTF("[nest command bftp] fremove errno %i\n", SPIFFS_errno(&SFS));
+				SPIFFS_closedir(&d);
+				m_output.data[0] = EINTERNAL;
+				m_output.len = 1;
+				goto response;
+			}
+			SPIFFS_close(&SFS, fd);
+		}
+	}
+	SPIFFS_closedir(&d);
+
+	SPIFFS_info(&SYSFS, &total, &used);
+	int r = SPIFFS_gc(&SYSFS, total - used);
+	PRINTF("[nest command bftp] SPIFFS gc ret %d\n", r);
+
+	m_output.data[0] = ENONE;
+	m_output.len = 1;
+response:
+	nest_command_send(&m_output);
+	PROCESS_END();
+}
+#endif
 /*---------------------------------------------------------------------------*/
 void
 nest_command_bftp_init(void)
@@ -1231,6 +1313,7 @@ nest_command_bftp_init(void)
 	nest_command_register(&bftp_stat_command);
 	nest_command_register(&bftp_space_used_command);
 	nest_command_register(&bftp_readdir_command);
+	nest_command_register(&bftp_remove_app_files_command);
 
 	if (!process_is_running(&bftp_timeout_process))
 		process_start(&bftp_timeout_process, NULL);

@@ -30,6 +30,7 @@ enum
 	nest_air_opcode_bftp_stat = 0x05,
 	nest_air_opcode_bftp_space_used = 0x06,
 	nest_air_opcode_bftp_readdir = 0x07,
+	nest_air_opcode_bftp_remove_app_files = 0x08,
 
 	nest_air_opcode_lunchr_exec = 0x10,
 	nest_air_opcode_lunchr_kill = 0x11,

@@ -13,6 +13,7 @@ from lib.nest.bftp import NestBftpInstallProcess
 from lib.nest.timesync import NestTimeSyncProcess
 from lib.nest.execute import NestExecuteProcess
 from lib.nest.remove import NestRemoveProcess
+from lib.nest.remove_app_files import NestRemoveAppFilesProcess
 from lib.nest.terminate import NestTerminateProcess
 from lib.nest.boot import NestSetBootProcess
 from lib.nest.boot import NestDelBootProcess
@@ -34,6 +35,10 @@ def install_cmd_handler(port, ipaddr):
 
 def remove_cmd_handler(port, ipaddr):
     process = NestRemoveProcess(port, ipaddr, os.getcwd())
+    process.wait()
+
+def remove_app_files_cmd_handler(port, ipaddr):
+    process = NestRemoveAppFilesProcess(port, ipaddr, os.getcwd())
     process.wait()
 
 def run_cmd_handler(port, ipaddr):
@@ -98,6 +103,11 @@ if __name__ == "__main__":
     parser_remove.add_argument("-i", "--ip", help="IP Address (e.g 192.168.1.1)", dest="ipaddr", default="")
     parser_remove.set_defaults(func=remove_cmd_handler, newstate='remove')
 
+    parser_remove_app_files = subparsers.add_parser('remove_app_files', help='Remove app files on the target board')
+    parser_remove_app_files.add_argument("-p", "--port", help="Serial driver (e.g COM1, ttyUSB0, ttyS0)", dest="port", default="")
+    parser_remove_app_files.add_argument("-i", "--ip", help="IP Address (e.g 192.168.1.1)", dest="ipaddr", default="")
+    parser_remove_app_files.set_defaults(func=remove_app_files_cmd_handler, newstate='remove_app_files')
+
     parser_run = subparsers.add_parser('run', help='Execute application on the target board')
     parser_run.add_argument("-p", "--port", help="Serial driver (e.g COM1, ttyUSB0, ttyS0)", dest="port", default="")
     parser_run.add_argument("-i", "--ip", help="IP Address (e.g 192.168.1.1)", dest="ipaddr", default="")
@@ -138,7 +148,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # print vars(args)
-    spcommands = ['install', 'remove', 'ts', 'run', 'kill', 'list', 'setboot', 'delboot', 'airlog']
+    spcommands = ['install', 'remove', 'remove_app_files', 'ts', 'run', 'kill', 'list', 'setboot', 'delboot', 'airlog']
     projcommands = ['new', 'build', 'clean']
     othercommands = ['version']
     if args.newstate in spcommands:
