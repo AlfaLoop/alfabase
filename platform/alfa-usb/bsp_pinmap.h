@@ -23,7 +23,8 @@ extern "C" {
 /*---------------------------------------------------------------------------*/
 #define XL1		                   0u
 #define XL2		                   1u
-#define LED0                     28u
+#define LED0                     27u
+#define LED1                     28u
 #define RX_PIN_NUMBER            22u
 #define TX_PIN_NUMBER            23u
 #define RTS_PIN_NUMBER           24u

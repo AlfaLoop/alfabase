@@ -37,6 +37,10 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 static uint8_t led_status = 0x00;
+#define LED_ON												nrf_gpio_pin_set
+#define LED_OFF												nrf_gpio_pin_clear
+#define LED_TOGGLE										nrf_gpio_pin_toggle
+
 /*---------------------------------------------------------------------------*/
 int
 bsp_led_write(const void *buf, uint32_t len, uint32_t offset)

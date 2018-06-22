@@ -37,13 +37,21 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 static uint8_t led_status = 0x00;
+#define LED_ON												nrf_gpio_pin_clear
+#define LED_OFF												nrf_gpio_pin_set
+#define LED_TOGGLE										nrf_gpio_pin_toggle
 /*---------------------------------------------------------------------------*/
 int
 bsp_led_write(const void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_led_ctrl = (uint8_t*)buf;
-  if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED0);}
-  else { nrf_gpio_pin_clear(LED0);}
+  if (offset == 0) {
+    if (p_led_ctrl[0]){ LED_ON(LED0);}
+    else { LED_OFF(LED0);}
+  } else if (offset == 1) {
+    if (p_led_ctrl[0]){ LED_ON(LED1);}
+    else { LED_OFF(LED1);}
+  }
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -51,7 +59,11 @@ int
 bsp_led_read(void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_led_ctrl = (uint8_t*)buf;
-  p_led_ctrl[0] = nrf_gpio_pin_read(LED0);
+  if (offset == 0) {
+    p_led_ctrl[0] = ~nrf_gpio_pin_read(LED0);
+  } else if (offset == 1) {
+    p_led_ctrl[0] = ~nrf_gpio_pin_read(LED1);
+  }
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -59,7 +71,8 @@ static void
 app_terminating(void)
 {
   // disable all led
-  nrf_gpio_pin_clear(LED0);
+  LED_OFF(LED0);
+  LED_OFF(LED1);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
@@ -72,6 +85,8 @@ bsp_led_init(void)
 {
 	app_lifecycle_register(&lifecycle_event);
   nrf_gpio_cfg_output(LED0);
-  nrf_gpio_pin_clear(LED0);
+  nrf_gpio_cfg_output(LED1);
+  LED_OFF(LED0);
+  LED_OFF(LED1);
 }
 /*---------------------------------------------------------------------------*/

@@ -65,6 +65,10 @@ static HWDriver *hwdriver_rfatte;
 static HWDriver *hwdriver_led;
 static HWDriver *hwdriver_button;
 static HWDriver *hwdriver_buzzer;
+#elif defined(BOARD_ALFAUSB)
+static HWDriver *hwdriver_led;
+#elif defined(BOARD_ALFA2477)
+static HWDriver *hwdriver_led;
 #endif
 /*---------------------------------------------------------------------------*/
 /* ble ibeacon service handle */
@@ -338,7 +342,7 @@ alfa2477s_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
     if (length == 1) {
       // led blink
       if (value[0] == 0x01) {
-        led_params = 1;
+				led_params = 1;
         hwdriver_led->write(&led_params, 1, 0);
         hwdriver_led->write(&led_params, 1, 1);
         hwdriver_led->write(&led_params, 1, 2);
@@ -389,9 +393,9 @@ setup_advertisement(void)
   // Add the service uuid and data
 #if defined(BOARD_ALFAAA)
   service_data_packetes[0] = 0x00;
-#elif defined(BOARD_ALFA2477)
-  service_data_packetes[0] = 0x01;
 #elif defined(BOARD_ALFAUSB)
+  service_data_packetes[0] = 0x01;
+#elif defined(BOARD_ALFA2477)
   service_data_packetes[0] = 0x02;
 #elif defined(BOARD_ALFA2477S)
   service_data_packetes[0] = 0x03;
@@ -464,6 +468,10 @@ int main(void)
 #if defined(BOARD_ALFA2477S)
   hwdriver_rfatte = HWPipe("rf_atte");
   hwdriver_led = HWPipe("led");
+#elif defined(BOARD_ALFAUSB)
+	hwdriver_led = HWPipe("led");
+	uint8_t led_params = 1;
+	hwdriver_led->write(&led_params, 1, 0);
 #endif
 
   process->getEnv(&settings, sizeof(param_settings_t));

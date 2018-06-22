@@ -32,12 +32,14 @@ extern "C" {
 #define CC_CONF_VA_ARGS                          1
 #define CC_CONF_INLINE                           inline
 #define SD_BLE_GATTS_ATTR_TAB_SIZE_CONF				   0x600
-#define SD_CLOCK_SOURCE_CONF                     true      // (false:internal true:Ext)
+#define SD_CLOCK_SOURCE_CONF                     false      // (false:internal true:Ext)
 #define SD_BLE_MAX_MTU_SIZE_CONF					       23
 #define GAP_CONF_MIN_CONN_INTERVAL               MSEC_TO_UNITS(20, UNIT_1_25_MS)          /**< Minimum acceptable connection interval (0.04 seconds). */
 #define GAP_CONF_MAX_CONN_INTERVAL               MSEC_TO_UNITS(60, UNIT_1_25_MS)          /**< Maximum acceptable connection interval (1 second). */
 #define GAP_CONF_SLAVE_LATENCY                   0                                        /**< Slave latency. */
 #define GAP_CONF_CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)          /**< Connection supervisory timeout (4 seconds). */
+#define SYS_HARDFAULT_KILL_BOOT_APP              0
+#define SYS_HARDFAULT_DIRECT_REBOOT              1
 
 /** Nest communication stack configuration */
 #define NEST_CONF_DRIVER				                nrf_nest_driver
