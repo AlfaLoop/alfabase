@@ -304,6 +304,12 @@ ble_adv_setdata_api(AdvData *advdata, AdvData *scanrsp_data)
   return errcode;
 }
 /*---------------------------------------------------------------------------*/
+static int
+ble_gap_disconnect(uint16_t conn_handle)
+{
+  return NEST.gap_disconnect(conn_handle);
+}
+/*---------------------------------------------------------------------------*/
 BleManager*
 CKBleManager(void)
 {
@@ -318,6 +324,7 @@ CKBleManager(void)
   instance.stopScan = ble_scan_stop_api;
   instance.addService = ble_gatt_add_service_api;
   instance.notifyCharacteristic = ble_gatts_notify_characteristic;
+  instance.disconnect = ble_gap_disconnect;
   return &instance;
 }
 static struct symbols symbolCKBleManager = {

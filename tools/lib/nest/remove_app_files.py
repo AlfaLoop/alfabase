@@ -40,7 +40,7 @@ class NestRemoveAppFilesProcess(NestProcess):
     def data_received(self, data):
         command = self.nsp.command_unpack(data)
         if not command == None:
-            if command.opcode == (NestOpcode.BFTP_REMOVE | 0x80):
+            if command.opcode == (NestOpcode.BFTP_REMOVE_APP_FILES | 0x80):
                 if command.data_len == 1:
                     #　Get the BFTP Init response, start to issue the first raw packets
                     if command.data[0] == 0x00:

@@ -33,7 +33,6 @@ USE_TWISW1 = 0
 USE_ADC = 1
 
 # Use Device-peripherals
-USE_SPI_FLASH=0
 USE_MOTOR=0
 USE_LOGGER=1
 

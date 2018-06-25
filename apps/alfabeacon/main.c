@@ -47,7 +47,7 @@ static param_settings_t settings;
 static uint8_t m_mac_address[6];
 static bool is_connected = false;
 static uint16_t peripheral_conn_handle;
-static uint8_t service_data_packetes[8];
+static uint8_t service_data_packetes[13];
 static int adv_sendout_counter = 0;
 /*---------------------------------------------------------------------------*/
 /* Framework API instance */
@@ -131,14 +131,16 @@ static BleGattService g_ble_gatt_alfa_ibeacon_service = {
 static uint16_t ble_srv_radio_handle;
 static uint16_t ble_attr_radio_interval_handle;
 static uint16_t ble_attr_radio_txpower_handle;
+static uint16_t ble_attr_radio_conn_handle;
 static uint16_t interval_handle_value = ADV_INTERVAL_LEVEL_1;
 static int8_t txpower_handle_value = 0;
+static uint8_t conn_handle_value = 0;
 /*---------------------------------------------------------------------------*/
 static BleGattService g_ble_gatt_alfa_radio_service = {
   .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
   .uuid = &gatt_alfa_radio_service_uuid,
   .handle = &ble_srv_radio_handle,
-  .characteristic_count = 2,
+  .characteristic_count = 3,
   .characteristics = (BleGattCharacteristic[]) { {
     .uuid = &gatt_alfa_radio_chr_interval,
     .value_handle = &ble_attr_radio_interval_handle,
@@ -152,6 +154,13 @@ static BleGattService g_ble_gatt_alfa_radio_service = {
     .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
     .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
     .init_value = &txpower_handle_value,
+    .init_value_len = 1,
+  }, {
+    .uuid = &gatt_alfa_radio_chr_conn,
+    .value_handle = &ble_attr_radio_conn_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &conn_handle_value,
     .init_value_len = 1,
   }, {
     0, /* End: No more characteristics in this service */
@@ -314,6 +323,13 @@ radio_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
       logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
     }
     ble_manager->setTxPower(txpower_handle_value);
+  } else if (handle == ble_attr_radio_conn_handle) {
+  	if (length == 1) {
+			if (value[0] == 0x01) {
+				ret = ble_manager->disconnect(peripheral_conn_handle);
+				logger->printf(LOG_RTT, "[app] disconnect request %d\n", ret);
+			}
+		}
   }
 }
 /*---------------------------------------------------------------------------*/

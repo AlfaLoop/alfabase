@@ -23,7 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stddef.h>
 /*---------------------------------------------------------------------------*/
-#define API_VERSION		1.1.4
+#define API_VERSION		1.1.5
 /*---------------------------------------------------------------------------*//*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
@@ -323,6 +323,7 @@ typedef struct{
   int (*stopScan)(void);
   int (*addService)(BleGattService *service);
   int (*notifyCharacteristic)(uint16_t conn_handle, uint16_t handle, uint8_t *value, uint16_t length);
+  int (*disconnect)(uint16_t conn_handle);
 } BleManager;
 
 BleManager* CKBleManager(void);

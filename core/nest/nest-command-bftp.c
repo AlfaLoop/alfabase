@@ -1265,9 +1265,8 @@ PROCESS_THREAD(nest_bftp_remove_app_files_process, ev, data)
 	char *search_prefix = m_concat_ext_buffer;
 	SPIFFS_opendir(&SFS, "/", &d);
 	while ((pe = SPIFFS_readdir(&d, pe))) {
-		PRINTF("[nest command bftp] remove readdir: %s\n", (char *)pe->name);
 		if (0 == strncmp(search_prefix, (char *)pe->name, 11)) {
-
+			PRINTF("[nest command bftp] remove readdir: %s\n", (char *)pe->name);
 			// found one
 			fd = SPIFFS_open_by_dirent(&SFS, pe, SPIFFS_RDWR, 0);
 			if (fd < 0) {
@@ -1290,9 +1289,9 @@ PROCESS_THREAD(nest_bftp_remove_app_files_process, ev, data)
 	}
 	SPIFFS_closedir(&d);
 
-	SPIFFS_info(&SYSFS, &total, &used);
-	int r = SPIFFS_gc(&SYSFS, total - used);
-	PRINTF("[nest command bftp] SPIFFS gc ret %d\n", r);
+	// SPIFFS_info(&SYSFS, &total, &used);
+	// int r = SPIFFS_gc(&SYSFS, total - used);
+	// PRINTF("[nest command bftp] SPIFFS gc ret %d\n", r);
 
 	m_output.data[0] = ENONE;
 	m_output.len = 1;

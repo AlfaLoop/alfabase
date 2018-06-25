@@ -30,6 +30,8 @@ const BleUuid16 gatt_alfa_radio_chr_interval = BLE_UUID16_INIT(0x0002);
 /* Alfa2477s Radio tx power UUID {19FA0003-F6C2-09A3-E9F9-128ABCA31297} */
 const BleUuid16 gatt_alfa_radio_chr_tx_power = BLE_UUID16_INIT(0x0003);
 
+/* Alfa2477s Radio tx power UUID {19FA0004-F6C2-09A3-E9F9-128ABCA31297} */
+const BleUuid16 gatt_alfa_radio_chr_conn = BLE_UUID16_INIT(0x0004);
 
 #ifdef __cplusplus
 }

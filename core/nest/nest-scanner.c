@@ -36,11 +36,11 @@
 #endif  /* DEBUG_ENABLE */
 
 /*---------------------------------------------------------------------------*/
-#define ERROR_RESET_MAX     4
-#define RANDOM_TIMING			  4
-#define DEFAULT_ACTIVE			1
-#define DEFAULT_WINDOW			80
-#define DEFAULT_MIN_WINDOW  20
+#define ERROR_RESET_MAX         4
+#define RANDOM_TIMING			      4
+#define DEFAULT_ACTIVE		     	1
+#define DEFAULT_MAX_WINDOW			80
+#define DEFAULT_MIN_WINDOW      20
 
 /*---------------------------------------------------------------------------*/
 
@@ -71,10 +71,10 @@ PROCESS_THREAD(nest_scan_api_process, ev, data)
 	params.window = ble_scan_interval_level;
 
 	// connection mode
-	// if (process_is_running(&nest_channel_process) || nest_is_peripheral_connected()) {
-	// 	params.interval = DEFAULT_MIN_WINDOW;
-	// 	params.window = DEFAULT_MIN_WINDOW;
-	// }
+	if ( (nest_central_status() != NEST_CENTRAL_STATUS_NONE) || nest_is_peripheral_connected()) {
+		params.interval = DEFAULT_MIN_WINDOW;
+		params.window = DEFAULT_MIN_WINDOW;
+	}
 
 	ret = NEST.gap_scan(&params);
 	if (ret == ENONE) {
@@ -123,8 +123,8 @@ PROCESS_THREAD(nest_scan_central_process, ev, data)
 		params.interval = DEFAULT_MIN_WINDOW;
 		params.window = DEFAULT_MIN_WINDOW;
 	} else {
-		params.interval = 100;
-		params.window = 100;
+		params.interval = DEFAULT_MAX_WINDOW;
+		params.window = DEFAULT_MAX_WINDOW;
 	}
 	ret = NEST.gap_scan(&params);
 	if (ret == ENONE) {

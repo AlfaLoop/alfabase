@@ -40,6 +40,7 @@ typedef struct{
   int (*stopScan)(void);
   int (*addService)(BleGattService *service);
   int (*notifyCharacteristic)(uint16_t conn_handle, uint16_t handle, uint8_t *value, uint16_t length);
+  int (*disconnect)(uint16_t conn_handle);
 } BleManager;
 
 BleManager* CKBleManager(void);
