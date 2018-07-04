@@ -77,7 +77,11 @@ extern "C" {
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration
-#define CRYPTO_PLATFORM_ARCH                    nrf_ecb_driver
+#define CRYPTO_AES_ECB_CONF                       1
+#define CRYPTO_AES_ECB_ENCRYPT_HW_CONF            1
+#define CRYPTO_AES_ECB_DECRYPT_HW_CONF            0
+#define CRYPTO_SHA256_CONF                        1
+#define CRYPTO_HMAC_SHA256_CONF                   1
 
 // Framework API usage configuration
 #define FRAMEWORK_USE_HEALTHKIT_CONF                0

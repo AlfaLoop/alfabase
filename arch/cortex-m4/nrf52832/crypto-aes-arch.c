@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#include "ostimer_api.h"
-#include "frameworks/app_lifecycle.h"
-#include "frameworks/app_eventpool.h"
-#include "libs/crypto/hmac-sha256.h"
+#include "crypto/aes.h"
 #include "errno.h"
+#include "nrf_soc.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -32,9 +30,17 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 
-void
-oscrypto_api_init(void)
+// hardware accelation
+static nrf_ecb_hal_data_t   m_ecb_data;
+/*---------------------------------------------------------------------------*/
+int
+aes_ecb_encrypt_arch(uint8_t *key, uint8_t *input, uint8_t *output)
 {
-
+  memset(m_ecb_data.ciphertext, 0, SOC_ECB_KEY_LENGTH);
+  memcpy(m_ecb_data.key, key, SOC_ECB_KEY_LENGTH);
+  memcpy(m_ecb_data.cleartext, input, SOC_ECB_KEY_LENGTH);
+  sd_ecb_block_encrypt(&m_ecb_data);
+  memcpy(output, m_ecb_data.ciphertext, SOC_ECB_KEY_LENGTH);
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/

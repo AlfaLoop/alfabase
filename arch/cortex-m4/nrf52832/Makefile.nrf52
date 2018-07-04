@@ -273,6 +273,11 @@ ifeq ($(USE_MPU),1)
 	PROJECT_ARCH_SOURCEFILES += mwu-arch.c
 endif
 
+ifeq ($(USE_CRYPTO_AES),1)
+	CFLAGS += -DUSE_CRYPTO_AES
+	PROJECT_ARCH_SOURCEFILES += crypto-aes-arch.c
+endif
+
 # CPU-Peripheral
 ifeq ($(USE_GPIOTE),1)
 	PROJECT_ARCH_SOURCEFILES += gpiote.c

@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#ifndef _CRYPTO_API_H
-#define _CRYPTO_API_H
+#ifndef __OSCRYPTO_API_H
+#define __OSCRYPTO_API_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,16 +43,17 @@ typedef struct {
 } HmacSHA256;
 
 typedef struct{
+  int (*aesECBEncrypt)(uint8_t *key, uint8_t *input, uint8_t *output);
+  int (*aesECBDecrypt)(uint8_t *key, uint8_t *input, uint8_t *output);
   int (*sha256Init)(Sha256 *sha);
   int (*sha256Update)(Sha256 *sha, const uint8_t *data, uint32_t datalen);
   int (*sha256Final)(Sha256 *sha, uint8_t *digest);
-  int (*hmacSha256Setkey)(HmacSHA256 *hmac, const uint8_t *key, uint32_t datalen);
-  int (*hmacSha256Init)(HmacSHA256 *hmac);
+  int (*hmacSha256Init)(HmacSHA256 *hmac, const uint8_t *key, uint32_t datalen);
   int (*hmacSha256Update)(HmacSHA256 *hmac, const void *data, uint32_t datalen);
   int (*hmacSha256Final)(HmacSHA256 *hmac, uint8_t *digest);
-} OSCrypto;
+} Crypto;
 
-OSCrypto* OSCryptoInit(void);
+Crypto* OSCrypto(void);
 /* Framework API */
 
 
@@ -64,4 +65,4 @@ void oscrypto_api_init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _CRYPTO_API_H */
+#endif /* __OSCRYPTO_API_H */

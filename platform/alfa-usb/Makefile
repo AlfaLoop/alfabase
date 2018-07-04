@@ -31,6 +31,7 @@ USE_TWIHW1 = 0
 USE_TWISW0 = 0
 USE_TWISW1 = 0
 USE_ADC = 1
+USE_CRYPTO_AES = 1
 
 # Use Device-peripherals
 USE_MOTOR=0

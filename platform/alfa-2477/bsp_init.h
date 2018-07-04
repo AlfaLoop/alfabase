@@ -79,7 +79,11 @@ extern "C" {
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration
-#define CRYPTO_PLATFORM_ARCH                    nrf_ecb_driver
+#define CRYPTO_AES_ECB_CONF                       1
+#define CRYPTO_AES_ECB_ENCRYPT_HW_CONF            1
+#define CRYPTO_AES_ECB_DECRYPT_HW_CONF            0
+#define CRYPTO_SHA256_CONF                        1
+#define CRYPTO_HMAC_SHA256_CONF                   1
 
 #define PM_CONF_DRIVER                      pm_bsp_driver
 #define ARCH_BATTERY_ADC_VENDOR_CONF        "Not defined"

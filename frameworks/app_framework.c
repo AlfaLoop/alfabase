@@ -30,6 +30,7 @@
 #include "core/osprocess_api.h"
 #include "core/osdevice_api.h"
 #include "core/oslocaltime_api.h"
+#include "core/oscrypto_api.h"
 #include "hw/hw_api.h"
 #include "ble/ble_api.h"
 #endif
@@ -222,6 +223,7 @@ app_framework_init(void)
 	osdevice_api_init();
 	oslocaltime_api_init();
 	osprocess_api_init();
+	oscrypto_api_init();
 	ble_api_init();
 	hw_api_init();
 

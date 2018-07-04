@@ -25,6 +25,7 @@ endif
 ifeq ($(USE_FRAMEWORK),1)
 	MODULES += frameworks
 	MODULES += frameworks/core
+	MODULES += frameworks/crypto
 	MODULES += frameworks/hw
 	MODULES += frameworks/ble
 endif

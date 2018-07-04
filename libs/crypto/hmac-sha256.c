@@ -1,18 +1,18 @@
 /**
- *  Copyright (c) 2016 AlfaLoop Technology Co., Ltd. All Rights Reserved.
+ * © Copyright AlfaLoop Technology Co., Ltd. 2018
  *
- *  Unauthorized copying of this file, via any medium is strictly prohibited
- *  Proprietary and confidential.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Attribution - You must give appropriate credit, provide a link to the license, and
- *  indicate if changes were made. You may do so in any reasonable manner, but not in any
- *  way that suggests the licensor endorses you or your use.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  NonCommercial - You may not use the material for commercial purposes under unauthorized.
- *
- *  NoDerivatives - If you remix, transform, or build upon the material, you may not
- *  distribute the modified material.
- */
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 #include "hmac-sha256.h"
 #include "contiki.h"
 #include "errno.h"
@@ -119,7 +119,7 @@ transform(uint32_t *iv, const uint8_t *data)
 	iv[4] += e; iv[5] += f; iv[6] += g; iv[7] += h;
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
+int
 sha256_init(sha256_t *sha)
 {
 	/* input sanity check: */
@@ -141,7 +141,7 @@ sha256_init(sha256_t *sha)
 	return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
+int
 sha256_update(sha256_t *sha,  const uint8_t *data, uint32_t datalen)
 {
   if (datalen == 0 || sha == NULL) {
@@ -158,7 +158,7 @@ sha256_update(sha256_t *sha,  const uint8_t *data, uint32_t datalen)
 	}
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
+int
 sha256_final(sha256_t *sha, uint8_t *digest)
 {
   uint32_t i;
@@ -209,8 +209,8 @@ sha256_final(sha256_t *sha, uint8_t *digest)
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
-hmac_sha256_setkey(hmac_sha256_t *hmac, const uint8_t *key, uint32_t datalen)
+int
+hmac_sha256_init(hmac_sha256_t *hmac, const uint8_t *key, uint32_t datalen)
 {
 	/* input sanity check: */
 	if (hmac == NULL || key == NULL ||
@@ -247,26 +247,15 @@ hmac_sha256_setkey(hmac_sha256_t *hmac, const uint8_t *key, uint32_t datalen)
 		      CRYPTO_SHA256_DIGEST_SIZE);
 	}
 
-	return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-uint32_t
-hmac_sha256_init(hmac_sha256_t *hmac)
-{
-	/* input sanity check: */
-	if (hmac == NULL) {
-		return EINVAL;
-	}
-
 	(void)sha256_init(&hmac->sha);
 	(void)sha256_update(&hmac->sha,
-			       hmac->key,
-			       CRYPTO_SHA256_BLOCK_SIZE);
+						 hmac->key,
+						 CRYPTO_SHA256_BLOCK_SIZE);
 
 	return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
+int
 hmac_sha256_update(hmac_sha256_t *hmac, const void *data, uint32_t datalen)
 {
   /* input sanity check: */
@@ -279,7 +268,7 @@ hmac_sha256_update(hmac_sha256_t *hmac, const void *data, uint32_t datalen)
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
-uint32_t
+int
 hmac_sha256_final(hmac_sha256_t *hmac, uint8_t *data)
 {
   /* input sanity check: */
