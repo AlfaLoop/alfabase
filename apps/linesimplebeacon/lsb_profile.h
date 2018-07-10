@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define DEAULT_HWID 0x32, 0xAF, 0x51, 0x9E, 0x88
+#define DEAULT_HWID 0x01, 0x13, 0x53, 0x73, 0xdb
 #define DEFAULT_DEVICE_MESSAGE 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!', '!'
 
 /* LINE Simple Beacon Profile {A78D0001-F6C2-09A3-E9F9-128ABCA31297} */
