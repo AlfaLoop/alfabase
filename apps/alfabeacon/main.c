@@ -26,6 +26,7 @@
 #error need define the BOARD_TYPE in cflag setting (app.conf)
 #endif
 /*---------------------------------------------------------------------------*/
+
 const static uint32_t FILE_KEY_IBEACON_UUID = 0x00000001;
 const static uint32_t FILE_KEY_IBEACON_MAJOR = 0x00000002;
 const static uint32_t FILE_KEY_IBEACON_MINOR = 0x00000003;
@@ -543,7 +544,7 @@ int main(void)
     return 0;
   }
 
-  // Get default parameters: Radio interval
+  // Get default parameters: Radio txpower
   errcode = qsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] get radio txpower error %d\n", errcode);
