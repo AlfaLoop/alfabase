@@ -1,49 +1,79 @@
+/*
+* Copyright (C) 2018 AlfaLoop Technology Co., Ltd.
+*
+* Licensed under the Apache License, Version 2.0 (the "License";
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* 	  www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 #include "alfabase.h"
-
-/* LINE Simple Beacon Profile {A78D0001-F6C2-09A3-E9F9-128ABCA31297} */
-const BleUuid128 gatt_alfa_lsb_service_uuid =
-    BLE_UUID128_INIT(0x97, 0x12, 0xa3, 0xbc, 0x8a, 0x12, 0xF9, 0xE9,
-                     0xa3, 0x09, 0xc2, 0xF6, 0x01, 0x00, 0x8D, 0xA7);
-/* LINE Simple Beacon HWID {A78D0002-F6C2-09A3-E9F9-128ABCA31297} */
-const BleUuid16 gatt_alfa_lsb_chr_hwid = BLE_UUID16_INIT(0x0002);
-
-/* LINE Simple Beacon device message {A78D0003-F6C2-09A3-E9F9-128ABCA31297} */
-const BleUuid16 gatt_alfa_lsb_chr_dm = BLE_UUID16_INIT(0x0003);
-
+#include "lsb_profile.h"
+#include "radio_profile.h"
+/*---------------------------------------------------------------------------*/
+#if defined(BOARD_ALFAAA)
+#elif defined(BOARD_ALFA2477)
+#elif defined(BOARD_ALFAUSB)
+#elif defined(BOARD_ALFA2477S)
+#include "alfa2477s_profile.h"
+#else
+#error need define the BOARD_TYPE in cflag setting (app.conf)
+#endif
+/*---------------------------------------------------------------------------*/
+const static uint32_t FILE_KEY_VERSION = 0x00000000;
 const static uint32_t FILE_KEY_LSB_HWID = 0x00000001;
 const static uint32_t FILE_KEY_LSB_DM = 0x00000002;
-
+const static uint32_t FILE_KEY_RADIO_INTERVAL = 0x00000005;
+const static uint32_t FILE_KEY_RADIO_TXPOWER = 0x00000006;
+#if defined(BOARD_ALFA2477S)
+const static uint32_t FILE_KEY_2477S_RF_ATTE = 0x00000007;
+#endif
+/*---------------------------------------------------------------------------*/
+static char *device_name = "AlfaLoop";
+static uint8_t m_mac_address[6];
+static bool is_connected = false;
+static uint16_t peripheral_conn_handle;
+static uint8_t service_data_packetes[13];
+static int adv_sendout_counter = 0;
+/*---------------------------------------------------------------------------*/
+/* Framework API instance */
 static Logger *logger;
+static Process *process;
 static AdvDataBuilder *adv_builder;
 static BleManager *ble_manager;
 static Device *device;
-static FileIO *fileio;
 static AdvData advdata;
 static AdvData scan_rsp_advdata;
-
-static char *device_name = "SimpleBeacon";
-
-static uint16_t peripheral_conn_handle;
-static bool is_connected = false;
-static bool is_notification_enabled = false;
-static bool adv_event_flag = false;
-
-/* ble service handle */
+static FileIO *fileio;
+/*---------------------------------------------------------------------------*/
+#if defined(BOARD_ALFA2477S)
+static HWDriver *hwdriver_rfatte;
+static HWDriver *hwdriver_led;
+static HWDriver *hwdriver_button;
+static HWDriver *hwdriver_buzzer;
+#elif defined(BOARD_ALFAUSB)
+static HWDriver *hwdriver_led;
+#elif defined(BOARD_ALFA2477)
+static HWDriver *hwdriver_led;
+#endif
+/*---------------------------------------------------------------------------*/
+/* ble LINE Simplae Beacon service handle */
 static uint16_t ble_service_handle;
 static uint16_t ble_attr_lsb_chr_hwid_handle;
 static uint16_t ble_attr_lsb_chr_dm_handle;
-
-#define DEAULT_HWID 0x32, 0xAF, 0x51, 0x9E, 0x88
-#define DEFAULT_DEVICE_MESSAGE 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!', '!'
-static uint8_t simplebeacon_packet[20] =
-                          {
-                            0x02, // SimpleBeacon
-                            DEAULT_HWID,
-                            0x7F, // Measured TX power (fixed field)
-                            DEFAULT_DEVICE_MESSAGE,
-                          };
-/*---------------------------------------------------------------------------*/
-static void setup_advertisement(void);
+static uint8_t linesimplebeacon_packets[20] =
+{
+  0x02, // SimpleBeacon
+  DEAULT_HWID,
+  0x7F, // Measured TX power (fixed field)
+  DEFAULT_DEVICE_MESSAGE,
+};
 /*---------------------------------------------------------------------------*/
 static BleGattService g_ble_gatt_alfa_lsb_service = {
   .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
@@ -55,7 +85,7 @@ static BleGattService g_ble_gatt_alfa_lsb_service = {
       .value_handle = &ble_attr_lsb_chr_hwid_handle,
       .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
       .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
-      .init_value = &simplebeacon_packet[1],
+      .init_value = &linesimplebeacon_packets[1],
       .init_value_len = 5,
   }, {
       /* Characteristic: Write */
@@ -63,64 +93,320 @@ static BleGattService g_ble_gatt_alfa_lsb_service = {
       .value_handle = &ble_attr_lsb_chr_dm_handle,
       .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
       .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
-      .init_value = &simplebeacon_packet[7],
+      .init_value = &linesimplebeacon_packets[7],
       .init_value_len = 13,
   }, {
     0, /* End: No more characteristics in this service */
   }}
 };
 /*---------------------------------------------------------------------------*/
-static void
-ble_simplebeacon_update_hwid(uint8_t * hwid)
+static uint16_t ble_srv_radio_handle;
+static uint16_t ble_attr_radio_interval_handle;
+static uint16_t ble_attr_radio_txpower_handle;
+static uint16_t ble_attr_radio_conn_handle;
+static uint16_t interval_handle_value = ADV_INTERVAL_LEVEL_1;
+static int8_t txpower_handle_value = 0;
+static uint8_t conn_handle_value = 0;
+/*---------------------------------------------------------------------------*/
+static BleGattService g_ble_gatt_alfa_radio_service = {
+  .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
+  .uuid = &gatt_alfa_radio_service_uuid,
+  .handle = &ble_srv_radio_handle,
+  .characteristic_count = 3,
+  .characteristics = (BleGattCharacteristic[]) { {
+    .uuid = &gatt_alfa_radio_chr_interval,
+    .value_handle = &ble_attr_radio_interval_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &interval_handle_value,
+    .init_value_len = 2,
+  }, {
+    .uuid = &gatt_alfa_radio_chr_tx_power,
+    .value_handle = &ble_attr_radio_txpower_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &txpower_handle_value,
+    .init_value_len = 1,
+  }, {
+    .uuid = &gatt_alfa_radio_chr_conn,
+    .value_handle = &ble_attr_radio_conn_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &conn_handle_value,
+    .init_value_len = 1,
+  }, {
+    0, /* End: No more characteristics in this service */
+  }}
+};
+/*---------------------------------------------------------------------------*/
+#if defined(BOARD_ALFA2477S)
+static uint16_t ble_srv_alfa_2477s_handle;
+static uint16_t ble_attr_alfa_2477s_rfatte_handle;
+static uint16_t ble_attr_alfa_2477s_button_handle;
+static uint16_t ble_attr_alfa_2477s_button_cccdhandle;
+static uint16_t ble_attr_alfa_2477s_buzzer_handle;
+static uint16_t ble_attr_alfa_2477s_led_handle;
+static uint8_t rfatte_handle_value = 0x00;
+static uint8_t buzzer_handle_value = 0x00;
+static uint8_t led_handle_value = 0x00;
+/*---------------------------------------------------------------------------*/
+static BleGattService g_ble_gatt_alfa_2477s_service = {
+  .type = BLE_GATT_SERVICE_TYPE_PRIMARY,
+  .uuid = &gatt_alfa_2477s_service_uuid,
+  .handle = &ble_srv_alfa_2477s_handle,
+  .characteristic_count = 4,
+  .characteristics = (BleGattCharacteristic[]) { {
+    .uuid = &gatt_alfa_2477s_chr_rfatte,
+    .value_handle = &ble_attr_alfa_2477s_rfatte_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &rfatte_handle_value,
+    .init_value_len = 1,
+  }, {
+    .uuid = &gatt_alfa_2477s_chr_button,
+    .value_handle = &ble_attr_alfa_2477s_button_handle,
+    .cccd_handle = &ble_attr_alfa_2477s_button_cccdhandle,
+    .props = BLE_GATT_CHR_PROPS_NOTIFY,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value_len = 0,
+  }, {
+    .uuid = &gatt_alfa_2477s_chr_buzzer,
+    .value_handle = &ble_attr_alfa_2477s_buzzer_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &buzzer_handle_value,
+    .init_value_len = 1,
+  }, {
+    .uuid = &gatt_alfa_2477s_chr_led,
+    .value_handle = &ble_attr_alfa_2477s_led_handle,
+    .props = BLE_GATT_CHR_PROPS_READ | BLE_GATT_CHR_PROPS_WRITE | BLE_GATT_CHR_PROPS_WRITE_NO_RSP,
+    .permission = BLE_GATT_CHR_PERMISSION_READ | BLE_GATT_CHR_PERMISSION_WRITE,
+    .init_value = &led_handle_value,
+    .init_value_len = 1,
+  }, {
+    0, /* End: No more characteristics in this service */
+  }}
+};
+#endif
+/*---------------------------------------------------------------------------*/
+static void setup_advertisement(void);
+static void ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state);
+static int upsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len);
+static int qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len);
+/*---------------------------------------------------------------------------*/
+static int
+upsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
 {
-  memcpy(&simplebeacon_packet[1], hwid, 5);
   int16_t fd;
-  int ret = fileio->open(&fd, FILE_KEY_LSB_HWID, "w");
+  logger->printf(LOG_RTT, "[app] upsert key 0x%08X len %d\n", key, len);
+
+  int ret = fileio->open(&fd, key, "w+");
+  logger->printf(LOG_RTT, "[app] upsert open %d\n", ret);
   if (ret == ENONE) {
-    // write default simplebeacon hwid
-    ret = fileio->write(fd, &hwid[0], 5);
+    // write default ibeacon uuid
+    logger->printf(LOG_RTT, "[app] upsert write file len %d\n", len);
+    ret = fileio->write(fd, data, len);
+    logger->printf(LOG_RTT, "[app] upsert write file ret %d\n", ret);
+  }
+  fileio->close(fd);
+  return ret;
+}
+/*---------------------------------------------------------------------------*/
+static int
+qsert_storage_data(const uint32_t key, uint8_t *data, uint32_t len)
+{
+  int16_t fd;
+  int ret;
+
+  int ret_size = fileio->size(key);
+  logger->printf(LOG_RTT, "[app] qsert key 0x%08X ret_size %d\n", key, ret_size);
+
+  if (ret_size) {
+    logger->printf(LOG_RTT, "[app] qsert exist, read %d\n", ret_size);
+    ret = fileio->open(&fd, key, "r");
     if (ret == ENONE) {
-      logger->printf(LOG_RTT, "[app] update hwid\n");
+      // read 16 bytes for ibeacon uuid
+      ret = fileio->read(fd, data, ret_size);
     }
     fileio->close(fd);
+  } else {
+    logger->printf(LOG_RTT, "[app] qsert create.\n");
+    ret = fileio->open(&fd, key, "w+");
+    if (ret == ENONE) {
+      // write default ibeacon uuid
+      ret = fileio->write(fd, data, len);
+    }
+    fileio->close(fd);
+  }
+  return ret;
+}
+/*---------------------------------------------------------------------------*/
+static void
+lsb_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
+{
+  int ret;
+  if (handle == ble_attr_lsb_chr_hwid_handle) {
+    memset(&linesimplebeacon_packets[7], 0, 13);
+    memcpy(&linesimplebeacon_packets[7], value, 13);
+    ret = upsert_storage_data(FILE_KEY_LSB_HWID, &linesimplebeacon_packets[7], 13);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update lsb hwid error %d\n", ret);
+    }
+  } else if (handle == ble_attr_lsb_chr_dm_handle) {
+    memset(&linesimplebeacon_packets[1], 0, 5);
+    memcpy(&linesimplebeacon_packets[1], value, 5);
+    ret = upsert_storage_data(FILE_KEY_LSB_DM, &linesimplebeacon_packets[1], 5);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update lsb dm error %d\n", ret);
+    }
   }
 }
 /*---------------------------------------------------------------------------*/
 static void
-ble_simplebeacon_update_device_message(uint8_t * dm, uint8_t length)
+radio_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 {
-  memset(&simplebeacon_packet[7], 0x00, 13);
-  memcpy(&simplebeacon_packet[7], dm, length);
-  int16_t fd;
-  int ret = fileio->open(&fd, FILE_KEY_LSB_DM, "w");
-  if (ret == ENONE) {
-    // write default simplebeacon hwid
-    ret = fileio->write(fd, &simplebeacon_packet[7], 13);
-    if (ret == ENONE) {
-      logger->printf(LOG_RTT, "[app] update device message\n");
+  int ret;
+  if (handle == ble_attr_radio_interval_handle) {
+    interval_handle_value = 0;
+    interval_handle_value = value[1];
+    interval_handle_value = interval_handle_value << 8;
+    interval_handle_value = interval_handle_value | value[0];
+    logger->printf(LOG_RTT, "[app] update radio interval %d\n", interval_handle_value);
+    // memcpy(&interval_handle_value, value, 2);
+    ret = upsert_storage_data(FILE_KEY_RADIO_INTERVAL, &interval_handle_value, 2);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update radio interval error %d\n", ret);
     }
-    fileio->close(fd);
+  } else if (handle == ble_attr_radio_txpower_handle) {
+    memcpy(&txpower_handle_value, value, 1);
+    logger->printf(LOG_RTT, "[app] update radio txpower %d\n", txpower_handle_value);
+    ret = upsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+    if (ret != ENONE) {
+      logger->printf(LOG_RTT, "[app] update radio txpower error %d\n", ret);
+    }
+    ble_manager->setTxPower(txpower_handle_value);
+  } else if (handle == ble_attr_radio_conn_handle) {
+  	if (length == 1) {
+			if (value[0] == 0x01) {
+				ret = ble_manager->disconnect(peripheral_conn_handle);
+				logger->printf(LOG_RTT, "[app] disconnect request %d\n", ret);
+			}
+		}
   }
 }
 /*---------------------------------------------------------------------------*/
+#if defined(BOARD_ALFA2477S)
 static void
-ble_gatt_charact_write_req(uint16_t conn_handle, uint16_t handle, uint8_t *value, uint16_t length)
+alfa2477s_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
+{
+  int ret;
+  uint8_t led_params;
+  if (handle == ble_attr_alfa_2477s_rfatte_handle) {
+    if (length == 1) {
+      rfatte_handle_value = value[0];
+      logger->printf(LOG_RTT, "[app] update alfa2477s rfatte %d\n", rfatte_handle_value);
+      ret = upsert_storage_data(FILE_KEY_2477S_RF_ATTE, &rfatte_handle_value, 1);
+      if (ret != ENONE) {
+        logger->printf(LOG_RTT, "[app] update rfatte error %d\n", ret);
+      }
+      hwdriver_rfatte->write(&rfatte_handle_value, 1, 0);
+    }
+  } else if (handle == ble_attr_alfa_2477s_button_cccdhandle) {
+    // TODO:
+  } else if (handle == ble_attr_alfa_2477s_buzzer_handle) {
+    // TODO:
+  } else if (handle == ble_attr_alfa_2477s_led_handle) {
+    // TODO:
+    if (length == 1) {
+      // led blink
+      if (value[0] == 0x01) {
+				led_params = 1;
+        hwdriver_led->write(&led_params, 1, 0);
+        hwdriver_led->write(&led_params, 1, 1);
+        hwdriver_led->write(&led_params, 1, 2);
+        process->delay(20);
+        led_params = 0;
+        hwdriver_led->write(&led_params, 1, 0);
+        hwdriver_led->write(&led_params, 1, 1);
+        hwdriver_led->write(&led_params, 1, 2);
+      }
+    }
+  }
+}
+#endif
+/*---------------------------------------------------------------------------*/
+static void
+ble_gatt_chr_write_req(uint16_t conn_handle, uint16_t handle, uint8_t *value, uint16_t length)
 {
   int len = length;
-  logger->printf(LOG_RTT, "[app] write length %d\n", len);
-  if (len > 20) {
-    return;
-  }
-
-  // data from peer
-  if (handle == ble_attr_lsb_chr_dm_handle) {
-    ble_simplebeacon_update_device_message(value, length);
-    setup_advertisement();
-  } else if (handle == ble_attr_lsb_chr_hwid_handle) {
-    ble_simplebeacon_update_hwid(value);
+  if (conn_handle == peripheral_conn_handle) {
+    lsb_ble_write_evt_handler(handle, value, length);
+    radio_ble_write_evt_handler(handle, value, length);
+#if defined(BOARD_ALFA2477S)
+    alfa2477s_write_evt_handler(handle, value, length);
+#endif
     setup_advertisement();
   }
 }
+/*---------------------------------------------------------------------------*/
+static void
+setup_advertisement(void)
+{
+  uint16_t service_uuid = 0xA55A;
+  uint16_t line_crop_uuid = 0xFE6F;
+
+  // setup LINE Simple Packets
+  adv_builder->init(&advdata);
+  adv_builder->addService16bitUUID(&advdata, line_crop_uuid);
+  adv_builder->addServiceData(&advdata, line_crop_uuid, &linesimplebeacon_packets[0], 20);
+
+  // initiate scan response packets
+  adv_builder->initScanRsp(&scan_rsp_advdata);
+  adv_builder->addCompleteLocalName(&scan_rsp_advdata, device_name, strlen(device_name));
+  adv_builder->addService16bitUUID(&scan_rsp_advdata, service_uuid);
+
+  // Add the service uuid and data
+#if defined(BOARD_ALFAAA)
+  service_data_packetes[0] = 0x00;
+#elif defined(BOARD_ALFAUSB)
+  service_data_packetes[0] = 0x01;
+#elif defined(BOARD_ALFA2477)
+  service_data_packetes[0] = 0x02;
+#elif defined(BOARD_ALFA2477S)
+  service_data_packetes[0] = 0x03;
+#endif
+  service_data_packetes[1] = device->getBatteryLevel();
+  service_data_packetes[2] = m_mac_address[5];
+  service_data_packetes[3] = m_mac_address[4];
+  service_data_packetes[4] = m_mac_address[3];
+  service_data_packetes[5] = m_mac_address[2];
+  service_data_packetes[6] = m_mac_address[1];
+  service_data_packetes[7] = m_mac_address[0];
+  adv_builder->addServiceData(&scan_rsp_advdata, service_uuid, &service_data_packetes[0], 8);
+
+  ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
+}
+/*---------------------------------------------------------------------------*/
+static void
+adv_sendout_callback(void)
+{
+  // update battery level
+  adv_sendout_counter++;
+  if (adv_sendout_counter > 10000) {
+    adv_sendout_counter = 0;
+    setup_advertisement();
+  }
+}
+/*---------------------------------------------------------------------------*/
+const static BleGattServerCallback callback = {
+  .onCharacteristicWriteRequest = ble_gatt_chr_write_req,
+  .onCharacteristicReadRequest = NULL,
+  .onConnectionStateChanged = ble_gap_conn_evt_handler
+};
+/*---------------------------------------------------------------------------*/
+const static BleAdvertiseCallback adv_callback = {
+  .onSendout = adv_sendout_callback
+};
 /*---------------------------------------------------------------------------*/
 static void
 ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state)
@@ -128,104 +414,111 @@ ble_gap_conn_evt_handler(uint16_t conn_handle, uint16_t state)
   peripheral_conn_handle = conn_handle;
   if (state == BLE_GATT_STATE_CONNECTED) {
     is_connected = true;
+    ble_manager->stopAdvertising();
   } else if (state == BLE_GATT_STATE_DISCONNECTED) {
     is_connected = false;
+    ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);
   }
 }
 /*---------------------------------------------------------------------------*/
-const static BleGattServerCallback callback = {
-  .onCharacteristicWriteRequest = ble_gatt_charact_write_req,
-  .onCharacteristicReadRequest = NULL,
-  .onConnectionStateChanged = ble_gap_conn_evt_handler
-};
-/****************************************************************/
-static void
-setup_advertisement(void)
-{
-  int errcode;
-  // setup the simplebeacon data
-  adv_builder->init(&advdata);
-  uint16_t line_crop_uuid = 0xFE6F;
-  adv_builder->addService16bitUUID(&advdata, line_crop_uuid);
-  adv_builder->addServiceData(&advdata, line_crop_uuid, &simplebeacon_packet[0], 20);
-
-  adv_builder->initScanRsp(&scan_rsp_advdata);
-  adv_builder->addCompleteLocalName(&scan_rsp_advdata, device_name, strlen(device_name));
-
-  errcode = ble_manager->setAdvertisementData(&advdata, &scan_rsp_advdata);
-  if (errcode != ENONE) {
-    logger->printf(LOG_RTT, "[app] setAdvertisementData error %d\n", errcode);
-    return 0;
-  }
-}
-/****************************************************************/
 int main(void)
 {
   int errcode;
   int16_t fd;
-  Process *process = OSProcess();
+  int key1_size;
+
+  // Get Framework API Instance
+  process = OSProcess();
   logger = OSLogger();
   ble_manager = CKBleManager();
   adv_builder = CKAdvDataBuilder();
   device = OSDevice();
   fileio = OSFileIO();
 
-  // Get default parameters: simple beacon hwid
-  int ret_size = fileio->size(FILE_KEY_LSB_HWID);
-  if (ret_size) {
-    int ret = fileio->open(&fd, FILE_KEY_LSB_HWID, "r");
-    if (ret == ENONE) {
-      // read 5 bytes for hwid
-      ret = fileio->read(fd, &simplebeacon_packet[1], ret_size);
-    }
-    fileio->close(fd);
-  } else {
-    int ret = fileio->open(&fd, FILE_KEY_LSB_HWID, "w+");
-    if (ret == ENONE) {
-      // write default hwid
-      ret = fileio->write(fd, &simplebeacon_packet[1], 5);
-      if (ret == ENONE) {
-        logger->printf(LOG_RTT, "[app] init 5 bytes to hwid\n");
-      }
-      fileio->close(fd);
-    }
+#if defined(BOARD_ALFA2477S)
+  hwdriver_rfatte = HWPipe("rf_atte");
+  hwdriver_led = HWPipe("led");
+#elif defined(BOARD_ALFAUSB)
+	hwdriver_led = HWPipe("led");
+	uint8_t led_params = 1;
+	hwdriver_led->write(&led_params, 1, 0);
+#endif
+
+  // Get the mac address
+  ble_manager->getMacAddress(m_mac_address);
+  ble_manager->setDeviceName(device_name, strlen(device_name));
+
+  // Get default parameters: LINE Simple beacon HWID
+  errcode = qsert_storage_data(FILE_KEY_LSB_HWID, &linesimplebeacon_packets[1], 5);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get LSB HWID error %d\n", errcode);
+    return 0;
   }
 
-  // Get default parameters: simple beacon device message
-  ret_size = fileio->size(FILE_KEY_LSB_DM);
-  if (ret_size) {
-    int ret = fileio->open(&fd, FILE_KEY_LSB_DM, "r");
-    if (ret == ENONE) {
-      // read 13 bytes for device message
-      ret = fileio->read(fd, &simplebeacon_packet[7], ret_size);
-    }
-    fileio->close(fd);
-  } else {
-    int ret = fileio->open(&fd, FILE_KEY_LSB_DM, "w+");
-    if (ret == ENONE) {
-      // write default device message
-      ret = fileio->write(fd, &simplebeacon_packet[7], 13);
-      if (ret == ENONE) {
-        logger->printf(LOG_RTT, "[app] init 13 bytes to device message\n");
-      }
-      fileio->close(fd);
-    }
+  // Get default parameters: LINE Simple beacon DM
+  errcode = qsert_storage_data(FILE_KEY_LSB_DM, &linesimplebeacon_packets[7], 13);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get LSB DM error %d\n", errcode);
+    return 0;
   }
+
+  // Get default parameters: Radio interval
+  errcode = qsert_storage_data(FILE_KEY_RADIO_INTERVAL, (uint8_t*)&interval_handle_value, 2);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get radio interval error %d\n", errcode);
+    return 0;
+  }
+
+  // Get default parameters: Radio txpower
+  errcode = qsert_storage_data(FILE_KEY_RADIO_TXPOWER, &txpower_handle_value, 1);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get radio txpower error %d\n", errcode);
+    return 0;
+  }
+
+  // Get default parameters:  2477s rf atte
+#if defined(BOARD_ALFA2477S)
+  errcode = qsert_storage_data(FILE_KEY_2477S_RF_ATTE, &rfatte_handle_value, 1);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] get rf atte error %d\n", errcode);
+    return 0;
+  }
+  hwdriver_rfatte->write(&rfatte_handle_value, 1, 0);
+#endif
+
+  // setup the tx power
+  ble_manager->setTxPower(txpower_handle_value);
 
   setup_advertisement();
 
   errcode = ble_manager->addService(&g_ble_gatt_alfa_lsb_service);
   if (errcode != ENONE) {
-    logger->printf(LOG_RTT,"[app] addService error %d\n", errcode);
+    logger->printf(LOG_RTT,"[app] add service error %d\n", errcode);
     return 0;
   }
 
-  errcode = ble_manager->startAdvertising(ADV_INTERVAL_LEVEL_0, NULL, &callback);
+  errcode = ble_manager->addService(&g_ble_gatt_alfa_radio_service);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] add service error %d\n", errcode);
+    return 0;
+  }
+
+
+#if defined(BOARD_ALFA2477S)
+  errcode = ble_manager->addService(&g_ble_gatt_alfa_2477s_service);
+  if (errcode != ENONE) {
+    logger->printf(LOG_RTT,"[app] add service error %d\n", errcode);
+    return 0;
+  }
+#endif
+
+  logger->printf(LOG_RTT,"[app] startAdvertising interval %d\n", interval_handle_value);
+  // start advertising
+  errcode = ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] startAdvertising error %d\n", errcode);
     return 0;
   }
-
   while (1) {
     // Power saving
     process->waitForEvent();
