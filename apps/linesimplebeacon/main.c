@@ -246,16 +246,16 @@ lsb_ble_write_evt_handler(uint16_t handle, uint8_t *value, uint16_t length)
 {
   int ret;
   if (handle == ble_attr_lsb_chr_hwid_handle) {
-    memset(&linesimplebeacon_packets[7], 0, 13);
-    memcpy(&linesimplebeacon_packets[7], value, 13);
-    ret = upsert_storage_data(FILE_KEY_LSB_HWID, &linesimplebeacon_packets[7], 13);
+    memset(&linesimplebeacon_packets[1], 0, 5);
+    memcpy(&linesimplebeacon_packets[1], value, 5);
+    ret = upsert_storage_data(FILE_KEY_LSB_HWID, &linesimplebeacon_packets[1], 5);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update lsb hwid error %d\n", ret);
     }
   } else if (handle == ble_attr_lsb_chr_dm_handle) {
-    memset(&linesimplebeacon_packets[1], 0, 5);
-    memcpy(&linesimplebeacon_packets[1], value, 5);
-    ret = upsert_storage_data(FILE_KEY_LSB_DM, &linesimplebeacon_packets[1], 5);
+    memset(&linesimplebeacon_packets[7], 0, 13);
+    memcpy(&linesimplebeacon_packets[7], value, 13);
+    ret = upsert_storage_data(FILE_KEY_LSB_DM, &linesimplebeacon_packets[7], 13);
     if (ret != ENONE) {
       logger->printf(LOG_RTT, "[app] update lsb dm error %d\n", ret);
     }
@@ -513,8 +513,10 @@ int main(void)
 #endif
 
   logger->printf(LOG_RTT,"[app] startAdvertising interval %d\n", interval_handle_value);
+
   // start advertising
   errcode = ble_manager->startAdvertising(interval_handle_value, &adv_callback, &callback);
+
   if (errcode != ENONE) {
     logger->printf(LOG_RTT,"[app] startAdvertising error %d\n", errcode);
     return 0;

@@ -19,8 +19,8 @@
 extern "C" {
 #endif
 
-#define DEAULT_HWID 0x01, 0x13, 0x53, 0x73, 0xdb
-#define DEFAULT_DEVICE_MESSAGE 'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', '!', '!'
+#define DEAULT_HWID 0x01, 0x13, 0xa7, 0x42, 0x28
+#define DEFAULT_DEVICE_MESSAGE 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D
 
 /* LINE Simple Beacon Profile {A78D0001-F6C2-09A3-E9F9-128ABCA31297} */
 const BleUuid128 gatt_alfa_lsb_service_uuid =

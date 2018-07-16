@@ -109,8 +109,11 @@ extern "C" {
 #undef DEBUG_ENABLE
 #endif
 
-extern const struct i2c_driver nrf_twi_sw_driver0;
-#define INV_MPU_TWI_DRIVER_CONF nrf_twi_sw_driver0
+extern const struct i2c_driver nrf_twi_hw_driver0;
+#define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
+
+// extern const struct i2c_driver nrf_twi_sw_driver0;
+// #define INV_MPU_TWI_DRIVER_CONF nrf_twi_sw_driver0
 
 extern const struct spi_driver spi1_driver;
 #define SPI_FLASH_DRIVER_CONF spi1_driver

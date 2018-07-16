@@ -19,6 +19,14 @@
 extern "C" {
 #endif
 
+/*
+SWDIO
+SWDCK
+GND
+VCC
+*/
+
+
 // Board Defintion
 /*---------------------------------------------------------------------------*/
 #define XL1		                   0u
