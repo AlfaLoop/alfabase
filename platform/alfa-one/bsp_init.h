@@ -89,16 +89,16 @@ extern "C" {
 
 
 #define USE_SPIFFS_CACHE                            1
-#define STORAGE_SYSC_INTERNAL_CONF                  1
+#define STORAGE_SYSC_INTERNAL_CONF                  2
 #if STORAGE_SYSC_INTERNAL_CONF == 1
   #define STORAGE_SYSC_FS_INSTANCE_CONF nrf_spiffs
 #elif STORAGE_SYSC_INTERNAL_CONF == 2
   #define STORAGE_SYSC_FS_INSTANCE_CONF extfs
   #include "spiffs-flash-arch.h"
-  #define STORAGE_SYSC_FS_FLSAH_SIZE_CONF          W25Q20_SIZE
-  #define STORAGE_SYSC_FS_FLSAH_PAGES_CONF         W25Q20_PAGES
-  #define STORAGE_SYSC_FS_FLSAH_PAGE_SIZE_CONF     W25Q20_PAGE_SIZE
-  #define STORAGE_SYSC_FS_FLSAH_SECTOR_SIZE_CONF   W25Q20_SECTOR_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_SIZE_CONF          W25Q80_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_PAGES_CONF         W25Q80_PAGES
+  #define STORAGE_SYSC_FS_FLSAH_PAGE_SIZE_CONF     W25Q80_PAGE_SIZE
+  #define STORAGE_SYSC_FS_FLSAH_SECTOR_SIZE_CONF   W25Q80_SECTOR_SIZE
 #endif
 
 /** System log configuration */
@@ -109,11 +109,11 @@ extern "C" {
 #undef DEBUG_ENABLE
 #endif
 
-extern const struct i2c_driver nrf_twi_hw_driver0;
-#define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
+// extern const struct i2c_driver nrf_twi_hw_driver0;
+// #define INV_MPU_TWI_DRIVER_CONF nrf_twi_hw_driver0
 
-// extern const struct i2c_driver nrf_twi_sw_driver0;
-// #define INV_MPU_TWI_DRIVER_CONF nrf_twi_sw_driver0
+extern const struct i2c_driver nrf_twi_sw_driver0;
+#define INV_MPU_TWI_DRIVER_CONF nrf_twi_sw_driver0
 
 extern const struct spi_driver spi1_driver;
 #define SPI_FLASH_DRIVER_CONF spi1_driver

@@ -79,7 +79,7 @@ bsp_mpu9250_dmp_open(void *args)
   if (m_mpu9250_active) {
     return EINVALSTATE;
   }
-
+  PRINTF("[bsp mpu9250 dmp] open \n");
   SENSOR_MOTIONFUSION.poweron();
   m_mpu9250_active = true;
   return ENONE;
@@ -197,6 +197,8 @@ bsp_mpu9250_dmp_init(void)
 	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
   // SENSOR_MOTIONFUSION.poweron();
 	SENSOR_MOTIONFUSION.poweroff(false);
+  m_mpu9250_active = false;
+
   // SENSOR_MOTIONFUSION.poweroff(false);
 
 }

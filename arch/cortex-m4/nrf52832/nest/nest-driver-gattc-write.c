@@ -26,7 +26,7 @@
 #include "softdevice_handler.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -59,7 +59,7 @@ nrf_gattc_write(uint16_t conn_id, uint16_t handle, uint16_t offset, uint16_t len
   gattc_write_callback = callback;
   err_code = sd_ble_gattc_write(conn_id, &write_params);
   if (err_code != NRF_SUCCESS) {
-    PRINTF("nrf gattc write error %d \n", err_code);
+    PRINTF("[nrf gattc write driver] error %d \n", err_code);
     if (err_code == BLE_ERROR_INVALID_CONN_HANDLE) {
       return EINVAL;
     } else if (err_code == NRF_ERROR_INVALID_STATE) {

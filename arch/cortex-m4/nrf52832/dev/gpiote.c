@@ -52,7 +52,8 @@ extern TaskHandle_t g_contiki_thread;
  * @param[in]   p_user   Pointer to user structure.
  * @param[in]   pins     Bitmask specifying for which pins the sense level is to be toggled.
  */
-static void sense_level_toggle(gpiote_handle_t *item, uint32_t pins)
+static void
+sense_level_toggle(gpiote_handle_t *item, uint32_t pins)
 {
   uint32_t pin_no;
 

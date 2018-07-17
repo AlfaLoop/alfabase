@@ -218,9 +218,9 @@ ct_cb_handler(void)
 	mpu->read(&gyro_data, sizeof(mems_data_t), 1);
 	PRINTF("[main] %f %f %f\n", gyro_data.value[0], gyro_data.value[1], gyro_data.value[2]);
 
-	HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
-	ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
-	PRINTF("[main] %d %d %d %d\n", ieefp4_data_inst.heel, ieefp4_data_inst.outer_ball, ieefp4_data_inst.inner_ball, ieefp4_data_inst.thumb);
+	// HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
+	// ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
+	// PRINTF("[main] %d %d %d %d\n", ieefp4_data_inst.heel, ieefp4_data_inst.outer_ball, ieefp4_data_inst.inner_ball, ieefp4_data_inst.thumb);
 	ctimer_reset(&ct);
 }
 /*---------------------------------------------------------------------------*/
@@ -241,6 +241,7 @@ bsp_device_init(void)
 	// mpu->open(NULL);
 	// PRINTF("[main] HWDriver mpu name %s\n", mpu->name);
 	// ctimer_set(&ct, 100 , ct_cb_handler, (void *)NULL);
+
 	// HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
 	// ieefp4->open(NULL);
 	// PRINTF("[main] HWDriver ieefp4 name %s\n", ieefp4->name);
@@ -307,6 +308,7 @@ contiki_task(void *arg)
 // Initialize low-level driver of file system
 #if defined(USE_SPIFFS)
 	nrf_spiffs_arch_init(1);
+	spiffs_flash_arch_init(1);
 #endif
 
 	// initialate board-supported function

@@ -27,7 +27,7 @@ extern "C" {
 #if defined(BDV)
 #define BOARD_DEV_VERSION              BDV
 #else
-#define BOARD_DEV_VERSION              BOARD_FOOT_V3_LEFT
+#define BOARD_DEV_VERSION              BOARD_FOOT_V3_RIGHT
 #endif
 
 // Board Defintion
@@ -89,7 +89,7 @@ extern "C" {
 #define MPU_CS  		                27u
 #define MPU_AUX  		                28u
 #define MPU_INT 		                30u
-#define MPU_ADDRESS				          0xD2
+#define MPU_ADDRESS				          0xD0 // 0xD2
 #endif
 
 #define TX_PIN_NUMBER               UART_TX

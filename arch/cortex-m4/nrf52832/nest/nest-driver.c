@@ -717,8 +717,9 @@ on_characteristic_discovery_rsp(ble_db_discovery_t * const    p_db_discovery,
   }
 }
 /*---------------------------------------------------------------------------*/
-static void on_descriptor_discovery_rsp(ble_db_discovery_t * const    p_db_discovery,
-                                        const ble_gattc_evt_t * const p_ble_gattc_evt)
+static void
+on_descriptor_discovery_rsp(ble_db_discovery_t * const    p_db_discovery,
+                            const ble_gattc_evt_t * const p_ble_gattc_evt)
 {
   const ble_gattc_evt_desc_disc_rsp_t * p_desc_disc_rsp_evt;
   ble_gatt_db_srv_t                   * p_srv_being_discovered;
@@ -837,11 +838,7 @@ on_ble_central_evt(const ble_evt_t * const p_ble_evt)
         PRINTF("[nest driver] Exceed the link limitation\n");
         return;
       }
-      // peer_type = p_evt_connect->peer_addr.addr_type;
-      // memcpy(peer_address, p_evt_connect->peer_addr.addr, 6);
-      // nest_connected_event(p_gap_evt->conn_handle, NEST_BLE_ROLE_CENTRAL,
-      //                            peer_address, peer_type);
-      // nrf_gap_central_connected_event(p_gap_evt->conn_handle, peer_address, peer_type);
+
       connected_event_params.conn_id = p_gap_evt->conn_handle;
       memcpy(connected_event_params.address, p_evt_connect->peer_addr.addr, 6);
       connected_event_params.type = p_evt_connect->peer_addr.addr_type;
@@ -859,10 +856,7 @@ on_ble_central_evt(const ble_evt_t * const p_ble_evt)
       ble_db_discovery_t  *p_db_discovery = &m_ble_db_discovery[p_ble_evt->evt.gap_evt.conn_handle];
       p_db_discovery->discovery_in_progress = false;
       memset(&p_db_discovery->service, 0x00, (sizeof(ble_gatt_db_srv_t) ) );
-      // nest_disconnect_event(p_ble_evt->evt.gap_evt.conn_handle,
-      //                       p_ble_evt->evt.gap_evt.params.disconnected.reason);
-      // nrf_gap_central_disconnect_event(p_ble_evt->evt.gap_evt.conn_handle,
-      //                       p_ble_evt->evt.gap_evt.params.disconnected.reason);
+
       disconnect_event_params.conn_id = p_ble_evt->evt.gap_evt.conn_handle;
       disconnect_event_params.reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
       process_post(&nrf_sd_event_process, nrf_sd_event_gap_disconnect, (void *)&disconnect_event_params);
@@ -872,16 +866,6 @@ on_ble_central_evt(const ble_evt_t * const p_ble_evt)
     {
       // PRINTF("[nest driver] gattc gvx connId %d\n", p_gap_evt->conn_handle);
       // HVX can only occur from client sending.
-      // nest_gattc_handle_value_event(p_gap_evt->conn_handle,
-      //                         p_ble_evt->evt.gattc_evt.params.hvx.handle,
-      //                         // (uint8_t *)p_ble_evt->evt.gattc_evt.params.hvx.data,
-      //                         &p_ble_evt->evt.gattc_evt.params.hvx.data[0],
-      //                         p_ble_evt->evt.gattc_evt.params.hvx.len);
-      // nrf_gattc_handle_value_event(p_gap_evt->conn_handle,
-      //                         p_ble_evt->evt.gattc_evt.params.hvx.handle,
-      //                         // (uint8_t *)p_ble_evt->evt.gattc_evt.params.hvx.data,
-      //                         &p_ble_evt->evt.gattc_evt.params.hvx.data[0],
-      //                         p_ble_evt->evt.gattc_evt.params.hvx.len);
       gattc_write_event_params.conn_id = p_gap_evt->conn_handle;
       gattc_write_event_params.handle = p_ble_evt->evt.gattc_evt.params.hvx.handle;
       memcpy(gattc_write_event_params.data, &p_ble_evt->evt.gattc_evt.params.hvx.data[0], p_ble_evt->evt.gattc_evt.params.hvx.len);
@@ -917,7 +901,6 @@ on_ble_central_evt(const ble_evt_t * const p_ble_evt)
       report.type = p_gap_evt->params.adv_report.type;
       scq_enqueue(&report, INPUT_ALLOC);
       process_post(&nrf_sd_event_process, nrf_sd_event_adv_report, NULL);
-      // nest_scanner_result_event(&report);
     }
     break; // BLE_GAP_ADV_REPORT
     case BLE_GAP_EVT_TIMEOUT:
@@ -943,7 +926,7 @@ on_ble_central_evt(const ble_evt_t * const p_ble_evt)
     case BLE_GATTC_EVT_TIMEOUT:
     {
       // Disconnect on GATT Client timeout event.
-      PRINTF("[nest driver] GATT Client Timeout.\n");
+      // PRINTF("[nest driver] GATT Client Timeout.\n");
       err_code = sd_ble_gap_disconnect(p_ble_evt->evt.gattc_evt.conn_handle,
                                        BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
       APP_ERROR_CHECK(err_code);
@@ -982,8 +965,6 @@ on_ble_peripheral_evt(ble_evt_t * p_ble_evt)
   static nrf_gap_disconnect_event_t disconnect_event_params;
   static nrf_gatt_write_value_event_t  gatts_write_event_params;
   ret_code_t err_code;
-  // uint8_t peer_address[6];
-  // uint8_t peer_type;
 
   switch (p_ble_evt->header.evt_id)
   {
@@ -991,10 +972,6 @@ on_ble_peripheral_evt(ble_evt_t * p_ble_evt)
     {
       PRINTF("[nest driver] on ble peripheral event: connected connId %d\n",
                              p_gap_evt->conn_handle);
-      // peer_type = p_evt_connect->peer_addr.addr_type;
-      // memcpy(peer_address, p_evt_connect->peer_addr.addr, 6);
-      // nest_connected_event(p_gap_evt->conn_handle, NEST_BLE_ROLE_PERIPHERAL,
-      //                                                  peer_address, peer_type);
       connected_event_params.conn_id = p_gap_evt->conn_handle;
       memcpy(connected_event_params.address, p_evt_connect->peer_addr.addr, 6);
       connected_event_params.type = p_evt_connect->peer_addr.addr_type;
@@ -1004,11 +981,6 @@ on_ble_peripheral_evt(ble_evt_t * p_ble_evt)
     break; //BLE_GAP_EVT_CONNECTED
     case BLE_GAP_EVT_DISCONNECTED:
     {
-      //PRINTF("[nest driver] on ble peripheral event: disconnected connId %d reason %d\n",
-      //                        p_ble_evt->evt.gap_evt.conn_handle,
-      //                        p_ble_evt->evt.gap_evt.params.disconnected.reason);
-      // nest_disconnect_event(p_ble_evt->evt.gap_evt.conn_handle,
-      //                       p_ble_evt->evt.gap_evt.params.disconnected.reason);
       disconnect_event_params.conn_id = p_ble_evt->evt.gap_evt.conn_handle;
       disconnect_event_params.reason = p_ble_evt->evt.gap_evt.params.disconnected.reason;
       process_post(&nrf_sd_event_process, nrf_sd_event_gap_disconnect, (void *)&disconnect_event_params);
@@ -1060,10 +1032,6 @@ on_ble_peripheral_evt(ble_evt_t * p_ble_evt)
     {
       PRINTF("[nest driver] gatts write event: write handle %d\n",
                                 p_ble_evt->evt.gatts_evt.params.write.handle);
-      // nest_gatts_write_event(p_ble_evt->evt.gap_evt.conn_handle,
-      //                           p_ble_evt->evt.gatts_evt.params.write.handle,
-      //                           p_ble_evt->evt.gatts_evt.params.write.data,
-      //                           p_ble_evt->evt.gatts_evt.params.write.len);
       gatts_write_event_params.conn_id = p_ble_evt->evt.gap_evt.conn_handle;
       gatts_write_event_params.handle = p_ble_evt->evt.gatts_evt.params.write.handle;
       memcpy(gatts_write_event_params.data, p_ble_evt->evt.gatts_evt.params.write.data,
@@ -1161,10 +1129,7 @@ ble_evt_dispatch(ble_evt_t * p_ble_evt)
   }
 
   if (p_ble_evt->header.evt_id == BLE_EVT_TX_COMPLETE) {
-    // TODO tx completed
     process_post(&nrf_sd_event_process, nrf_sd_event_tx_completed, NULL);
-    // nest_tx_completed();
-    // nrf_gattc_write_tx_complete();
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -1380,20 +1345,8 @@ init(void)
   ble_conn_state_init();
   nrf_gatts_init_characteristic_pool();
   nrf_gatts_init_service_pool();
-
   PRINTF("[nest driver] initialized\n");
   return ENONE;
-}
-/*---------------------------------------------------------------------------*/
-PROCESS_THREAD(nest_driver_process, ev, data)
-{
-  static uint16_t event_type;
-  PROCESS_BEGIN();
-	while(1) {
-    PROCESS_WAIT_EVENT_UNTIL( (ev == PROCESS_EVENT_POLL) );
-    event_type = data;
-  }
-  PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
 const struct nest_driver nrf_nest_driver = {

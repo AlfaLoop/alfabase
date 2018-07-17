@@ -1,18 +1,18 @@
 /**
- *  Copyright (c) 2016 AlfaLoop Technology Co., Ltd. All Rights Reserved.
+ * © Copyright AlfaLoop Technology Co., Ltd. 2018
  *
- *  Unauthorized copying of this file, via any medium is strictly prohibited
- *  Proprietary and confidential.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Attribution - You must give appropriate credit, provide a link to the license, and
- *  indicate if changes were made. You may do so in any reasonable manner, but not in any
- *  way that suggests the licensor endorses you or your use.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  NonCommercial - You may not use the material for commercial purposes under unauthorized.
- *
- *  NoDerivatives - If you remix, transform, or build upon the material, you may not
- *  distribute the modified material.
- */
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 #include "contiki.h"
 #include "mpu9250-dmp-arch.h"
 #include <stdint.h>
@@ -281,8 +281,8 @@ read_from_mpl(void)
 
     data_update |= MOTIONFUSION_COMPASS;
 
-    PRINTF("[mpu9250 arch] CompassX/Y/Z: %f %f %f Time: %d ms\n",
-        features.compass[0], features.compass[1], features.compass[2], timestamp);
+    // PRINTF("[mpu9250 arch] CompassX/Y/Z: %f %f %f Time: %d ms\n",
+    //     features.compass[0], features.compass[1], features.compass[2], timestamp);
   }
 
   if (inv_get_sensor_type_euler(data, &accuracy, &timestamp)) {
@@ -352,6 +352,7 @@ static void
 mpu9250_int_event_handler(gpiote_event_t *event)
 {
   uint32_t pin_mask = (1u << MPU_INT);
+  // PRINTF("[mpu9250 arch] int event handler\n");
   if (event->pin_no == pin_mask) {
     if (motion_active) {
       if (hal.motion_int_mode) {
@@ -579,8 +580,8 @@ PROCESS_THREAD(mpu9250_process, ev, data)
 
 	while(1) {
 		PROCESS_WAIT_EVENT_UNTIL(ev == mpu9250_sensor_event);
+    // PRINTF("[mpu9250 dmp arch] sensor event\n");
     do {
-
       timestamp = clock_time();
 
       /* We're not using a data ready interrupt for the compass, so we'll
@@ -875,8 +876,8 @@ mpu9250_arch_poweroff(bool enable_wakeup_threshold)
 
 	// gpiote_unregister(&gpioteh);
 	motion_active = false;
-	nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
-	mpu_set_sensors(0);
+	// nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
+	// mpu_set_sensors(0);
 }
 /*---------------------------------------------------------------------------*/
 static int

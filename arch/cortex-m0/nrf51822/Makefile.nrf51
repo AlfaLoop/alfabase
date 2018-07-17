@@ -1,0 +1,478 @@
+### Include compiler tools
+include $(SWALOO_ARCH)/Makefile.env
+
+MK	:= mkdir -p
+RM	:= rm -rf
+
+### CPU-dependent cleanup files
+CLEAN += *.d *.elf *.hex *.bin *.jlink
+
+### General Variables & Device related stuff
+###
+LINK_DIR		= link
+CPU				:= cortex-m0
+DEVICE 			:= NRF51
+DEVICESERIES 	:= nrf51
+
+### Linker script
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	BLE_REQD		:= BLE_STACK_SUPPORT_REQD
+	BTLE_STACK		:= S130
+	SOFTDEVICE		:= S130_VERSION_2_0
+	SOFTDEVICE_HEX	:= s130_nrf51_2.0.1_softdevice.hex
+	FLASH_START_ADDRESS	= 0x1B000
+	LD_SCRIPT = $(SWALOO_ARCH)/$(LINK_DIR)/gcc_nrf51_s130_2_0_xx$(CHIP_VERSION)_$(TARGET).ld
+else
+	LD_SCRIPT = $(SWALOO_ARCH)/$(LINK_DIR)/gcc_nrf51_blank_xx$(CHIP_VERSION).ld
+	FLASH_START_ADDRESS = 0x00000
+endif
+
+BOOTLOADER		:= YES
+BOOTLOADER_ADDR	:= 0x1B000
+
+# Include directories
+#INCLUDEDIRS = $(shell find $(SWALOO_ARCH) -type d)
+INCLUDEDIRS	= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/include/
+INCLUDEDIRS	+= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/include-fixed/
+#$(info "Included: $(INCLUDEDIRS) " )
+
+### Compiler related stuff
+###
+CFLAGS  = -Og	#debugging friendly
+CFLAGS	+= -ggdb	#info for the debugger
+CFLAGS	+= --std=gnu99
+CFLAGS	+= -Wall
+CFLAGS	+= -mcpu=$(CPU)
+CFLAGS	+= -mthumb
+CFLAGS	+= -mabi=aapcs
+CFLAGS  += -mlittle-endian
+CFLAGS	+= -mfloat-abi=soft
+CFLAGS  += -w
+CFLAGS += -DNRF_SD_BLE_API_VERSION=2
+CFLAGS	+= -D$(BOARD)
+CFLAGS  += -D$(DEVICE)
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	CFLAGS  += -D$(BLE_REQD)
+	CFLAGS  += -D$(BTLE_STACK)
+	CFLAGS  += -DDEBUG_NRF_USER
+	CFLAGS  += -DDEBUG_NRF
+	CFLAGS  += -DSOFTDEVICE_PRESENT
+endif
+CFLAGS += -DELF_LOADER_TEXT=$(ELF_LOADER_TEXT_SIZE)
+CFLAGS	+= $(patsubst %,-I%, $(INCLUDEDIRS))
+# keep every function in separate section, this allows linker to discard unused ones
+CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
+CFLAGS += -fno-builtin --short-enums
+
+
+CPPFLAGS = -Og	#debugging friendly
+CPPFLAGS += -ggdb
+CPPFLAGS += --std=gnu99
+CPPFLAGS += -Wall
+CPPFLAGS += -mcpu=$(CPU)
+CPPFLAGS += -mthumb
+CPPFLAGS += -mabi=aapcs
+CPPFLAGS += -mlittle-endian
+CPPFLAGS += -mfloat-abi=soft
+CPPFLAGS  += -Wno-strict-aliasing
+CPPFLAGS += -D$(DEVICE)
+CPPFLAGS += -D$(BOARD)
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	CPPFLAGS  += -D$(BLE_REQD)
+	CPPFLAGS  += -D$(BTLE_STACK)
+	CPPFLAGS  += -DDEBUG_NRF_USER
+	CPPFLAGS  += -DDEBUG_NRF
+	CPPFLAGS  += -DSOFTDEVICE_PRESENT
+endif
+
+CPPFLAGS += $(patsubst %,-I%, $(INCLUDEDIRS))
+
+# New
+ASFLAGS = $(patsubst %,-I%, $(INCLUDEDIRS))
+ASFLAGS += -c
+ASFLAGS += -mthumb
+ASFLAGS += -mcpu=$(CPU)
+ASFLAGS += -g -Wall -Os
+ASFLAGS += -ffunction-sections
+ASFLAGS += -mlittle-endian
+ASFLAGS += -fshort-enums
+ASFLAGS += -DFREERTOS
+ASFLAGS += -DNRF_SD_BLE_API_VERSION=2
+ASFLAGS += -DELF_LOADER_TEXT=$(ELF_LOADER_TEXT_SIZE)
+ASFLAGS += -x assembler-with-cpp -Wa,-EL
+ASFLAGS += -D__HEAP_SIZE=$(HEAP_SIZE) -D__STACK_SIZE=$(STACK_SIZE)
+
+### Linker related stuff
+###
+LDDIRS 	 = $(GCC_INSTALL_ROOT)/$(GCC_PREFIX)/lib/armv6-m
+LDDIRS 	+= $(GCC_INSTALL_ROOT)/lib/gcc/$(GCC_PREFIX)/$(GCC_VERSION)/armv6-m
+LDDIRS	+= $(LINK_DIR)
+
+
+LDFLAGS = -Xlinker
+LDFLAGS += -Map=swaloo-$(TARGET).map
+LDFLAGS += --specs=nano.specs
+LDFLAGS += -L$(SWALOO_ARCH)
+LDFLAGS += -mcpu=$(CPU)
+LDFLAGS += -mthumb
+LDFLAGS += -T$(LD_SCRIPT)
+LDFLAGS += -Wl,-static
+LDFLAGS += -DELF_LOADER_TEXT=$(ELF_LOADER_TEXT_SIZE)
+LDFLAGS	+= -D$(DEVICE)
+LDFLAGS	+= -D$(BOARD)
+
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	LDFLAGS  += -D$(BLE_REQD)
+	LDFLAGS  += -D$(BTLE_STACK)
+	LDFLAGS  += -DDEBUG_NRF_USER
+	LDFLAGS  += -DDEBUG_NRF
+	LDFLAGS  += -DSOFTDEVICE_PRESENT
+endif
+
+# let linker to dump unused sections
+# LDFLAGS += -Wl,--gc-sections
+
+
+SIZEFLAGS = -A
+OBJOPTS = -O binary
+
+### CPU-dependent directories and  source files
+###
+###
+SWALOO_ARCH_DIRS = .
+SWALOO_ARCH_DIRS += link dev config
+SWALOO_ARCH_DIRS += bsp/drivers
+SWALOO_ARCH_DIRS += bsp/hal
+SWALOO_ARCH_DIRS += bsp/hw
+SWALOO_ARCH_DIRS += bsp/device
+SWALOO_ARCH_DIRS += bsp/segger_rtt
+
+SWALOO_ARCH_SOURCEFILES = system_nrf51.c
+SWALOO_ARCH_SOURCEFILES += nrf_drv_common.c
+SWALOO_ARCH_SOURCEFILES += nrf_drv_clock.c
+SWALOO_ARCH_SOURCEFILES += nrf_queue.c
+SWALOO_ARCH_SOURCEFILES += nrf_drv_spi.c
+SWALOO_ARCH_SOURCEFILES += nrf_drv_wdt.c
+SWALOO_ARCH_SOURCEFILES += nrf_drv_rng.c
+SWALOO_ARCH_SOURCEFILES += sdk_mapped_flags.c
+SWALOO_ARCH_SOURCEFILES += nrf_assert.c
+SWALOO_ARCH_SOURCEFILES += hardfault_implementation.c
+SWALOO_ARCH_SOURCEFILES += hardfault_handler_gcc.c
+SWALOO_ARCH_SOURCEFILES += app_util_platform.c
+SWALOO_ARCH_SOURCEFILES += app_error.c
+SWALOO_ARCH_SOURCEFILES += app_error_weak.c
+SWALOO_ARCH_SOURCEFILES += app_timer_freertos.c
+SWALOO_ARCH_SOURCEFILES += nrf_log_frontend.c
+SWALOO_ARCH_SOURCEFILES += nrf_log_backend_serial.c
+SWALOO_ARCH_SOURCEFILES += nrf_delay.c
+
+SWALOO_ARCH_SOURCEFILES += crypto-arch.c
+#SWALOO_ARCH_SOURCEFILES += rtt-arch.c
+SWALOO_ARCH_SOURCEFILES += watchdog-arch.c
+SWALOO_ARCH_SOURCEFILES += bootloader-arch.c
+SWALOO_ARCH_SOURCEFILES += lpm-arch.c
+
+ifeq ($(USE_CONTIKI), 1)
+	SWALOO_ARCH_SOURCEFILES += clock-arch.c
+	SWALOO_ARCH_SOURCEFILES += rand-arch.c
+	SWALOO_ARCH_SOURCEFILES += devid-arch.c
+	CFLAGS += -DUSE_CONTIKI
+	CFLAGS += -DCONTIKI
+endif
+
+ifeq ($(USE_FRAMEWORK),1)
+CFLAGS +=-DUSE_FRAMEWORK
+CFLAGS +=-DFRAMEWORK
+endif
+
+ifeq ($(USE_SPIFFS), 1)
+	SWALOO_ARCH_SOURCEFILES += nrf-spiffs-arch.c
+	CFLAGS += -DUSE_SPIFFS
+endif
+
+ifeq ($(USE_ELFLOADER), 1)
+	SWALOO_ARCH_SOURCEFILES += elfloader-arch.c
+	CFLAGS += -DELFLOADER_SPIFFS
+	CFLAGS += -DUSE_ELFLOADER
+endif
+
+ifeq ($(PROD), 1)
+else
+	CFLAGS += -DNRF_LOG_USES_RTT=1
+	SWALOO_TARGET_SOURCEFILES += RTT_Syscalls_GCC.c
+	#SWALOO_TARGET_SOURCEFILES += SEGGER_RTT_printf.c
+	SWALOO_TARGET_SOURCEFILES += SEGGER_RTT.c
+	SWALOO_TARGET_SOURCEFILES += syslog-arch.c
+endif
+
+SWALOO_ARCH_DIRS += bsp/util
+SWALOO_ARCH_DIRS += bsp/ble
+SWALOO_ARCH_DIRS += bsp/ble/softdevice/common
+SWALOO_ARCH_DIRS += bsp/ble/softdevice/s130_2_0
+SWALOO_ARCH_DIRS += bsp/ble/softdevice/s130_2_0/nrf51
+
+ifeq ($(USE_ARCH_SOFTDEVICE),1)
+	SWALOO_ARCH_DIRS += bsp/nrf_soc_sd
+	SWALOO_ARCH_SOURCEFILES += nrf_nvic.c
+	SWALOO_ARCH_SOURCEFILES += softdevice_handler.c
+	SWALOO_ARCH_SOURCEFILES += ble_srv_common.c
+	SWALOO_ARCH_SOURCEFILES += ble_conn_params.c
+	SWALOO_ARCH_SOURCEFILES += ble_advdata.c
+	SWALOO_ARCH_SOURCEFILES += ble_radio_notification.c
+	SWALOO_ARCH_SOURCEFILES += ble_conn_state.c
+	SWALOO_ARCH_SOURCEFILES += softdevice_arch.c
+else
+	SWALOO_ARCH_DIRS += bsp/nrf_soc_nosd
+	SWALOO_ARCH_SOURCEFILES += nrf_soc.c
+	SWALOO_ARCH_SOURCEFILES += nrf_nvic.c
+endif
+
+ifeq ($(USE_FREERTOS),1)
+	SWALOO_ARCH_SOURCEFILES += freertos_port.c
+	SWALOO_ARCH_SOURCEFILES += freertos_cmsis.c
+	SWALOO_ARCH_SOURCEFILES += freertos_cmsis_systick.c
+	CFLAGS += -DUSE_FREERTOS
+	CFLAGS += -DFREERTOS
+endif
+
+ifeq ($(USE_MICROPYTHON),1)
+	MP_SRC_ARCH = $(SWALOO_ARCH)/micropy/nlrthumb.S
+	MP_SRC_ARCH += $(SWALOO_ARCH)/micropy/modalfaloop.c
+	MP_SRC_ARCH += $(SWALOO_ARCH)/micropy/mphalport.c
+	MP_SRC_ARCH += $(SWALOO_ARCH)/micropy/help.c
+
+	SWALOO_ARCH_DIRS += micropy
+	SWALOO_ARCH_SOURCEFILES += nlrthumb.S
+	SWALOO_ARCH_SOURCEFILES += modalfaloop.c
+	SWALOO_ARCH_SOURCEFILES += mphalport.c
+	SWALOO_ARCH_SOURCEFILES += help.c
+	CFLAGS += -DUSE_MICROPYTHON
+	CFLAGS += -DMICROPYTHON
+endif
+
+# CPU-Peripheral
+ifeq ($(USE_GPIOTE),1)
+	SWALOO_ARCH_SOURCEFILES += gpiote.c
+	CFLAGS += -DUSE_GPIOTE
+endif
+ifeq ($(USE_UART0),1)
+	SWALOO_ARCH_SOURCEFILES += uart0.c
+	CFLAGS += -DUSE_UART0
+endif
+ifeq ($(USE_TWISW0),1)
+	SWALOO_ARCH_SOURCEFILES += i2c-sw0.c
+	SWALOO_ARCH_SOURCEFILES += twi_sw_master0.c
+	CFLAGS += -DUSE_TWISW0
+endif
+ifeq ($(USE_TWISW1),1)
+	SWALOO_ARCH_SOURCEFILES += i2c-sw1.c
+	SWALOO_ARCH_SOURCEFILES += twi_sw_master1.c
+	CFLAGS += -DUSE_TWISW1
+endif
+ifeq ($(USE_SPI0),1)
+	SWALOO_ARCH_SOURCEFILES += spi0.c
+	CFLAGS += -DUSE_SPI0
+endif
+ifeq ($(USE_SPI1),1)
+	SWALOO_ARCH_SOURCEFILES += spi1.c
+	CFLAGS += -DUSE_SPI1
+endif
+ifeq ($(USE_ADC),1)
+	SWALOO_ARCH_SOURCEFILES += nrf_drv_adc.c
+	SWALOO_ARCH_SOURCEFILES += adc-arch.c
+	CFLAGS += -DUSE_ADC
+endif
+
+# Device-Peripheral
+ifeq ($(USE_POWER),1)
+	SWALOO_ARCH_SOURCEFILES += power-arch.c
+	CFLAGS += -DUSE_POWER
+endif
+ifeq ($(USE_MOTOR),1)
+	SWALOO_ARCH_SOURCEFILES += motor.c
+	CFLAGS += -DUSE_MOTOR
+endif
+ifeq ($(USE_LOGGER),1)
+	SWALOO_ARCH_SOURCEFILES += logger-arch.c
+	CFLAGS += -DUSE_LOGGER
+endif
+
+ifeq ($(USE_NEST_STACK),1)
+	SWALOO_ARCH_DIRS += nest
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-broadcasting.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-connect.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-disconnect.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-local-addr.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-scanner.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gattc-write.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gatts-addcharacteristic.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gatts-addservice.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gatts-handle-value.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver-gap-setadvdata.c
+	SWALOO_ARCH_SOURCEFILES += nest-driver.c
+	CFLASG += -DUSE_NEST_STACK
+endif
+
+ifeq ($(USE_WDUI_STACK),1)
+	SWALOO_ARCH_DIRS += wdui
+	SWALOO_ARCH_SOURCEFILES += wdui-driver.c
+	CFLAGS += -DUSE_WDUI_STACK
+	ifeq ($(USE_MLCD),1)
+		SWALOO_ARCH_DIRS += wdui/mlcd
+		ifeq ($(USE_MLCD_SSD1306),1)
+			SWALOO_ARCH_SOURCEFILES += ssd1306.c
+			CFLAGS += -DUSE_MLCD_SSD1306
+		endif
+		ifeq ($(USE_MLCD_SSD1316),1)
+			SWALOO_ARCH_SOURCEFILES += ssd1316.c
+			CFLAGS += -DUSE_MLCD_SSD1316
+		endif
+	endif
+endif
+
+# Extented Flash define here
+ifeq ($(USE_SPI_FLASH),1)
+	SWALOO_ARCH_DIRS += dev/flash
+	SWALOO_ARCH_SOURCEFILES += spiffs-flash-arch.c
+	CFLAGS += -DUSE_SPI_FLASH
+endif
+
+
+# Extented Module/Sensor define here
+ifeq ($(USE_SENSOR),1)
+	SWALOO_ARCH_DIRS += dev/sensor
+	ifeq ($(USE_SENSOR_INV_MPU),1)
+		SWALOO_ARCH_SOURCEFILES += inv-mpu-sensor.c
+		#CFLAGS += -DINV_MPU_SELF_TEST_ENABLE_CONF=1
+		#CFLAGS += -DINV_MPU_DMP_ENABLE_CONF=1
+	endif
+	ifeq ($(USE_SENSOR_LIS3DH),1)
+		SWALOO_ARCH_SOURCEFILES += lis3dh-motion.c
+	endif
+	ifeq ($(USE_SENSOR_IEE_PRESSURE_FOOT_4),1)
+		SWALOO_ARCH_SOURCEFILES += iee-footpressure-arch.c
+	endif
+	ifeq ($(USE_SENSOR_BATTERY_ADC),1)
+		SWALOO_ARCH_SOURCEFILES += battery-adc.c
+	endif
+	ifeq ($(USE_SENSOR_PAH8001),1)
+		SWALOO_ARCH_SOURCEFILES += pah8001-hrm-arch.c
+	endif
+	ifeq ($(USE_SENSOR_KX023),1)
+		SWALOO_ARCH_SOURCEFILES += kx023-accel-arch.c
+	endif
+endif
+
+ifeq ($(USE_HARDWARE),1)
+	SWALOO_ARCH_DIRS += dev/hw
+	CFLAGS += -DUSE_HARDWARE=1
+	ifeq ($(USE_HARDWARE_PIN),1)
+		SWALOO_ARCH_SOURCEFILES += hw-pin-api.c
+		CFLAGS += -DUSE_HARDWARE_PIN=1
+	endif
+	ifeq ($(USE_HARDWARE_UART),1)
+		SWALOO_ARCH_SOURCEFILES += hw-uart0-api.c
+		CFLAGS += -DUSE_HARDWARE_UART=1
+	endif
+endif
+
+ifeq ($(USE_RADIO),1)
+	SWALOO_ARCH_DIRS += dev/radio
+	ifeq ($(USE_RADIO_DW1000),1)
+		SWALOO_ARCH_SOURCEFILES += dwt-radio.c
+	endif
+endif
+
+SWALOO_ARCH_SOURCEFILES += gcc_startup_freertos_$(DEVICESERIES).S
+
+CFLAGS += $(BOARD_FLAGS)
+CPPFLAGS += $(BOARD_FLAGS)
+
+SWALOO_SOURCEFILES += $(SWALOO_ARCH_SOURCEFILES)
+
+OBJECTDIR = obj_$(TARGET)
+
+#Create binary files
+UPLOAD_TARGETS = $(SWALOO_PROJECT:=.bin)
+UPLOAD_TARGETS_CE = $(SWALOO_PROJECT:=.ce)
+TARGET_SIZE = $(SWALOO_PROJECT:=.$(TARGET))
+SOFTDEVICE_OUTPUT = $(SWALOO_ARCH)/$(notdir $(SOFTDEVICE_HEX))
+
+obj-bin: $(UPLOAD_TARGETS)
+
+CUSTOM_RULE_C_TO_CE = 1
+%.ce: %.c
+	$(CC) $(CFLAGS) -fno-merge-constants -fno-function-sections -DAUTOSTART_ENABLE -c $< -o $@
+	$(STRIP) --strip-unneeded -g -x $@
+
+CUSTOM_RULE_LINK = 1
+%.$(TARGET): %.co $(PROJECT_OBJECTFILES) $(PROJECT_LIBRARIES) swaloo-$(TARGET).a
+	$(LD) $(LDFLAGS) $(TARGET_STARTFILES) ${filter-out %.a,$^} -Wl,-\( ${filter %.a,$^} $(BOARD_LIBS) $(TARGET_LIBFILES) -Wl,-\) -o $@ -lm
+	@echo >> swaloo-$(TARGET).map
+	@$(SIZE) $(SIZEFLAGS) $@ >> swaloo-$(TARGET).map
+
+%.bin: %.$(TARGET)
+	@echo
+	@echo "Create binary(.bin) file from: " $<
+	$(OBJCOPY) -O binary $< $@
+
+%.hex: %.$(TARGET)
+	@echo
+	@echo "Create hex(.hex) file from: " $<
+	$(OBJCOPY) -O ihex $< $@
+
+## Find out the size of the compiled file
+size :
+	$(SIZE) $(TARGET_SIZE)
+
+rm.jlink:
+	-rm -rf *.jlink
+
+### Program device/Reset device
+#
+rm.upload:
+	-rm -rf upload.jlink
+
+upload:
+	@echo Flashing: $<
+	nrfjprog.exe --program main.hex -f nrf51 --sectorerase
+	nrfjprog.exe --reset -f nrf51
+
+build: main.bin main.hex
+	@echo
+	@echo "Create binary(.bin) and hex(.hex) file from: " $^
+
+deploy:
+	@echo Deploying: $<
+	nrfjprog.exe --program main.hex -f nrf51 --sectorerase
+	python $(SWALOO)/tools/alfautil.py main.bin nrf51
+
+# Flash softdevice
+upload-softdevice:
+	@echo Flashing: s132_nrf51_2.0.1_softdevice.hex
+	nrfjprog --program s132_nrf51_2.0.1_softdevice.hex -f nrf51 --chiperase
+	nrfjprog --reset -f nrf51
+
+recover:
+	nrfjprog.exe --recover -f nrf51
+
+eraseuicr:
+	nrfjprog.exe --eraseuicr -f nrf51
+
+reset:
+	nrfjprog.exe --reset -f nrf51
+
+ct:
+	nrfjprog --erasepage 0x7F000 -f nrf51
+	nrfjprog --memwr 0x7F00C --val 708 -f nrf51
+	nrfjprog --memwr 0x7F010 --val 0 -f nrf51
+	nrfjprog.exe --reset -f nrf51
+
+bs:
+	nrfjprog --erasepage 0x7F000 -f nrf51
+	nrfjprog --memwr 0x7F000 --val 255 -f nrf51
+	nrfjprog --memwr 0x7F004 --val 0 -f nrf51
+	nrfjprog --memwr 0x7F008 --val 0 -f nrf51
+	nrfjprog.exe --reset -f nrf51
+
+#.PHONY: upload upload-softdevice erase-all recover size

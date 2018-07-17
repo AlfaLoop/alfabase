@@ -44,8 +44,6 @@ nrf_gap_broadcasting(nest_broadcast_params_t *params)
 	uint32_t             		   err_code;
   ble_gap_adv_params_t 		   adv_params;
   uint32_t                   interval;
-//  uint8_t                    advsize = params->adv_size;
-//	uint8_t                    adv_scan_rsp_size = params->adv_srp_size;
 
 	if (params == NULL) {
 		err_code = sd_ble_gap_adv_stop();
@@ -85,9 +83,6 @@ nrf_gap_broadcasting(nest_broadcast_params_t *params)
   do {
     fs_processing = is_fs_arch_processing();
   } while(fs_processing);
-
-	// PRINTF("[nest driver broadcast] interval %d\n", interval);
-	// sd_ble_gap_adv_stop();
 
 	err_code = sd_ble_gap_adv_start(&adv_params);
 	if (err_code != NRF_SUCCESS) {

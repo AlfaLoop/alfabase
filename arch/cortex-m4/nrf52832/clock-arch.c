@@ -119,12 +119,6 @@ clock_timer_callback(TimerHandle_t timer_handle)
   if (timer_handle == m_contiki_clock_timer) {
     etimer_request_poll();
     xTaskNotifyGive( g_contiki_thread );
-    // vTaskResume(g_contiki_thread);
-    // if( xSemaphoreGive( g_contiki_task_semephore ) != pdTRUE ) {
-    //   // We would expect this call to fail because we cannot give
-    //   // a semaphore without first "taking" it!
-    //   //PRINTF("sephr faild\n");
-    // }
   }
 }
 
@@ -205,15 +199,6 @@ clock_delay_usec(uint16_t dt)
   nrf_delay_us(dt);
 }
 
-uint32_t
-clock_corrected_time(clock_time_t offset)
-{
-  uint32_t m_prescaler = 1;
-  uint32_t rtc_prescaler = portNRF_RTC_REG->PRESCALER  + 1;
-  uint32_t timeout_corrected = ROUNDED_DIV(offset * m_prescaler, rtc_prescaler);
-  PRINTF("[clock arch] offset %d corrected %d\n", offset, timeout_corrected);
-  return timeout_corrected;
-}
 
 uint32_t
 clock_time_to_tick(clock_time_t time)
@@ -235,7 +220,6 @@ clock_update_expiration_time(clock_time_t expiration_time)
   // If the current statu is not in Thread mode (0)
   uint32_t curr_tick = os_tick_time();
   uint32_t timeout_offset = expiration_time - curr_tick;
-  uint32_t corrected_offset = 0;
   uint32_t timer_period;
 
   timer_period = timeout_offset;

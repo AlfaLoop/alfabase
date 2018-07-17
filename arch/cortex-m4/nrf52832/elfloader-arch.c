@@ -104,7 +104,6 @@ elfloader_arch_write_rom(int fd, unsigned short textoff, unsigned int size, char
 {
 	uint32_t ptr;
 	int nbytes;
-	int ret;
 
   PRINTF("[elfloader_arch] write rom: size %d, offset %i, mem %p READSIZE %d\n", size, textoff, mem, READSIZE);
 	SPIFFS_lseek(&SYSFS, fd, textoff, SPIFFS_SEEK_SET);

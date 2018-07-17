@@ -35,29 +35,7 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-typedef struct {
-  uint16_t conn_id;
-  uint8_t address[6];
-  uint8_t type;
-} nrf_gap_connected_event_t;
-
-typedef struct {
-  uint16_t conn_id;
-  uint8_t reason;
-} nrf_gap_disconnect_event_t;
-
-typedef struct {
-  uint16_t conn_id;
-  uint16_t  handle;
-  uint8_t data[BLE_NEST_FIX_DATA_LEN];
-  uint16_t length;
-} nrf_gattc_write_value_event_t;
-
-static nrf_gap_connected_event_t event_params;
-static nrf_gap_disconnect_event_t disconnect_params;
-static nrf_gattc_write_value_event_t write_event_params;
 static ble_gap_addr_t initiate_address;
-
 static void (* gap_connect_timeout_callback)(void) = NULL;
 /*---------------------------------------------------------------------------*/
 int
@@ -135,3 +113,4 @@ nrf_gap_central_connect_timeout(void)
     gap_connect_timeout_callback();
   }
 }
+/*---------------------------------------------------------------------------*/

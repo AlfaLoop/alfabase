@@ -84,7 +84,7 @@
 #include "dev/lpm.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -304,23 +304,6 @@ clock_tick(void)
          if ( xModifiableIdleTime > 0 )
          {
            lpm_drop();
- // #ifdef SOFTDEVICE_PRESENT
- //             if (softdevice_handler_is_enabled())
- //             {
- //                //  uint32_t err_code = sd_app_evt_wait();
- //                //  APP_ERROR_CHECK(err_code);
- //                lpm_drop();
- //             }
- //             else
- // #endif
- //             {
- //                 /* No SD -  we would just block interrupts globally.
- //                 * BASEPRI cannot be used for that because it would prevent WFE from wake up.
- //                 */
- //                 do{
- //                     __WFE();
- //                 } while (0 == (NVIC->ISPR[0] | NVIC->ISPR[1]));
- //             }
          }
          configPOST_SLEEP_PROCESSING( xExpectedIdleTime );
 

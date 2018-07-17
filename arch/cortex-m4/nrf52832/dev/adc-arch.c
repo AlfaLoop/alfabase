@@ -103,13 +103,9 @@ int
 adc_arch_channel_uninit(uint32_t channel)
 {
   int err_code;
-
   if (channel > NRF_SAADC_CHANNEL_COUNT) {
     return EINVAL;
   }
-
-  // uint8_t channel = (nrf_drv_saadc_gpio_to_ain(pin) - 1);
-
 	err_code = nrf_drv_saadc_channel_uninit(channel);
   if (err_code != NRF_SUCCESS) {
     return EBUSY;

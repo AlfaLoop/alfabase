@@ -189,6 +189,27 @@ assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 	app_error_handler(0xDEADBEEF, line_num, p_file_name);
 }
 /*---------------------------------------------------------------------------*/
+struct ctimer ct;
+static mems_data_t accel_data;
+static mems_data_t gyro_data;
+static void
+ct_cb_handler(void)
+{
+	HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");
+	mpu->open(NULL);
+
+	// mpu->read(&accel_data, sizeof(mems_data_t), 0);
+	// PRINTF("[main] %f %f %f\n", accel_data.value[0], accel_data.value[1], accel_data.value[2]);
+	//
+	// mpu->read(&gyro_data, sizeof(mems_data_t), 1);
+	// PRINTF("[main] %f %f %f\n", gyro_data.value[0], gyro_data.value[1], gyro_data.value[2]);
+	//
+	// HWDriver *ieefp4 = hw_api_bsp_pipe("ieefp4");
+	// ieefp4->read(&ieefp4_data_inst, sizeof(ieefp4_data_t), 0);
+	// PRINTF("[main] %d %d %d %d\n", ieefp4_data_inst.heel, ieefp4_data_inst.outer_ball, ieefp4_data_inst.inner_ball, ieefp4_data_inst.thumb);
+	// ctimer_reset(&ct);
+}
+/*---------------------------------------------------------------------------*/
 static int
 bsp_device_init(void)
 {
@@ -204,6 +225,12 @@ bsp_device_init(void)
 	bsp_buzzer_init();
 	PRINTF("[main] bsp_mpu9250_dmp_init!\n");
 	bsp_mpu9250_dmp_init();
+
+	//
+	HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");
+	mpu->open(NULL);
+	// PRINTF("[main] HWDriver mpu name %s\n", mpu->name);
+	// ctimer_set(&ct, 2000 , ct_cb_handler, (void *)NULL);
 
 	return ENONE;
 }
