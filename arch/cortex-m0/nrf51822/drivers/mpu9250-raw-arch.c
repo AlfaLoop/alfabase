@@ -31,7 +31,7 @@
 
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 0
+#define DEBUG_MODULE 1
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -50,10 +50,8 @@
 extern const struct i2c_driver TWI;
 
 /*---------------------------------------------------------------------------*/
-#define DEFAULT_MPU_HZ  (50)
-#ifndef MPU_INT
-#define MPU_INT 19U
-#endif /* MPU_INT */
+#define DEFAULT_MPU_HZ  (20)
+
 #define MPU9250_ACCEL_COUNTS_2G     			0.00006;
 #define MPU9250_ACCEL_COUNTS_4G     			0.00012;
 #define MPU9250_ACCEL_COUNTS_8G     			0.00024;
@@ -66,11 +64,9 @@ extern const struct i2c_driver TWI;
 
 #define MPU9250_COMPASS_COUNTS_4800ut     0.58593;
 
-#define TWI INV_MPU_TWI_DRIVER_CONF
-extern const struct i2c_driver TWI;
 static uint32_t  new_timestamp;
 static bool 	 motion_active = false;
-static uint8_t   cfg_sample_rate = 50;
+static uint8_t   cfg_sample_rate = 20;
 static unsigned short  cfg_gyro_fsr = 250;
 static unsigned short  cfg_accel_fsr = 2;
 static short     inst_accel_data[3];
@@ -90,6 +86,7 @@ mpu9250_int_event_handler(gpiote_event_t *event)
 			mpu_get_accel_reg(inst_accel_data, NULL);
 			mpu_get_compass_reg(inst_mag_data, NULL);
 			new_timestamp = clock_time();
+      // PRINTF("[mpu9250 raw] new timestamp %d\n", new_timestamp);
 			process_post(&mpu9250_process, mpu9250_sensor_event, NULL);
     }
   }
@@ -107,7 +104,8 @@ PROCESS_THREAD(mpu9250_process, ev, data)
 	while(1) {
 		PROCESS_WAIT_EVENT_UNTIL(ev == mpu9250_sensor_event);
 		if (motion_active) {
-			m_framework_raw_data_func(inst_accel_data, inst_gyro_data, inst_mag_data, new_timestamp);
+      if (m_framework_raw_data_func != NULL)
+			  m_framework_raw_data_func(inst_accel_data, inst_gyro_data, inst_mag_data, new_timestamp);
 		}
 	}
 	PROCESS_END();
@@ -138,6 +136,7 @@ mpu9250_arch_init(mpu9250_raw_config_t *config)
   if (!process_is_running(&mpu9250_process)) {
     process_start(&mpu9250_process, NULL);
   }
+
   PRINTF("[mpu9250 arch] init completed\n");
 	return ENONE;
 }
@@ -149,8 +148,8 @@ mpu9250_arch_poweron(void)
 	if (motion_active) {
 		return EINVALSTATE;
 	}
+  mpu_init(NULL);
 
-	mpu_init(NULL);
 	mpu_set_gyro_fsr(cfg_gyro_fsr);
 	mpu_set_accel_fsr(cfg_accel_fsr);
 	mpu_set_lpf(42);
@@ -211,11 +210,11 @@ mpu9250_activated(void)
 }
 /*---------------------------------------------------------------------------*/
 static int
-mpu9250_get_accel(float *values, int32_t *data, uint32_t *timestamp)
+mpu9250_get_accel(short *data, uint32_t *timestamp)
 {
-  values[0] = inst_accel_data[0] * MPU9250_ACCEL_COUNTS_2G;
-  values[1] = inst_accel_data[1] * MPU9250_ACCEL_COUNTS_2G;
-  values[2] = inst_accel_data[2] * MPU9250_ACCEL_COUNTS_2G;
+  // values[0] = inst_accel_data[0] * MPU9250_ACCEL_COUNTS_2G;
+  // values[1] = inst_accel_data[1] * MPU9250_ACCEL_COUNTS_2G;
+  // values[2] = inst_accel_data[2] * MPU9250_ACCEL_COUNTS_2G;
   data[0] = inst_accel_data[0];
   data[1] = inst_accel_data[1];
   data[2] = inst_accel_data[2];
@@ -224,11 +223,11 @@ mpu9250_get_accel(float *values, int32_t *data, uint32_t *timestamp)
 }
 /*---------------------------------------------------------------------------*/
 static int
-mpu9250_get_gyro(float *values, int32_t *data, uint32_t *timestamp)
+mpu9250_get_gyro(short *data, uint32_t *timestamp)
 {
-  values[0] = inst_gyro_data[0] * MPU9250_GYRO_COUNTS_250;
-  values[1] = inst_gyro_data[1] * MPU9250_GYRO_COUNTS_250;
-  values[2] = inst_gyro_data[2] * MPU9250_GYRO_COUNTS_250;
+  // values[0] = inst_gyro_data[0] * MPU9250_GYRO_COUNTS_250;
+  // values[1] = inst_gyro_data[1] * MPU9250_GYRO_COUNTS_250;
+  // values[2] = inst_gyro_data[2] * MPU9250_GYRO_COUNTS_250;
   data[0] = inst_gyro_data[0];
   data[1] = inst_gyro_data[1];
   data[2] = inst_gyro_data[2];
@@ -237,11 +236,11 @@ mpu9250_get_gyro(float *values, int32_t *data, uint32_t *timestamp)
 }
 /*---------------------------------------------------------------------------*/
 static int
-mpu9250_get_compass(float *values, int32_t *data, uint32_t *timestamp)
+mpu9250_get_compass(short *data, uint32_t *timestamp)
 {
-  values[0] = inst_mag_data[0] * MPU9250_COMPASS_COUNTS_4800ut;
-  values[1] = inst_mag_data[1] * MPU9250_COMPASS_COUNTS_4800ut;
-  values[2] = inst_mag_data[2] * MPU9250_COMPASS_COUNTS_4800ut;
+  // values[0] = inst_mag_data[0] * MPU9250_COMPASS_COUNTS_4800ut;
+  // values[1] = inst_mag_data[1] * MPU9250_COMPASS_COUNTS_4800ut;
+  // values[2] = inst_mag_data[2] * MPU9250_COMPASS_COUNTS_4800ut;
   data[0] = inst_mag_data[0];
   data[1] = inst_mag_data[1];
   data[2] = inst_mag_data[2];

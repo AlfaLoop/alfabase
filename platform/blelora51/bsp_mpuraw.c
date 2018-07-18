@@ -27,7 +27,7 @@
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 0
+#define DEBUG_MODULE 1
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -57,7 +57,7 @@ sensor_api_irq_hooker(void *ptr)
 void
 mpu9250_raw_data_update(int16_t *accel, int16_t *gyro, int16_t *compass, uint32_t timestamp)
 {
-  // PRINTF("[bsp mpudmp] data update %d\n", source);
+  // PRINTF("[bsp mpudmp] data update\n");
   static motion_data_event_t event;
 
   if (m_mpu9250_active) {
@@ -107,24 +107,21 @@ bsp_mpu9250_raw_write(const void *buf, uint32_t len, uint32_t offset)
 int
 bsp_mpu9250_raw_read(void *buf, uint32_t len, uint32_t offset)
 {
+  mems_data_t *p_mems_data = (mems_data_t *)buf;
   switch (offset) {
     case 0:
     {
-      // The acceleration force in ‘m/s’ that is applied to a device on all three physical axes (x, y, and z), including the force of gravity.
-      // mems_data_t *p_acc_data = (mems_data_t *)buf;
-      // SENSOR_MPU9250.get_accel(p_acc_data->value, p_acc_data->data, &p_acc_data->timestamp);
+      SENSOR_MPU9250.get_accel(&p_mems_data->value[0], &p_mems_data->timestamp);
     }
     break;
     case 1:
     {
-      // mems_data_t *p_gyro_data = (mems_data_t *)buf;
-      // SENSOR_MPU9250.get_gyro(p_gyro_data->value, p_gyro_data->data, &p_gyro_data->timestamp);
+      SENSOR_MPU9250.get_gyro(&p_mems_data->value[0], &p_mems_data->timestamp);
     }
     break;
     case 2:
     {
-      // mems_data_t *p_compass_data = (mems_data_t *)buf;
-      // SENSOR_MPU9250.get_compass(p_compass_data->value, p_compass_data->data, &p_compass_data->timestamp);
+      SENSOR_MPU9250.get_compass(p_mems_data->value, &p_mems_data->timestamp);
     }
     break;
   }

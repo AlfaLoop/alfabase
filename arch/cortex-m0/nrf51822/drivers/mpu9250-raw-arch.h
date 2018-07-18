@@ -57,9 +57,9 @@ struct mpu9250_raw_driver_impl {
 	int (* poweroff)(bool enable_wakeup_threshold);
   int (* config_update)(uint32_t type, uint32_t value);
   bool (* activated)(void);
-  int (* get_accel)(float *values, int32_t *data, uint32_t *timestamp);
-  int (* get_gyro)(float *values, int32_t *data, uint32_t *timestamp);
-  int (* get_compass)(float *values, int32_t *data, uint32_t *timestamp);
+  int (* get_accel)(short *data, uint32_t *timestamp);
+  int (* get_gyro)(short *data, uint32_t *timestamp);
+  int (* get_compass)(short *data, uint32_t *timestamp);
 };
 
 extern const struct mpu9250_raw_driver_impl mpu9250_dmp_driver;

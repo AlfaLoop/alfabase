@@ -21,6 +21,7 @@
 #include "nrf_error.h"
 #include "nrf_gpio.h"
 #include "app_util_platform.h"
+
 /* Scheduler includes. */
 #ifdef USE_FREERTOS
 #include "FreeRTOS.h"
@@ -55,36 +56,36 @@ extern TaskHandle_t g_contiki_thread;
 static void
 sense_level_toggle(gpiote_handle_t *item, uint32_t pins)
 {
-  uint32_t pin_no;
+ uint32_t pin_no;
 
-  for (pin_no = 0; pin_no < NO_OF_PINS; pin_no++){
-    uint32_t pin_mask = (1 << pin_no);
+ for (pin_no = 0; pin_no < NO_OF_PINS; pin_no++){
+   uint32_t pin_mask = (1 << pin_no);
 
-    if ((pins & pin_mask) != 0){
-        uint32_t sense;
+   if ((pins & pin_mask) != 0){
+       uint32_t sense;
 
-        // Invert sensing.
-        if ((item->sense_high_pins & pin_mask) == 0){
-            sense                    = GPIO_PIN_CNF_SENSE_High << GPIO_PIN_CNF_SENSE_Pos;
-            item->sense_high_pins |= pin_mask;
-        } else {
-            sense                    = GPIO_PIN_CNF_SENSE_Low << GPIO_PIN_CNF_SENSE_Pos;
-            item->sense_high_pins &= ~pin_mask;
-        }
+       // Invert sensing.
+       if ((item->sense_high_pins & pin_mask) == 0){
+           sense                    = GPIO_PIN_CNF_SENSE_High << GPIO_PIN_CNF_SENSE_Pos;
+           item->sense_high_pins |= pin_mask;
+       } else {
+           sense                    = GPIO_PIN_CNF_SENSE_Low << GPIO_PIN_CNF_SENSE_Pos;
+           item->sense_high_pins &= ~pin_mask;
+       }
 
-        NRF_GPIO->PIN_CNF[pin_no] &= ~GPIO_PIN_CNF_SENSE_Msk;
-        NRF_GPIO->PIN_CNF[pin_no] |= sense;
-    }
-  }
+       NRF_GPIO->PIN_CNF[pin_no] &= ~GPIO_PIN_CNF_SENSE_Msk;
+       NRF_GPIO->PIN_CNF[pin_no] |= sense;
+   }
+ }
 }
 
 /**@brief Function for sense disabling for all pins for specified user.
  *
  * @param[in]  user_id   User id.
- */
+*/
 static void pins_sense_disable(gpiote_handle_t *handle)
 {
-  uint32_t pin_no;
+   uint32_t pin_no;
 	for (pin_no = 0; pin_no < 32; pin_no++){
 		if ((handle->pins_mask & (1 << pin_no)) != 0)	{
 			NRF_GPIO->PIN_CNF[pin_no] &= ~GPIO_PIN_CNF_SENSE_Msk;
@@ -92,7 +93,6 @@ static void pins_sense_disable(gpiote_handle_t *handle)
 		}
 	}
 }
-
 /**@brief Function for handling the GPIOTE interrupt.
  */
 

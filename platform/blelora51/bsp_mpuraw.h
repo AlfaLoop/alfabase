@@ -23,6 +23,11 @@ extern "C" {
 #include "frameworks/hw/hw_api.h"
 
 typedef struct {
+	short value[3];
+	uint32_t timestamp;
+} mems_data_t;
+
+typedef struct {
 	int16_t accel[3];
 	int16_t gyro[3];
 	int16_t compass[3];
