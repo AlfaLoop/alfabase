@@ -61,7 +61,6 @@ is_conn_params_ok(ble_gap_conn_params_t * p_conn_params)
 static void
 update_timeout_handler(void *in)
 {
-
     if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
     {
         // Check if we have reached the maximum number of attempts
@@ -74,9 +73,13 @@ update_timeout_handler(void *in)
           err_code = sd_ble_gap_conn_param_update(m_conn_handle, &m_preferred_conn_params);
           if ((err_code != ENONE) && (m_conn_params_config.error_handler != NULL))
           {
-              m_conn_params_config.error_handler(err_code);
+            PRINTF("[ble conn params] param update error \n");
+            m_conn_params_config.error_handler(err_code);
+          } else {
+            PRINTF("[ble conn params] param update success min internval %d max internval %d latency %d timeout %d\n",
+              m_preferred_conn_params.min_conn_interval, m_preferred_conn_params.max_conn_interval,
+            m_preferred_conn_params.slave_latency, m_preferred_conn_params.conn_sup_timeout);
           }
-			    PRINTF("[ble conn params] Parameters are not ok \n");
         }
         else
         {

@@ -129,7 +129,7 @@
 #define configQUEUE_REGISTRY_SIZE		   2
 #define configUSE_RECURSIVE_MUTEXES		 0
 #define configUSE_APPLICATION_TASK_TAG	0
-#define configUSE_COUNTING_SEMAPHORES	            0
+#define configUSE_COUNTING_SEMAPHORES	            1
 #define configUSE_ALTERNATIVE_API                                                 0    /* Deprecated! */
 #define configUSE_QUEUE_SETS            0
 #define configUSE_TIME_SLICING                                                    0
@@ -177,16 +177,16 @@
 #define INCLUDE_uxTaskPriorityGet                                                 1
 #define INCLUDE_vTaskDelete                                                       1
 #define INCLUDE_vTaskSuspend                                                      1
-#define INCLUDE_xResumeFromISR                                                    1
+#define INCLUDE_xResumeFromISR                                                    0
 #define INCLUDE_vTaskDelayUntil                                                   1
 #define INCLUDE_vTaskDelay                                                        1
 #define INCLUDE_xTaskGetSchedulerState                                            1
 #define INCLUDE_xTaskGetCurrentTaskHandle                                         1
-#define INCLUDE_uxTaskGetStackHighWaterMark                                       1
-#define INCLUDE_xTaskGetIdleTaskHandle                                            1
-#define INCLUDE_xTimerGetTimerDaemonTaskHandle                                    1
-#define INCLUDE_pcTaskGetTaskName                                                 1
-#define INCLUDE_eTaskGetState                                                     1
+#define INCLUDE_uxTaskGetStackHighWaterMark                                       0
+#define INCLUDE_xTaskGetIdleTaskHandle                                            0
+#define INCLUDE_xTimerGetTimerDaemonTaskHandle                                    0
+#define INCLUDE_pcTaskGetTaskName                                                 0
+#define INCLUDE_eTaskGetState                                                     0
 #define INCLUDE_xEventGroupSetBitFromISR                                          1
 #define INCLUDE_xTimerPendFunctionCall                                            1
 
@@ -213,6 +213,7 @@ standard names - or at least those used in the unmodified vector table. */
 
 #define vPortSVCHandler                     SVC_Handler
 #define xPortPendSVHandler             PendSV_Handler
+#define xPortHardFaultHandler             HardFault_Handler
 
 
 /*-----------------------------------------------------------

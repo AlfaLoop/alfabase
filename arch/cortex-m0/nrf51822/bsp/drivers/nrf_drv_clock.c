@@ -130,7 +130,7 @@ ret_code_t nrf_drv_clock_init(void)
 {
     if (m_clock_cb.module_initialized)
     {
-        return NRF_ERROR_MODULE_ALREADY_INITIALIZED;
+        return MODULE_ALREADY_INITIALIZED;
     }
 
     m_clock_cb.p_hf_head      = NULL;

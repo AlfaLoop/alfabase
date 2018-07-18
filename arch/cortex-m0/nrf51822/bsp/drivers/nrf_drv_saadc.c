@@ -523,4 +523,3 @@ void nrf_drv_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t limit_
     }
 }
 #endif //SAADC_ENABLED
-

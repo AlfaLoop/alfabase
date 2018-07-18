@@ -79,3 +79,10 @@ nrf_gattc_write(uint16_t conn_id, uint16_t handle, uint16_t offset, uint16_t len
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
+void
+nrf_gattc_write_tx_complete(void)
+{
+  if (gattc_write_callback != NULL)
+    gattc_write_callback();
+}
+/*---------------------------------------------------------------------------*/

@@ -43,8 +43,9 @@ __WEAK void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
     // On assert, the system can only recover with a reset.
 //#ifndef DEBUG
    NVIC_SystemReset();
+   while(1){};
 //#else
-    app_error_save_and_stop(id, pc, info);
+  //  app_error_save_and_stop(id, pc, info);
 //#endif // DEBUG
 }
 

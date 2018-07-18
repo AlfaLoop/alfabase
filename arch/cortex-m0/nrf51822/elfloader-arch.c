@@ -67,6 +67,8 @@
 #define R_ARM_ABS32				2
 #define R_ARM_THM_CALL		10
 
+//static const uint32_t textmemory[ELFLOADER_TEXTMEMORY_SIZE] = {0};
+//static uint32_t textmemory[ELFLOADER_TEXTMEMORY_SIZE] = {0};
 static const uint32_t textmemory[(ELFLOADER_TEXTMEMORY_SIZE+3)/4]  __attribute__ ((section(".elf_text")))
 																				= {0};
 /* Adapted from elfloader-arm.c */
@@ -89,7 +91,8 @@ elfloader_arch_allocate_ram(int size)
 void *
 elfloader_arch_allocate_rom(int size)
 {
-	memset(textmemory , 0x00, ELFLOADER_TEXTMEMORY_SIZE);
+	// memset(textmemory , 0x00, ELFLOADER_TEXTMEMORY_SIZE);
+	// memset(textmemory, 0, ELFLOADER_TEXTMEMORY_SIZE);
 	PRINTF("[elfloader_arch] allocate rom %lu\n", size);
 	if(size > sizeof(textmemory)){
 		PRINTF("[elfloader_arch] reserved rom small\n");
@@ -97,7 +100,6 @@ elfloader_arch_allocate_rom(int size)
 	return (void *)textmemory;
 }
 /*---------------------------------------------------------------------------*/
-
 void
 elfloader_arch_write_rom(int fd, unsigned short textoff, unsigned int size, char *mem)
 {
@@ -124,7 +126,6 @@ elfloader_arch_relocate(int fd, unsigned int sectionoffset,
 	 sectionoffset, sectionaddr,
 	 (unsigned int)rela->r_offset, (unsigned int)rela->r_info,
 	 (unsigned int)rela->r_addend, addr);
-
   unsigned int type;
   type = ELF32_R_TYPE(rela->r_info);
 	SPIFFS_lseek(&SYSFS, fd, sectionoffset + rela->r_offset, SPIFFS_SEEK_SET);
@@ -136,7 +137,6 @@ elfloader_arch_relocate(int fd, unsigned int sectionoffset,
 				SPIFFS_read(&SYSFS, fd, (char*)&addend, 4);
 				PRINTF("[elfloader_arch] R_ARM_ABS32 addend: %d \n",addend);
 				addr += addend;
-
 				// Update location address
 				SPIFFS_lseek(&SYSFS, fd, -4, SPIFFS_SEEK_CUR);
 				SPIFFS_write(&SYSFS, fd, &addr, 4);
@@ -198,6 +198,5 @@ elfloader_arch_relocate(int fd, unsigned int sectionoffset,
   default:
     PRINTF("[elfloader_arch] unsupported relocation type %d\n", type);
   }
-
 }
 /*---------------------------------------------------------------------------*/

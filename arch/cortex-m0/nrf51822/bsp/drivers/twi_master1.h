@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef TWI_MASTER_H
-#define TWI_MASTER_H
+#ifndef TWI_MASTER1_H
+#define TWI_MASTER1_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,10 +25,10 @@ extern "C" {
 
 
 
-#define TWI1_READ_BIT                 (0x01)        //!< If this bit is set in the address field, transfer direction is from slave to master.
+#define TWI_READ_BIT                 (0x01)        //!< If this bit is set in the address field, transfer direction is from slave to master.
 
-#define TWI1_ISSUE_STOP               ((bool)true)  //!< Parameter for @ref twi_master_transfer
-#define TWI1_DONT_ISSUE_STOP          ((bool)false) //!< Parameter for @ref twi_master_transfer
+#define TWI_ISSUE_STOP               ((bool)true)  //!< Parameter for @ref twi_master_transfer
+#define TWI_DONT_ISSUE_STOP          ((bool)false) //!< Parameter for @ref twi_master_transfer
 
 /**
  * @brief Function for initializing TWI bus IO pins and checks if the bus is operational.
@@ -77,4 +77,4 @@ bool twi_master1_transfer(uint8_t address, uint8_t *data, uint8_t data_length, b
 #endif
 
 /*lint --flb "Leave library region" */
-#endif //TWI_MASTER_H
+#endif //TWI_MASTER1_H

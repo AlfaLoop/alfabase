@@ -13,7 +13,6 @@
 #include "softdevice_handler.h"
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 #include "nordic_common.h"
 #include "app_error.h"
@@ -21,12 +20,18 @@
 #include "nrf_nvic.h"
 #include "nrf.h"
 #include "sdk_common.h"
-#include "nrf_drv_common.h"
-#include "nrf_drv_rng.h"
-#include "libs/byteorder.h"
+#include "libs/util/byteorder.h"
 #if CLOCK_ENABLED
 #include "nrf_drv_clock.h"
 #endif
+
+/* Scheduler includes. */
+#ifdef USE_FREERTOS
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "task.h"
+#endif
+
 
 #define NRF_LOG_MODULE_NAME "SDH"
 #include "nrf_log.h"
@@ -51,15 +56,6 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
-
-/* Scheduler includes. */
-#ifdef USE_FREERTOS
-#include "FreeRTOS.h"
-#include "semphr.h"
-#include "task.h"
-#endif
-
-
 #define RAM_START_ADDRESS         0x20000000
 #define SOFTDEVICE_EVT_IRQ        SD_EVT_IRQn       /**< SoftDevice Event IRQ number. Used for both protocol events and SoC events. */
 #define SOFTDEVICE_EVT_IRQHandler SD_EVT_IRQHandler
@@ -74,8 +70,10 @@
 #define SOFTDEVICE_CENTRAL_CONN_COUNT  4
 #define SOFTDEVICE_CENTRAL_SEC_COUNT   1
 
-static softdevice_evt_schedule_func_t m_evt_schedule_func;              /**< Pointer to function for propagating SoftDevice events to the scheduler. */
+// extern SemaphoreHandle_t g_contiki_task_semephore;
 extern TaskHandle_t g_contiki_thread;
+
+static softdevice_evt_schedule_func_t m_evt_schedule_func;              /**< Pointer to function for propagating SoftDevice events to the scheduler. */
 
 static volatile bool                  m_softdevice_enabled = false;     /**< Variable to indicate whether the SoftDevice is enabled. */
 static volatile bool                  m_suspended;                      /**< Current state of the event handler. */
@@ -93,6 +91,23 @@ static ant_evt_handler_t              m_ant_evt_handler;                /**< App
 #endif
 
 static sys_evt_handler_t              m_sys_evt_handler;                /**< Application event handler for handling System (SOC) events.  */
+
+#if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
+/**
+ * @brief Check the selected ISR state.
+ *
+ * Implementation of a function that checks the current IRQ state.
+ *
+ * @param[in] IRQn External interrupt number. Value cannot be negative.
+ *
+ * @retval true  Selected IRQ is enabled.
+ * @retval false Selected IRQ is disabled.
+ */
+static inline bool isr_enable_check(IRQn_Type IRQn)
+{
+    return 0 != (NVIC->ISER[(((uint32_t)(int32_t)IRQn) >> 5UL)] & (uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL)));
+}
+#endif
 
 /**@brief       Callback function for asserts in the SoftDevice.
  *
@@ -115,14 +130,12 @@ void softdevice_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 
 void intern_softdevice_events_execute(void)
 {
-    if (!m_softdevice_enabled)
-    {
+    if (!m_softdevice_enabled){
         // SoftDevice not enabled. This can be possible if the SoftDevice was enabled by the
         // application without using this module's API (i.e softdevice_handler_init)
-
         return;
     }
-#if NRF_MODULE_ENABLED(CLOCK)
+#if CLOCK_ENABLED
     bool no_more_soc_evts = false;
 #else
     bool no_more_soc_evts = (m_sys_evt_handler == NULL);
@@ -162,7 +175,7 @@ void intern_softdevice_events_execute(void)
             else
             {
                 // Call application's SOC event handler.
-#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+#if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
                 nrf_drv_clock_on_soc_event(evt_id);
                 if (m_sys_evt_handler)
                 {
@@ -302,19 +315,11 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
     m_evt_schedule_func = evt_schedule_func;
 
     // Initialize SoftDevice.
-#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
-    bool power_clock_isr_enabled = nrf_drv_common_irq_enable_check(POWER_CLOCK_IRQn);
+#if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
+    bool power_clock_isr_enabled = isr_enable_check(POWER_CLOCK_IRQn);
     if (power_clock_isr_enabled)
     {
         NVIC_DisableIRQ(POWER_CLOCK_IRQn);
-    }
-#endif
-
-#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
-    bool rng_isr_enabled = nrf_drv_common_irq_enable_check(RNG_IRQn);
-    if (rng_isr_enabled)
-    {
-        NVIC_DisableIRQ(RNG_IRQn);
     }
 #endif
 #if defined(S212) || defined(S332)
@@ -325,12 +330,6 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
 
     if (err_code != NRF_SUCCESS)
     {
-#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
-        if (rng_isr_enabled)
-        {
-            NVIC_EnableIRQ(RNG_IRQn);
-        }
-#endif
 #if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
         if (power_clock_isr_enabled)
         {
@@ -341,7 +340,7 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
     }
 
     m_softdevice_enabled = true;
-#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
+#if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
     nrf_drv_clock_on_sd_enable();
 #endif
 
@@ -355,22 +354,19 @@ uint32_t softdevice_handler_init(nrf_clock_lf_cfg_t *           p_clock_lf_cfg,
 #endif
 }
 
+
 uint32_t softdevice_handler_sd_disable(void)
 {
     uint32_t err_code = sd_softdevice_disable();
+#if (CLOCK_ENABLED && defined(SOFTDEVICE_PRESENT))
     if (err_code == NRF_SUCCESS)
     {
         m_softdevice_enabled = false;
-
-#if (NRF_MODULE_ENABLED(CLOCK) && defined(SOFTDEVICE_PRESENT))
         nrf_drv_clock_on_sd_disable();
-#endif
-
-#if (NRF_MODULE_ENABLED(RNG) && defined(SOFTDEVICE_PRESENT))
-        nrf_drv_rng_on_sd_disable();
-#endif
     }
-
+#else
+    m_softdevice_enabled = !(err_code == NRF_SUCCESS);
+#endif
     return err_code;
 }
 
@@ -414,15 +410,21 @@ uint32_t softdevice_sys_evt_handler_set(sys_evt_handler_t sys_evt_handler)
  */
 void SOFTDEVICE_EVT_IRQHandler(void)
 {
-  // BaseType_t yield_req = pdFALSE;
-  // // The returned value may be safely ignored, if error is returned it only means that
-  // // the semaphore is already given (raised).
-  // UNUSED_VARIABLE(xSemaphoreGiveFromISR(g_contiki_task_semephore, &yield_req));
-  // portYIELD_FROM_ISR(yield_req);
-  // intern_softdevice_events_execute();
-  BaseType_t yield_req = pdFALSE;
-  vTaskNotifyGiveFromISR(g_contiki_thread, &yield_req);
+  //BaseType_t yield_req = pdFALSE;
+  // The returned value may be safely ignored, if error is returned it only means that
+  // the semaphore is already given (raised).
+  /*
+  UNUSED_VARIABLE(xSemaphoreGiveFromISR(g_contiki_task_semephore, &yield_req));
+  portYIELD_FROM_ISR(yield_req);
   intern_softdevice_events_execute();
+  */
+  BaseType_t yield_req = pdFALSE;
+
+  intern_softdevice_events_execute();
+
+  vTaskNotifyGiveFromISR(g_contiki_thread, &yield_req);
+
+  /* Switch the task if required. */
   portYIELD_FROM_ISR(yield_req);
 }
 

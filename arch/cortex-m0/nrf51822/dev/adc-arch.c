@@ -34,7 +34,7 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 static uint8_t m_mode;
-static adc_cb_t m_cb = NULL;
+static adc_channel_config_get_t m_cb = NULL;
 /*---------------------------------------------------------------------------*/
 int
 adc_arch_init(adc_config_t *config)
@@ -56,11 +56,18 @@ adc_arch_init(adc_config_t *config)
 int
 adc_arch_channel_init(uint32_t channel, void *config)
 {
-  if (config == NULL) {
-    return ENULLP;
+  if (m_cb == NULL) {
+    if (config == NULL) {
+      return ENULLP;
+    }
   }
-  //TODO
-  // err_code = cb(pin);
+
+  if (m_cb != NULL) {
+    nrf_drv_adc_channel_t *channel_config = (nrf_drv_adc_channel_t *) m_cb(channel);
+    nrf_drv_adc_channel_enable((nrf_drv_adc_channel_t *)channel_config);
+  } else {
+    nrf_drv_adc_channel_enable((nrf_drv_adc_channel_t *)config);
+  }
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
@@ -69,18 +76,15 @@ adc_arch_sample(uint32_t channel)
 {
   int err_code;
   int16_t adc_value;
-  nrf_drv_adc_channel_t  adc_channel_config;
-  adc_channel_config.config.config.resolution = NRF_ADC_CONFIG_RES_10BIT;
-  adc_channel_config.config.config.input = NRF_ADC_CONFIG_SCALING_INPUT_FULL_SCALE;
-  adc_channel_config.config.config.reference = NRF_ADC_CONFIG_REF_VBG;
-  adc_channel_config.config.config.ain = nrf_drv_adc_gpio_to_ain(channel);
-  adc_channel_config.p_next = NULL;
-
-  // Sample ADC
-  err_code = nrf_drv_adc_sample_convert(&adc_channel_config, &adc_value);
-  if (err_code != NRF_SUCCESS) {
-    PRINTF("[adc-arch] nrf_drv_adc_sample_convert error %d\n", err_code);
-    return 0;
+  nrf_drv_adc_channel_t *channel_config = NULL;
+  if (m_cb != NULL) {
+    channel_config = (nrf_drv_adc_channel_t *) m_cb(channel);
+    // Sample ADC
+    err_code = nrf_drv_adc_sample_convert(channel_config, &adc_value);
+    if (err_code != NRF_SUCCESS) {
+      PRINTF("[adc-arch] nrf_drv_adc_sample_convert error %d\n", err_code);
+      return 0;
+    }
   }
   return adc_value;
 }
@@ -89,14 +93,11 @@ int
 adc_arch_channel_uninit(uint32_t channel)
 {
   int err_code;
-  nrf_drv_adc_channel_t  adc_channel_config;
-  adc_channel_config.config.config.resolution = NRF_ADC_CONFIG_RES_10BIT;
-  adc_channel_config.config.config.input = NRF_ADC_CONFIG_SCALING_INPUT_FULL_SCALE;
-  adc_channel_config.config.config.reference = NRF_ADC_CONFIG_REF_VBG;
-  adc_channel_config.config.config.ain = nrf_drv_adc_gpio_to_ain(channel);
-  adc_channel_config.p_next = NULL;
-
-  nrf_drv_adc_channel_disable(&adc_channel_config);
+  nrf_drv_adc_channel_t *channel_config;
+  if (m_cb != NULL) {
+    channel_config = (nrf_drv_adc_channel_t *) m_cb(channel);
+    nrf_drv_adc_channel_disable(channel_config);
+  }
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/

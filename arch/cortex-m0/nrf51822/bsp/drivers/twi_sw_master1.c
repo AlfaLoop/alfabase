@@ -12,7 +12,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "twi_master0.h"
+#include "twi_master1.h"
 #include "nrf_delay.h"
 
 static uint32_t TWI_MASTER_CONFIG_CLOCK_PIN_NUMBER = 0;
@@ -117,7 +117,7 @@ bool twi_master1_transfer(uint8_t address, uint8_t * data, uint8_t data_length, 
     transfer_succeeded &= twi_master_issue_startcondition();
     transfer_succeeded &= twi_master_clock_byte(address);
 
-    if (address & TWI0_READ_BIT)
+    if (address & TWI_READ_BIT)
     {
         /* Transfer direction is from Slave to Master */
         while (data_length-- && transfer_succeeded)

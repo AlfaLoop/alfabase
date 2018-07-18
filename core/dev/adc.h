@@ -27,11 +27,11 @@ extern "C" {
 #define ADC_MODE_NONBLOCK  2
 
 typedef void (* adc_cb_t)(uint32_t pin, uint32_t value);
-typedef int (* adc_channel_cb_t)(void * config);
+typedef void* (* adc_channel_config_get_t)(uint32_t channel);
 
 typedef struct {
   uint8_t mode;
-  adc_cb_t cb;
+  adc_channel_config_get_t cb;
 } adc_config_t;
 
 /**

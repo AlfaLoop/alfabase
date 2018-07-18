@@ -33,10 +33,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifndef NRF_BLE_GATT_MAX_MTU_SIZE
-    #define NRF_BLE_GATT_MAX_MTU_SIZE GATT_MTU_SIZE_DEFAULT
-#endif
-#define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (NRF_BLE_GATT_MAX_MTU_SIZE))     /**< Size of BLE event message buffer. This will be provided to the SoftDevice while fetching an event. */
+
+#define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (GATT_MTU_SIZE_DEFAULT))     /**< Size of BLE event message buffer. This will be provided to the SoftDevice while fetching an event. */
 #define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0                                                 /**< The size of the scheduler event used by SoftDevice handler when passing BLE events using the @ref app_scheduler. */
 
 /**@brief Application stack event handler type. */

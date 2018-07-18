@@ -70,7 +70,6 @@ typedef uint32_t (*softdevice_evt_schedule_func_t) (void);
 /**@brief Application System (SOC) event handler type. */
 typedef void (*sys_evt_handler_t) (uint32_t evt_id);
 
-void softdevice_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
 
 /**@brief     Macro for initializing the stack event handler.
  *

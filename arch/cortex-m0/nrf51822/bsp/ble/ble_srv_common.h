@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "ble_types.h"
-#include "libs/byteorder.h"
+#include "libs/util/byteorder.h"
 #include "ble_gap.h"
 #include "ble_gatt.h"
 #include "compiler_abstraction.h"

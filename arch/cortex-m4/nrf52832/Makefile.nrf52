@@ -5,7 +5,7 @@ MK	:= mkdir -p
 RM	:= rm -rf
 
 ### CPU-dependent cleanup files
-CLEAN += *.d *.elf *.hex *.bin *.jlink genhdr/*
+CLEAN += *.d *.elf *.hex *.bin *.jlink
 
 ### General Variables & Device related stuff
 ###
@@ -363,22 +363,6 @@ ifeq ($(USE_DRIVERS_INV_MPU_DMP),1)
 	PROJECT_ARCH_SOURCEFILES += mpu9250-dmp-arch.c
 	CFLAGS += -DINV_MPU_SELF_TEST_ENABLE_CONF=1
 	CFLAGS += -DINV_MPU_DMP_ENABLE_CONF=1
-endif
-
-ifeq ($(USE_HARDWARE),1)
-	CFLAGS += -DUSE_HARDWARE=1
-	ifeq ($(USE_HARDWARE_GPIO),1)
-		CFLAGS += -DUSE_HARDWARE_GPIO=1
-	endif
-	ifeq ($(USE_HARDWARE_UART),1)
-		CFLAGS += -DUSE_HARDWARE_UART=1
-	endif
-	ifeq ($(USE_HARDWARE_I2C),1)
-		CFLAGS += -DUSE_HARDWARE_I2C=1
-	endif
-	ifeq ($(USE_HARDWARE_SPI),1)
-		CFLAGS += -DUSE_HARDWARE_SPI=1
-	endif
 endif
 
 PROJECT_ARCH_SOURCEFILES += gcc_startup_$(DEVICESERIES).S

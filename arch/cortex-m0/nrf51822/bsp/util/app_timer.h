@@ -45,7 +45,6 @@
 #include "compiler_abstraction.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,8 +89,15 @@ extern "C" {
  *
  * @return     Number of timer ticks.
  */
-#define APP_TIMER_TICKS(MS, PRESCALER)\
-            ((uint32_t)ROUNDED_DIV((MS) * (uint64_t)APP_TIMER_CLOCK_FREQ, ((PRESCALER) + 1) * 1000))
+ #ifndef FREERTOS
+ #define APP_TIMER_TICKS(MS)                                \
+             ((uint32_t)ROUNDED_DIV(                        \
+             (MS) * (uint64_t)APP_TIMER_CLOCK_FREQ,         \
+             1000 * (APP_TIMER_CONFIG_RTC_FREQUENCY + 1)))
+ #else
+ #include "FreeRTOSConfig.h"
+ #define APP_TIMER_TICKS(MS) (uint32_t)ROUNDED_DIV((MS)*configTICK_RATE_HZ,1000)
+ #endif
 
 typedef struct app_timer_t { uint32_t data[CEIL_DIV(APP_TIMER_NODE_SIZE, sizeof(uint32_t))]; } app_timer_t;
 

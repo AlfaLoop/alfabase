@@ -154,10 +154,10 @@ bootloader_util_reset(uint32_t start_addr)
 }
 /*---------------------------------------------------------------------------*/
 uint32_t
-bootloader_settings_get(bootloader_settings_t * p_settings)
+bootloader_settings_get(void *p_settings, int size)
 {
 	uint32_t err_code = ENONE;
-	nrf_spiffs_flash_read(BOOTLOADER_SETTINGS_ADDRESS, p_settings, sizeof(bootloader_settings_t));
+	nrf_spiffs_flash_read(BOOTLOADER_SETTINGS_ADDRESS, (uint8_t*)p_settings, size);
 	return err_code;
 }
 /*---------------------------------------------------------------------------*/

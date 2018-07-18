@@ -22,7 +22,7 @@
 #define NRF_LOG_MODULE_NAME "HARDFAULT"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
-#include "loader/lunchr.h"
+
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
 #define DEBUG_MODULE 1
@@ -59,11 +59,6 @@ __WEAK void HardFault_process(HardFault_stack_t * p_stack)
 void HardFault_c_handler(uint32_t * p_stack_address)
 {
 	PRINTF("[HARDFAULT] c_handler\n");
-
-	if (lunchr_is_running()) {
-		PRINTF ("[HARDFAULT] lunchr running, remove boot file\n");
-		lunchr_remove_boot_task();
-	}
 
 #if defined(DEBUG_NRF)
     HardFault_p_stack = (HardFault_stack_t *)p_stack_address;

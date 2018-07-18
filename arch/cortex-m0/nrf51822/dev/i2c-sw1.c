@@ -76,12 +76,12 @@ i2csw1_transfer(uint8_t type, uint8_t address, uint32_t length, uint8_t * p_data
 	}
 	else if (type == I2C_RX) {
 		if (pending) {
-			if(!twi_master1_transfer(address | TWI1_READ_BIT, p_data, length, false)) {
+			if(!twi_master1_transfer(address | TWI_READ_BIT, p_data, length, false)) {
 				PRINTF("[i2csw1]twi1_master_transfer pedding error %d\n", err_code);
 			}
 		}
 		else {
-			if(!twi_master1_transfer(address | TWI1_READ_BIT, p_data, length, true)) {
+			if(!twi_master1_transfer(address | TWI_READ_BIT, p_data, length, true)) {
 				PRINTF("[i2csw1]twi1_master_transfer  error %d\n", err_code);
 			}
 		}

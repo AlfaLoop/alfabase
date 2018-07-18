@@ -34,7 +34,7 @@
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
 static uint8_t m_mode;
-static adc_cb_t m_cb = NULL;
+static adc_channel_config_get_t m_cb = NULL;
 /*---------------------------------------------------------------------------*/
 static void
 saadc_callback(nrf_drv_saadc_evt_t const * p_event)
