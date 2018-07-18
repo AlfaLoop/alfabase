@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
-#include "bsp_mpudmp.h"
+#include "bsp_mpuraw.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "frameworks/hw/hw_api.h"
 #include "frameworks/hw/hw_api_null.h"
 #include "frameworks/app_eventpool.h"
 #include "frameworks/app_lifecycle.h"
-#include "mpu9250-dmp-arch.h"
+#include "mpu9250-raw-arch.h"
 #include "nrf_gpio.h"
 #include "sys/clock.h"
 #include "errno.h"
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -55,14 +55,23 @@ sensor_api_irq_hooker(void *ptr)
 }
 /*---------------------------------------------------------------------------*/
 void
-mpu9250_dmp_data_update(uint8_t source)
+mpu9250_raw_data_update(int16_t *accel, int16_t *gyro, int16_t *compass, uint32_t timestamp)
 {
   // PRINTF("[bsp mpudmp] data update %d\n", source);
   static motion_data_event_t event;
 
   if (m_mpu9250_active) {
     if (m_sensor_event_callback != NULL) {
-      event.type = source;
+      event.accel[0] = accel[0];
+      event.accel[1] = accel[1];
+      event.accel[2] = accel[2];
+      event.gyro[0] = gyro[0];
+      event.gyro[1] = gyro[1];
+      event.gyro[2] = gyro[2];
+      event.compass[0] = compass[0];
+      event.compass[1] = compass[1];
+      event.compass[2] = compass[2];
+      event.timestamp = timestamp;
 
 			app_irq_event_t irq_event;
 			irq_event.event_type = APP_HW_EVENT;
@@ -74,81 +83,48 @@ mpu9250_dmp_data_update(uint8_t source)
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_open(void *args)
+bsp_mpu9250_raw_open(void *args)
 {
   if (m_mpu9250_active) {
     return EINVALSTATE;
   }
 
-  SENSOR_MOTIONFUSION.poweron();
+  SENSOR_MPU9250.poweron();
   m_mpu9250_active = true;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_write(const void *buf, uint32_t len, uint32_t offset)
+bsp_mpu9250_raw_write(const void *buf, uint32_t len, uint32_t offset)
 {
   uint8_t *p_attr = (uint8_t*)buf;
   if (offset == DEV_MOTION_CONFIG_SAMPLEING_RATE_TYPE) {
-    SENSOR_MOTIONFUSION.config_update(DEV_MOTION_CONFIG_SAMPLEING_RATE_TYPE, p_attr[0]);
-  } else if (offset == DEV_MOTION_CONFIG_RESET_PEDOMETER_TYPE) {
-    SENSOR_MOTIONFUSION.config_update(DEV_MOTION_CONFIG_RESET_PEDOMETER_TYPE, 0);
+    SENSOR_MPU9250.config_update(DEV_MOTION_CONFIG_SAMPLEING_RATE_TYPE, p_attr[0]);
   }
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset)
+bsp_mpu9250_raw_read(void *buf, uint32_t len, uint32_t offset)
 {
   switch (offset) {
     case 0:
     {
       // The acceleration force in ‘m/s’ that is applied to a device on all three physical axes (x, y, and z), including the force of gravity.
-      mems_data_t *p_acc_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_accel(p_acc_data->value, p_acc_data->data, &p_acc_data->timestamp);
+      // mems_data_t *p_acc_data = (mems_data_t *)buf;
+      // SENSOR_MPU9250.get_accel(p_acc_data->value, p_acc_data->data, &p_acc_data->timestamp);
     }
     break;
     case 1:
     {
-      mems_data_t *p_gyro_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_gyro(p_gyro_data->value, p_gyro_data->data, &p_gyro_data->timestamp);
+      // mems_data_t *p_gyro_data = (mems_data_t *)buf;
+      // SENSOR_MPU9250.get_gyro(p_gyro_data->value, p_gyro_data->data, &p_gyro_data->timestamp);
     }
     break;
     case 2:
     {
-      mems_data_t *p_compass_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_compass(p_compass_data->value, p_compass_data->data, &p_compass_data->timestamp);
-    }
-    break;
-    case 3:
-    {
-      quat_data_t *p_quat_data = (quat_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_quaternion(p_quat_data->value, p_quat_data->data, &p_quat_data->timestamp);
-    }
-    break;
-    case 4:
-    {
-      mems_data_t *p_euler_data = (mems_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_euler(p_euler_data->value, p_euler_data->data, &p_euler_data->timestamp);
-    }
-    break;
-    case 5:
-    {
-      // The acceleration force in ‘m/s’ that is applied to a device on all three physical axes (x, y, and z), excluding the force of gravity.
-      linear_accel_data_t *p_linear_accel_data = (linear_accel_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_linear_accel(p_linear_accel_data->value, &p_linear_accel_data->timestamp);
-    }
-    break;
-    case 6:
-    {
-      gravity_vector_t *p_gravity_vector_data = (gravity_vector_t *)buf;
-      SENSOR_MOTIONFUSION.get_gravity_vector(p_gravity_vector_data->value, &p_gravity_vector_data->timestamp);
-    }
-    break;
-    case 7:
-    {
-      heading_data_t *p_heading_data = (heading_data_t *)buf;
-      SENSOR_MOTIONFUSION.get_heading(&p_heading_data->value, &p_heading_data->data, &p_heading_data->timestamp);
+      // mems_data_t *p_compass_data = (mems_data_t *)buf;
+      // SENSOR_MPU9250.get_compass(p_compass_data->value, p_compass_data->data, &p_compass_data->timestamp);
     }
     break;
   }
@@ -156,19 +132,19 @@ bsp_mpu9250_dmp_read(void *buf, uint32_t len, uint32_t offset)
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
+bsp_mpu9250_raw_subscribe(void *buf, uint32_t len, HWCallbackHandler handler)
 {
   m_sensor_event_callback = handler;
   return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_close(void *args)
+bsp_mpu9250_raw_close(void *args)
 {
   if (!m_mpu9250_active) {
     return EINVALSTATE;
   }
-  SENSOR_MOTIONFUSION.poweroff(false);
+  SENSOR_MPU9250.poweroff(false);
   m_mpu9250_active = false;
   m_sensor_event_callback = NULL;
   return ENONE;
@@ -177,24 +153,23 @@ bsp_mpu9250_dmp_close(void *args)
 static void
 app_terminating(void)
 {
-	bsp_mpu9250_dmp_close(NULL);
+	bsp_mpu9250_raw_close(NULL);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
-	.name = "hw_bsp_mpudmp",
+	.name = "hw_bsp_mpuraw",
 	.terminating = app_terminating
 };
 /*---------------------------------------------------------------------------*/
 int
-bsp_mpu9250_dmp_init(void)
+bsp_mpu9250_raw_init(void)
 {
 	app_lifecycle_register(&lifecycle_event);
 
-  mpu9250_dmp_config_t mpu9250_dmp_config = {
-		.data_source = mpu9250_dmp_data_update
+  mpu9250_raw_config_t mpu9250_raw_config = {
+		.data_source = mpu9250_raw_data_update
 	};
-	SENSOR_MOTIONFUSION.init(&mpu9250_dmp_config);
-	SENSOR_MOTIONFUSION.poweroff(false);
-  // SENSOR_MOTIONFUSION.poweron();
+	SENSOR_MPU9250.init(&mpu9250_raw_config);
+	SENSOR_MPU9250.poweroff(false);
 }
 /*---------------------------------------------------------------------------*/

@@ -45,7 +45,7 @@ extern "C" {
 #define NEST_PLATFORM_VERSION_L_CONF            0x01
 #define NEST_ADV_TYPE_NFD_RSSI_CONF            -48
 #define NEST_ADD_GATTS_SERVICE_CONF             3
-#define NEST_ADD_GATTS_CHARACTERISTIC_CONF      10
+#define NEST_ADD_GATTS_CHARACTERISTIC_CONF      8
 #define NEST_CENTRAL_USER_LINK_COUNT_CONF       2
 #define NEST_PERIPHERAL_LINK_COUNT_CONF         1
 #define NEST_CONF_COMMAND_RXQ_ITEMS			        8
@@ -54,6 +54,14 @@ extern "C" {
 #define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
 #define NEST_COMMAND_BFTP_ENABLE_CONF           1
+#define NEST_COMMAND_BFTP_INIT_CONF             1
+#define NEST_COMMAND_BFTP_PACKETS_CONF          1
+#define NEST_COMMAND_BFTP_END_CONF              1
+#define NEST_COMMAND_BFTP_REMOVE_CONF           0
+#define NEST_COMMAND_BFTP_STAT_CONF             0
+#define NEST_COMMAND_BFTP_SPACE_USED_CONF       0
+#define NEST_COMMAND_BFTP_READDIR_CONF          0
+#define NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF 0
 #define NEST_COMMAND_CORE_ENABLE_CONF           1
 #define NEST_COMMAND_LUNCHR_ENABLE_CONF         1
 #define NEST_COMMAND_AUTH_ENABLE_CONF           1
@@ -65,7 +73,7 @@ extern "C" {
 #define LUNCHR_KERNEL_USER_APP_TASK_SIZE		      256
 #define CONTIKI_KERNEL_TASK_SIZE				          486
 
-#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024) + 256)
+#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024))
 #define FREERTOS_MAX_PRIORITY_CONF              6
 #define FREERTOS_TIMER_TASK_PRIORITY_CONF       FREERTOS_MAX_PRIORITY_CONF - 1  // (5)
 #define FREERTOS_CONTIKI_TASK_PRIORITY_CONF     FREERTOS_MAX_PRIORITY_CONF - 2  // (4)
@@ -73,12 +81,12 @@ extern "C" {
 #define FREERTOS_APP_IRQ_TASK_PRIORITY_CONF     2
 
 /** ELF loader data and memory size */
-#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x600
+#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x500
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration
-#define CRYPTO_AES_ECB_CONF                       1
-#define CRYPTO_AES_ECB_ENCRYPT_HW_CONF            1
+#define CRYPTO_AES_ECB_CONF                       0
+#define CRYPTO_AES_ECB_ENCRYPT_HW_CONF            0
 #define CRYPTO_AES_ECB_DECRYPT_HW_CONF            0
 #define CRYPTO_SHA256_CONF                        0
 #define CRYPTO_HMAC_SHA256_CONF                   0
@@ -121,8 +129,8 @@ extern const struct spi_driver spi1_driver;
 extern const struct adc_driver nrf_adc_arch_driver;
 #define ADC nrf_adc_arch_driver
 
-extern const struct mpu9250_dmp_driver_impl mpu9250_dmp_driver;
-#define SENSOR_MOTIONFUSION mpu9250_dmp_driver
+extern const struct mpu9250_raw_driver_impl mpu9250_raw_driver;
+#define SENSOR_MPU9250    mpu9250_raw_driver
 #define MPU_ADDRESS				0xD0
 
 #include "bsp_pinmap.h"

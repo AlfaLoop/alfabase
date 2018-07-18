@@ -32,7 +32,7 @@
 #endif
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #define PRINTF(...) syslog(__VA_ARGS__)
 #else

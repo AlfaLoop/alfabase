@@ -9,10 +9,8 @@
  * the file.
  *
  */
-#include "sdk_config.h"
-
-
-#if HARDFAULT_HANDLER_ENABLED
+#include "sdk_common.h"
+#if NRF_MODULE_ENABLED(HARDFAULT_HANDLER)
 #include <stdint.h>
 #include "compiler_abstraction.h"
 
@@ -21,35 +19,38 @@ void HardFault_Handler(void) __attribute__(( naked ));
 void HardFault_Handler(void)
 {
     __ASM volatile(
-    "   ldr r3, =HardFault_c_handler            \n"
-    "   tst lr, #4                              \n"
+    "   .syntax unified                        \n"
 
-    /* PSP is quite simple and does not require additional handler */
-    "   itt ne                                  \n"
-    "   mrsne r0, psp                           \n"
-    /* Jump to the handler, do not store LR - returning from handler just exits exception */
-    "   bxne  r3                                \n"
-
-    /* Processing MSP requires stack checking */
-    "   mrs r0, msp                             \n"
-
-    "   ldr   r1, =__StackTop                   \n"
-    "   ldr   r2, =__StackLimit                 \n"
+    "   ldr   r0, =0xFFFFFFFD                  \n"
+    "   cmp   r0, lr                           \n"
+    "   bne   HardFault_Handler_ChooseMSP      \n"
+    /* Reading PSP into R0 */
+    "   mrs   r0, PSP                          \n"
+    "   b     HardFault_Handler_Continue       \n"
+    "HardFault_Handler_ChooseMSP:              \n"
+    /* Reading MSP into R0 */
+    "   mrs   r0, MSP                          \n"
+    /* -----------------------------------------------------------------
+     * If we have selected MSP check if we may use stack safetly.
+     * If not - reset the stack to the initial value. */
+    "   ldr   r1, =__StackTop                  \n"
+    "   ldr   r2, =__StackLimit                \n"
 
     /* MSP is in the range of the stack area */
-    "   cmp   r0, r1                            \n"
-    "   bhi   HardFault_MoveSP                  \n"
-    "   cmp   r0, r2                            \n"
-    "   bhi   HardFault_Handler_Continue        \n"
+    "   cmp   r0, r1                           \n"
+    "   bhi   HardFault_MoveSP                 \n"
+    "   cmp   r0, r2                           \n"
+    "   bhi   HardFault_Handler_Continue       \n"
+    /* ----------------------------------------------------------------- */
+    "HardFault_MoveSP:                         \n"
+    "   mov   SP, r1                           \n"
+    "   movs  r0, #0                           \n"
 
-    "HardFault_MoveSP:                          \n"
-    "   mov   sp, r1                            \n"
-    "   mov   r0, #0                            \n"
+    "HardFault_Handler_Continue:               \n"
+    "   ldr r3, =HardFault_c_handler           \n"
+    "   bx r3                                  \n"
 
-    "HardFault_Handler_Continue:                \n"
-    "   bx r3                                   \n"
-
-    "   .align                                  \n"
+    "   .align                                 \n"
     );
 }
-#endif //HARDFAULT_HANDLER_ENABLED
+#endif //NRF_MODULE_ENABLED(HARDFAULT_HANDLER)

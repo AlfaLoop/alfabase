@@ -63,8 +63,8 @@
 #define NRF_FLASH_MAP_SD_SIZE		          0x1B000
 #define NRF_FLASH_MAP_KERNEK_START      	0x1B000
 #define NRF_FLASH_MAP_KERNEK_SIZE      		0x22400
-#define NRF_FLASH_MAP_FS_START		      	0x3E000
-#define NRF_FLASH_MAP_FS_SIZE		          0X02000
+#define NRF_FLASH_MAP_FS_START		      	0x3E400
+#define NRF_FLASH_MAP_FS_SIZE		          0X01800
 
 
 extern spiffs nrf_spiffs;

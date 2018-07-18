@@ -36,7 +36,7 @@
 
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -132,22 +132,30 @@ PROCESS(nest_bftp_remove_process, "nest-bftp_remove");
 NEST_COMMAND(bftp_remove_command,
 	      nest_air_opcode_bftp_remove,
 	      &nest_bftp_remove_process);
+#if NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF == 1
 PROCESS(nest_bftp_remove_app_files_process, "nest-bftp_remove_app_files");
 NEST_COMMAND(bftp_remove_app_files_command,
 nest_air_opcode_bftp_remove_app_files,
 &nest_bftp_remove_app_files_process);
+#endif /* #if NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF == 1 */
+#if NEST_COMMAND_BFTP_STAT_CONF == 1
 PROCESS(nest_bftp_stat_process, "nest-bftp_stat");
 NEST_COMMAND(bftp_stat_command,
 	      nest_air_opcode_bftp_stat,
 	      &nest_bftp_stat_process);
+#endif /* NEST_COMMAND_BFTP_STAT_CONF */
+#if NEST_COMMAND_BFTP_SPACE_USED_CONF == 1
 PROCESS(nest_bftp_space_used_process, "nest-bftp_space_used");
 NEST_COMMAND(bftp_space_used_command,
 	      nest_air_opcode_bftp_space_used,
 	      &nest_bftp_space_used_process);
+#endif /* #if NEST_COMMAND_BFTP_SPACE_USED_CONF */
+#if NEST_COMMAND_BFTP_READDIR_CONF == 1
 PROCESS(nest_bftp_readdir_process, "nest-bftp_readdir");
 NEST_COMMAND(bftp_readdir_command,
 	      nest_air_opcode_bftp_readdir,
 	      &nest_bftp_readdir_process);
+#endif /* NEST_COMMAND_BFTP_READDIR_CONF */
 /*---------------------------------------------------------------------------*/
 static void
 bftp_init_timer_callback_handler(void)
@@ -966,6 +974,7 @@ response:
 	PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+#if NEST_COMMAND_BFTP_STAT_CONF == 1
 PROCESS_THREAD(nest_bftp_stat_process, ev, data)
 {
 	static nest_command_data_t *input;
@@ -1039,7 +1048,9 @@ response:
 	nest_command_send(&m_output);
 	PROCESS_END();
 }
+#endif /* NEST_COMMAND_BFTP_STAT_CONF */
 /*---------------------------------------------------------------------------*/
+#if NEST_COMMAND_BFTP_SPACE_USED_CONF == 1
 PROCESS_THREAD(nest_bftp_space_used_process, ev, data)
 {
 	static nest_command_data_t *input;
@@ -1096,6 +1107,8 @@ PRINTF("[nest command bftp] space used, total %d, used %d, ext total %d used %d\
 	nest_command_send(&m_output);
 	PROCESS_END();
 }
+#endif /* #if NEST_COMMAND_BFTP_SPACE_USED_CONF */
+#if NEST_COMMAND_BFTP_READDIR_CONF == 1
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(nest_bftp_readdir_process, ev, data)
 {
@@ -1198,6 +1211,7 @@ response:
 	nest_command_send(&m_output);
 	PROCESS_END();
 }
+#endif /* NEST_COMMAND_BFTP_READDIR_CONF */
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(bftp_timeout_process, ev, data)
 {
@@ -1221,6 +1235,7 @@ PROCESS_THREAD(bftp_timeout_process, ev, data)
 	PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
+#if NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF == 1
 PROCESS_THREAD(nest_bftp_remove_app_files_process, ev, data)
 {
 	static nest_command_data_t *input;
@@ -1299,25 +1314,43 @@ response:
 	nest_command_send(&m_output);
 	PROCESS_END();
 }
+#endif /* NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF */
+
 #endif
 /*---------------------------------------------------------------------------*/
 void
 nest_command_bftp_init(void)
 {
 #if NEST_COMMAND_BFTP_ENABLE_CONF == 1
+
+#if NEST_COMMAND_BFTP_INIT_CONF == 1
 	nest_command_register(&bftp_init_command);
+#endif
+#if NEST_COMMAND_BFTP_PACKETS_CONF == 1
 	nest_command_register(&bftp_packets_command);
+#endif
+#if NEST_COMMAND_BFTP_END_CONF == 1
 	nest_command_register(&bftp_end_command);
+#endif
+#if NEST_COMMAND_BFTP_REMOVE_CONF == 1
 	nest_command_register(&bftp_remove_command);
+#endif
+#if NEST_COMMAND_BFTP_STAT_CONF == 1
 	nest_command_register(&bftp_stat_command);
+#endif
+#if NEST_COMMAND_BFTP_SPACE_USED_CONF == 1
 	nest_command_register(&bftp_space_used_command);
+#endif
+#if NEST_COMMAND_BFTP_READDIR_CONF == 1
 	nest_command_register(&bftp_readdir_command);
+#endif
+#if NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF == 1
 	nest_command_register(&bftp_remove_app_files_command);
+#endif
 
 	if (!process_is_running(&bftp_timeout_process))
 		process_start(&bftp_timeout_process, NULL);
-#endif
-
+#endif /* NEST_COMMAND_BFTP_ENABLE_CONF */
 }
 /*---------------------------------------------------------------------------*/
 bool

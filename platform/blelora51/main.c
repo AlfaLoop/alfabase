@@ -52,8 +52,10 @@
 #include "gpiote.h"
 #include "bsp_init.h"
 #include "spiffs-arch.h"
-// #include "mpu9250-dmp-arch.h"
-// #include "bsp_mpudmp.h"
+#include "mpu9250-raw-arch.h"
+#include "bsp_led.h"
+#include "bsp_button.h"
+#include "bsp_mpuraw.h"
 
 // Framework layer
 #if defined(USE_FRAMEWORK)
@@ -202,7 +204,9 @@ bsp_device_init(void)
 	ADC.init(&adc_config);
 
 	// Initialize Sensor
-	// bsp_mpu9250_dmp_init();
+	bsp_led_init();
+	bsp_button_init();
+	bsp_mpu9250_raw_init();
 
 	// HWDriver *mpu = hw_api_bsp_pipe("mpu9250_dmp");
 	// mpu->open(NULL);

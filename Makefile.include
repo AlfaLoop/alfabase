@@ -6,7 +6,6 @@ MODULES += FreeRTOS
 MODULES += fs
 MODULES += fs/spiffs
 MODULES += libs
-MODULES += libs/crypto
 MODULES += libs/util
 
 ifeq ($(USE_CONTIKI), 1)
@@ -28,6 +27,15 @@ ifeq ($(USE_FRAMEWORK),1)
 	MODULES += frameworks/crypto
 	MODULES += frameworks/hw
 	MODULES += frameworks/ble
+endif
+
+ifeq ($(USE_CRYPTO_AES),1)
+	MODULES += libs/crypto
+endif
+
+ifeq ($(USE_DRIVERS_INV_MPU_RAW),1)
+	PROJECTDIRS += $(PROJECT)/libs/sensors/inv_mpu
+	PROJECT_SOURCEFILES += inv_mpu.c
 endif
 
 ifeq ($(USE_DRIVERS_INV_MPU_DMP),1)

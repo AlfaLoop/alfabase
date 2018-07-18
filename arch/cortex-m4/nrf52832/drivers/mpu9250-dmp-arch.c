@@ -818,6 +818,7 @@ mpu9250_arch_poweron(void)
   PRINTF("[mpu9250 arch] DMP enabled.\n");
 
 	motion_active = true;
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 static int
@@ -878,6 +879,7 @@ mpu9250_arch_poweroff(bool enable_wakeup_threshold)
 	motion_active = false;
 	// nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
 	// mpu_set_sensors(0);
+  return ENONE;
 }
 /*---------------------------------------------------------------------------*/
 static int

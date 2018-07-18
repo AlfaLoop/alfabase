@@ -104,9 +104,9 @@ LDDIRS	+= $(LINK_DIR)
 
 
 LDFLAGS = -Xlinker
-LDFLAGS += -Map=swaloo-$(TARGET).map
+LDFLAGS += -Map=$(TARGET).map
 LDFLAGS += --specs=nano.specs
-LDFLAGS += -L$(SWALOO_ARCH)
+LDFLAGS += -L$(PROJECT_ARCH)
 LDFLAGS += -mcpu=$(CPU)
 LDFLAGS += -mthumb
 LDFLAGS += -T$(LD_SCRIPT)
@@ -149,6 +149,8 @@ PROJECT_ARCH_SOURCEFILES += nrf_drv_wdt.c
 PROJECT_ARCH_SOURCEFILES += nrf_drv_pwm.c
 PROJECT_ARCH_SOURCEFILES += sdk_mapped_flags.c
 PROJECT_ARCH_SOURCEFILES += nrf_assert.c
+PROJECT_ARCH_SOURCEFILES += hardfault_implementation.c
+PROJECT_ARCH_SOURCEFILES += hardfault_handler_gcc.c
 PROJECT_ARCH_SOURCEFILES += app_util_platform.c
 PROJECT_ARCH_SOURCEFILES += app_error.c
 PROJECT_ARCH_SOURCEFILES += app_error_weak.c
@@ -296,6 +298,10 @@ endif
 ifeq ($(USE_SPI_FLASH),1)
 	PROJECT_ARCH_SOURCEFILES += spiffs-flash-arch.c
 	CFLAGS += -DUSE_SPI_FLASH
+endif
+
+ifeq ($(USE_DRIVERS_INV_MPU_RAW),1)
+	PROJECT_ARCH_SOURCEFILES += mpu9250-raw-arch.c
 endif
 
 ifeq ($(USE_DRIVERS_INV_MPU_DMP),1)

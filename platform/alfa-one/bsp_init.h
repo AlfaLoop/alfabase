@@ -54,6 +54,14 @@ extern "C" {
 #define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
 #define NEST_COMMAND_BFTP_ENABLE_CONF           1
+#define NEST_COMMAND_BFTP_INIT_CONF             1
+#define NEST_COMMAND_BFTP_PACKETS_CONF          1
+#define NEST_COMMAND_BFTP_END_CONF              1
+#define NEST_COMMAND_BFTP_REMOVE_CONF           1
+#define NEST_COMMAND_BFTP_STAT_CONF             1
+#define NEST_COMMAND_BFTP_SPACE_USED_CONF       1
+#define NEST_COMMAND_BFTP_READDIR_CONF          1
+#define NEST_COMMAND_BFTP_REMOVE_APP_FILES_CONF 1
 #define NEST_COMMAND_CORE_ENABLE_CONF           1
 #define NEST_COMMAND_LUNCHR_ENABLE_CONF         1
 #define NEST_COMMAND_AUTH_ENABLE_CONF           1

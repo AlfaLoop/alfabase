@@ -84,7 +84,7 @@
 
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -109,9 +109,8 @@ void vPortStartFirstTask( void ) __attribute__ (( naked ));
 void vPortSVCHandler( void );
 void xPortPendSVHandler( void ) __attribute__ (( naked ));
 
-
+/*
 static hardfault_dump_t dump;
-
 void hard_fault_handler_c(unsigned int * hardfault_args)
 {
   watchdog_reboot();
@@ -121,7 +120,7 @@ void xPortHardFaultHandler( void )
 {
   watchdog_reboot();
 
-}
+}*/
 
 /*-----------------------------------------------------------*/
 

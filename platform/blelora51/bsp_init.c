@@ -23,11 +23,12 @@
 // #include "mpu9250-dmp-arch.h"
 #include "bsp_led.h"
 #include "bsp_button.h"
+#include "bsp_mpuraw.h"
 #include "errno.h"
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
 #if defined(DEBUG_ENABLE)
-#define DEBUG_MODULE 1
+#define DEBUG_MODULE 0
 #if DEBUG_MODULE
 #include "dev/syslog.h"
 #define PRINTF(...) syslog(__VA_ARGS__)
@@ -57,12 +58,21 @@ const static HWDriver hw_drivers[] = {
     .subscribe = bsp_button_subscribe,
     .close = hw_null_close,
   },
+  {
+    /* MPU9250 raw data */
+    .name = "mpu9250_raw",
+    .open = bsp_mpu9250_raw_open,
+    .write = bsp_mpu9250_raw_write,
+    .read = bsp_mpu9250_raw_read,
+    .subscribe = bsp_mpu9250_raw_subscribe,
+    .close = bsp_mpu9250_raw_close,
+  },
 };
 /*---------------------------------------------------------------------------*/
 int
 hw_api_bsp_num(void)
 {
-  return 2;
+  return 3;
 }
 /*---------------------------------------------------------------------------*/
 HWDriver*
