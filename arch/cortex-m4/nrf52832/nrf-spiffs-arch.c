@@ -172,7 +172,7 @@ nrf_spiffs_arch_mount(void)
 	cfg.phys_size = NRF_FLASH_MAP_FS_SIZE;
 	cfg.phys_erase_block = 4096;
 	cfg.log_block_size = 4096;
-	cfg.log_page_size = 256;
+	cfg.log_page_size = LOG_FLASH_PAGE_SIZE;
 	cfg.hal_read_f = nrf_spiffs_read;
 	cfg.hal_write_f = nrf_spiffs_write;
 	cfg.hal_erase_f = nrf_spiffs_erase;

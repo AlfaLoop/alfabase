@@ -44,12 +44,12 @@ extern "C" {
 #define NEST_PLATFORM_VERSION_H_CONF            0x01
 #define NEST_PLATFORM_VERSION_L_CONF            0x01
 #define NEST_ADV_TYPE_NFD_RSSI_CONF            -48
-#define NEST_ADD_GATTS_SERVICE_CONF             5
-#define NEST_ADD_GATTS_CHARACTERISTIC_CONF      20
+#define NEST_ADD_GATTS_SERVICE_CONF             3
+#define NEST_ADD_GATTS_CHARACTERISTIC_CONF      10
 #define NEST_CENTRAL_USER_LINK_COUNT_CONF       2
 #define NEST_PERIPHERAL_LINK_COUNT_CONF         1
-#define NEST_CONF_COMMAND_RXQ_ITEMS			        10
-#define NEST_CONF_SCANNER_RXQ_ITEMS             8
+#define NEST_CONF_COMMAND_RXQ_ITEMS			        8
+#define NEST_CONF_SCANNER_RXQ_ITEMS             6
 #define NEST_CHANNEL_CENTRAL_CONF               1
 #define NEST_CHANNEL_SERIAL_CONF                0
 #define NEST_COMMAND_ENABLE_CONF                1
@@ -58,14 +58,14 @@ extern "C" {
 #define NEST_COMMAND_LUNCHR_ENABLE_CONF         1
 #define NEST_COMMAND_AUTH_ENABLE_CONF           1
 #define NEST_COMMAND_PIPE_ENABLE_CONF           1
-#define NEST_SERIAL_LINE_CONF_BUFSIZE           256
+#define NEST_SERIAL_LINE_CONF_BUFSIZE           4
 
 /** FreeRTOS configuration */
-#define LUNCHR_KERNEL_USER_APP_IRQ_TASK_SIZE      356
-#define LUNCHR_KERNEL_USER_APP_TASK_SIZE		      384
-#define CONTIKI_KERNEL_TASK_SIZE				          512
+#define LUNCHR_KERNEL_USER_APP_IRQ_TASK_SIZE      256
+#define LUNCHR_KERNEL_USER_APP_TASK_SIZE		      256
+#define CONTIKI_KERNEL_TASK_SIZE				          486
 
-#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024) + 348)
+#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024) + 256)
 #define FREERTOS_MAX_PRIORITY_CONF              6
 #define FREERTOS_TIMER_TASK_PRIORITY_CONF       FREERTOS_MAX_PRIORITY_CONF - 1  // (5)
 #define FREERTOS_CONTIKI_TASK_PRIORITY_CONF     FREERTOS_MAX_PRIORITY_CONF - 2  // (4)
@@ -73,7 +73,7 @@ extern "C" {
 #define FREERTOS_APP_IRQ_TASK_PRIORITY_CONF     2
 
 /** ELF loader data and memory size */
-#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x700
+#define CONTIKI_ELFLOADER_DATAMEMORY_SIZE_CONF  0x600
 #define CONTIKI_ELFLOADER_TEXTMEMORY_SIZE_CONF  ELF_LOADER_TEXT
 
 // Crypto stack configuration

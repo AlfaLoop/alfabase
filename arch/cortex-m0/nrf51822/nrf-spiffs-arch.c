@@ -78,7 +78,7 @@ static u8_t spiffs_work_buf[FLASH_PAGE_SIZE];
 static u8_t spiffs_cache_buf[FLASH_PAGE_SIZE / 4];  //1024
 #endif
 static u8_t spiffs_fds[32 * 4];
-static u32_t tmpbuffer[1024];
+static u32_t tmpbuffer[256];
 static uint8_t flash_accessing = 0;
 #ifdef USE_ELFLOADER
 static uint32_t tmpbuf[FLASH_PAGE_SIZE / 4];

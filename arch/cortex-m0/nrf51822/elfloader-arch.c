@@ -91,8 +91,7 @@ elfloader_arch_allocate_ram(int size)
 void *
 elfloader_arch_allocate_rom(int size)
 {
-	// memset(textmemory , 0x00, ELFLOADER_TEXTMEMORY_SIZE);
-	// memset(textmemory, 0, ELFLOADER_TEXTMEMORY_SIZE);
+	memset(textmemory , 0x00, ELFLOADER_TEXTMEMORY_SIZE);
 	PRINTF("[elfloader_arch] allocate rom %lu\n", size);
 	if(size > sizeof(textmemory)){
 		PRINTF("[elfloader_arch] reserved rom small\n");
