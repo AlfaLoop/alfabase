@@ -20,10 +20,10 @@
 #include "frameworks/hw/hw_api_null.h"
 #include "frameworks/app_eventpool.h"
 #include "frameworks/app_lifecycle.h"
-// #include "mpu9250-dmp-arch.h"
 #include "bsp_led.h"
 #include "bsp_button.h"
 #include "bsp_mpuraw.h"
+#include "bsp_e32ttl.h"
 #include "errno.h"
 #include "bsp_init.h"
 /*---------------------------------------------------------------------------*/
@@ -67,12 +67,21 @@ const static HWDriver hw_drivers[] = {
     .subscribe = bsp_mpu9250_raw_subscribe,
     .close = bsp_mpu9250_raw_close,
   },
+  {
+    /* E32-TTL 100 */
+    .name = "e32ttl",
+    .open = bsp_e32ttl_open,
+    .write = bsp_e32ttl_write,
+    .read = bsp_e32ttl_read,
+    .subscribe = bsp_e32ttl_subscribe,
+    .close = bsp_e32ttl_close,
+  },
 };
 /*---------------------------------------------------------------------------*/
 int
 hw_api_bsp_num(void)
 {
-  return 3;
+  return 4;
 }
 /*---------------------------------------------------------------------------*/
 HWDriver*

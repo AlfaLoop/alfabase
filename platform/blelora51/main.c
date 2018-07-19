@@ -56,6 +56,7 @@
 #include "bsp_led.h"
 #include "bsp_button.h"
 #include "bsp_mpuraw.h"
+#include "bsp_e32ttl.h"
 
 // Framework layer
 #if defined(USE_FRAMEWORK)
@@ -114,24 +115,6 @@ static uart_config_t nest_serial_uart_cfg = {
 	.hwfc = UART_HWFC,
 	.cb = nrf_nest_serial_input
 };
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_send(uint8_t *data, uint32_t len)
-{
-	uart0.tx(data, len);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_enable(void)
-{
-	// uart0.init(&nest_serial_uart_cfg);
-}
-/*---------------------------------------------------------------------------*/
-void
-nest_serial_bsp_disable(void)
-{
-	uart0.disable();
-}
 /*---------------------------------------------------------------------------*/
 static uint8_t
 pm_bsp_get_charging_status(void)
@@ -229,6 +212,7 @@ bsp_device_init(void)
 	bsp_led_init();
 	bsp_button_init();
 	bsp_mpu9250_raw_init();
+	bsp_e32ttl_init();
 
 	HWDriver *mpu = hw_api_bsp_pipe("mpu9250_raw");
 	mpu->open(NULL);
@@ -276,6 +260,7 @@ board_init(void)
 	nrf_gpio_pin_clear(LED0);
 	nrf_delay_ms(500);
 	nrf_gpio_pin_set(LED0);
+
 	nrf_gpio_cfg_input(BUTTON0, NRF_GPIO_PIN_PULLUP);
 	nrf_gpio_cfg_input(LORA_AUX_PIN_NUMBER, NRF_GPIO_PIN_NOPULL);
 	nrf_gpio_cfg_output(LORA_M0_PIN_NUMBER);

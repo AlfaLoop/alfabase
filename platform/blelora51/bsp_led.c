@@ -36,6 +36,9 @@
 #define PRINTF(...)
 #endif  /* DEBUG_ENABLE */
 /*---------------------------------------------------------------------------*/
+#define LED_ON												nrf_gpio_pin_clear
+#define LED_OFF												nrf_gpio_pin_set
+#define LED_TOGGLE										nrf_gpio_pin_toggle
 static uint8_t led_status = 0x00;
 /*---------------------------------------------------------------------------*/
 int
@@ -45,20 +48,20 @@ bsp_led_write(const void *buf, uint32_t len, uint32_t offset)
   switch (offset) {
     case 0:
     {
-       if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED0);}
-       else { nrf_gpio_pin_clear(LED0);}
+       if (p_led_ctrl[0]){ LED_ON(LED0);}
+       else { LED_OFF(LED0);}
     }
     break;
     case 1:
     {
-      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED1);}
-      else { nrf_gpio_pin_clear(LED1);}
+      if (p_led_ctrl[0]){ LED_ON(LED1);}
+      else { LED_OFF(LED1);}
     }
     break;
     case 2:
     {
-      if (p_led_ctrl[0]){ nrf_gpio_pin_set(LED2);}
-      else { nrf_gpio_pin_clear(LED2);}
+      if (p_led_ctrl[0]){ LED_ON(LED2);}
+      else { LED_OFF(LED2);}
     }
     break;
   }
@@ -93,9 +96,9 @@ static void
 app_terminating(void)
 {
   // disable all led
-  nrf_gpio_pin_clear(LED0);
-  nrf_gpio_pin_clear(LED1);
-  nrf_gpio_pin_clear(LED2);
+  LED_OFF(LED0);
+  LED_OFF(LED1);
+  LED_OFF(LED2);
 }
 /*---------------------------------------------------------------------------*/
 static struct app_lifecycle_event lifecycle_event = {
@@ -110,8 +113,8 @@ bsp_led_init(void)
   nrf_gpio_cfg_output(LED0);
   nrf_gpio_cfg_output(LED1);
   nrf_gpio_cfg_output(LED2);
-  nrf_gpio_pin_clear(LED0);
-  nrf_gpio_pin_clear(LED1);
-  nrf_gpio_pin_clear(LED2);
+  LED_OFF(LED0);
+  LED_OFF(LED1);
+  LED_OFF(LED2);
 }
 /*---------------------------------------------------------------------------*/

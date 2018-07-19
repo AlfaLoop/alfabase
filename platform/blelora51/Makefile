@@ -47,7 +47,7 @@ STACK_SIZE := 1536
 HEAP_SIZE := 0
 
 PROJECT_TARGET_DIRS = .
-PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c bsp_button.c bsp_mpuraw.c
+PROJECT_TARGET_SOURCEFILES = bsp_init.c bsp_led.c bsp_button.c bsp_mpuraw.c bsp_e32ttl.c
 
 BOARD_FLAGS := -DMPU9250 -DEMPL_TARGET_NRF5X
 BOARD_LIBS :=

@@ -121,7 +121,7 @@ bsp_mpu9250_raw_read(void *buf, uint32_t len, uint32_t offset)
     break;
     case 2:
     {
-      SENSOR_MPU9250.get_compass(p_mems_data->value, &p_mems_data->timestamp);
+      SENSOR_MPU9250.get_compass(&p_mems_data->value[0], &p_mems_data->timestamp);
     }
     break;
   }
