@@ -290,7 +290,11 @@ static struct app_lifecycle_event lifecycle_event = {
 int
 bsp_e32ttl_init(void)
 {
+	nrf_gpio_cfg_input(LORA_AUX_PIN, NRF_GPIO_PIN_NOPULL);
+
 	app_lifecycle_register(&lifecycle_event);
+
+	uart0.init(&lora_uart_cfg);
 
 	// default is in sleep mode: for configuration
 	e32ttl_cfg_sleep_mode();
@@ -326,6 +330,9 @@ bsp_e32ttl_init(void)
 
 	uart0.tx(set_params_cmd, 6);
 	nrf_delay_ms(10);
+
+	e32ttl_cfg_sleep_mode();
+	e32ttl_cfg_wake_on_radio_mode();
 
 	m_uart_active = false;
 }

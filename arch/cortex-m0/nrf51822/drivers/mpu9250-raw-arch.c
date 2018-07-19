@@ -115,7 +115,7 @@ static int
 mpu9250_arch_init(mpu9250_raw_config_t *config)
 {
 	// initialize i2c interface
-  PRINTF("[mpu9250 arch] init \n");
+  // PRINTF("[mpu9250 arch] init \n");
   nrf_gpio_cfg_input(MPU_INT, NRF_GPIO_PIN_NOPULL);
 
   i2c_config_t twi;
@@ -136,8 +136,7 @@ mpu9250_arch_init(mpu9250_raw_config_t *config)
   if (!process_is_running(&mpu9250_process)) {
     process_start(&mpu9250_process, NULL);
   }
-
-  PRINTF("[mpu9250 arch] init completed\n");
+  // PRINTF("[mpu9250 arch] init completed\n");
 	return ENONE;
 }
 /*---------------------------------------------------------------------------*/
