@@ -73,7 +73,7 @@ extern "C" {
 #define LUNCHR_KERNEL_USER_APP_TASK_SIZE		      356
 #define CONTIKI_KERNEL_TASK_SIZE				          512
 
-#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024) + 256)
+#define FREERTOS_TOTAL_HEAP_SIZE_CONF           ( ( size_t ) (7 * 1024))
 #define FREERTOS_MAX_PRIORITY_CONF              6
 #define FREERTOS_TIMER_TASK_PRIORITY_CONF       FREERTOS_MAX_PRIORITY_CONF - 1  // (5)
 #define FREERTOS_CONTIKI_TASK_PRIORITY_CONF     FREERTOS_MAX_PRIORITY_CONF - 2  // (4)
