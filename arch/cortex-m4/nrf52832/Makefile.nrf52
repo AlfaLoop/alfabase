@@ -48,6 +48,7 @@ CFLAGS	+= -mthumb
 CFLAGS	+= -mabi=aapcs
 CFLAGS	+= -mfloat-abi=hard
 CFLAGS	+= -mfpu=fpv4-sp-d16
+#CFLAGS  += -fsanitize=undefined
 CFLAGS  += -w
 CFLAGS	+= -D$(BOARD)
 CFLAGS  += -D$(DEVICE)
