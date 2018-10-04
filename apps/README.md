@@ -1,150 +1,128 @@
-Alfabase ¤pµ{¦¡
+Alfabase å°ç¨‹å¼
 ================
 
-## ¤°»ò¬O Alfabase ¤pµ{¦¡
-#### ¦pªG§â Alfabase ¸Ë¸m¤ñ³ë¦¨¤@­Ó¤Hªº¸Ü¡A¨º»ò¤pµ{¦¡´N¬OÆF»î¡AAlfabase ´N¬O¯«¸g¡AµwÅé¸Ë¸m¦×Âß¡C  
-¦b³o¸ÌÁ|¤@­ÓÂ²³æªº¨Ò¤l»¡©ú¡AAndroid ¤â¾÷¥Ñ¦U®a¼t°Ó¨Ó»s§@¡B§ï¨}¦Û®aªº OS ª©¥»¡A¨Ã¥B¦U®aªº¤â¾÷¤j¦h³£¥i¥H¦b Google play °Ó©±¤¤¤U¸ü¤â¾÷À³¥Îµ{¦¡¨Ï¥Î¡C
-³oÃä©Ò´£¨ìªº¤â¾÷À³¥Îµ{¦¡¨ä¹ê¸ò¤pµ{¦¡ªº·§©À¬O¤@¼Ëªº¡A¤â¾÷´N¸ò·f¸ü Alfabase OS ªº¸Ë¸m¬O¦P¼Ë·§©À¡C  
-¦b¦U­ÓµwÅé¸Ë¸mªº°òÂ¦¤§¤W(¨Ò¦p¬Y¤âÀô¡B¬Y beacon µ¥µ¥...)¡A¶}µoªÌ¦b¶}µo¥ô¤@ºØ¸Ë¸mÀ³¥Îªº®É­Ô¡A
-»İ­n±q³Ì©³¼h¶}©l¡AÅX°Ê¡BÀ³¥Îµ¥µ¥ªºº¥¶i¦¡¦V¤W¼hÀ³¥Îµ{¦¡¶}µo¡A³z¹L Alfabase OS ªº¤pµ{¦¡«h¤£»İ­n²`¤J©³¼h¤]¯à¶i¦æ¤W¼hÀ³¥Î¶}µo¡A
-¬Æ¦Ü¤£»İ­n¦Ò¼{¨ì¬Ù¹qµ¦²¤¡A¨Ã¥B¦P®É¶¡¥i¥H¨ü¨ì Alfabase OS ªººŞ²z»P«OÅ@¡A¦h­Ó¤pµ{¦¡ªº¦w¸Ë¡B¤Á´«¤Î³]©wµ¥µ¥¡AÅı¶}µo¦UºØ¸Ë¸mÅÜ±o§óÂ²³æ¡C  
+## ä»€éº¼æ˜¯ Alfabase å°ç¨‹å¼
+åœ¨é–‹ç™¼åŸºæ–¼å¾®è™•ç†å™¨çš„ç‰©è¯ç¶²æˆ–æ˜¯ç©¿æˆ´è£ç½®æ‡‰ç”¨æ™‚ï¼Œéœ€è¦å¾æœ€åº•å±¤çš„é©…å‹•ã€æ¨¡çµ„é€æ¼¸é–‹ç™¼ä¸€å€‹å®Œæ•´çš„æ‡‰ç”¨ï¼ŒAlfabaseä¸»è¦ç›®çš„æ˜¯å°‡æœ€åº•å±¤çš„é©…å‹•ã€è—èŠ½ã€æ„Ÿæ¸¬å™¨ç­‰æ¨¡çµ„çš„å°è£ï¼Œä¸¦è—‰ç”±FreeRTOSèˆ‡Contiki OSçš„æ ¸å¿ƒèƒ½åŠ›ï¼Œæä¾›é¡ä¼¼æ–¼é–‹ç™¼æ‡‰ç”¨ç¨‹å¼(APP)çš„æ¦‚å¿µç­‰ï¼Œè®“é–‹ç™¼ç‰©è¯ç¶²æ‡‰ç”¨è®Šå¾—æ›´ç°¡å–®ã€‚ 
   
-  
-## ¤pµ{¦¡¶}µo¬yµ{
+## å°ç¨‹å¼é–‹ç™¼æµç¨‹
 <p align="center">
 <img src="./images/work_flow.png"><br/>
-¹Ï¤@¡B¶}µo¬yµ{¹Ï
+åœ–ä¸€ã€é–‹ç™¼æµç¨‹åœ–
 </p>  
 
 ## ELF loader
-ELF loader ¬O Contiki OS ¤¤¤@­ÓÅı´O¤J¦¡¨t²Î¥i¥H¦b¤£»İ­n­«¸m©Î­«±Ò¸Ë¸mªº±¡ªp¤U´N¯à°÷ÀH®É©â´«®Ö¤ß¡uÀ³¥Îµ{¦¡¡vªº¼Ò¶ô¡C
-Alfabase ¾ã¦X¤F Contiki OS¡A¶}µo¤H­û¯à°÷¦b Alfabase ª½±µ¨Ï¥Î³o­Ó¼Ò¶ô¨Ã¥B³z¹L©I¥s [Alfabase API](https://www.alfaloop.com/docs/alfaos/#os-framework) ¶}µo¡uAlfabase ¤pµ{¦¡¡v¡C
+Alfabase ä½¿ç”¨ Contiki OSä¸­çš„ELF loader æ¨¡çµ„ï¼Œæä¾›ä½œæ¥­ç³»çµ±å¯ä»¥è¼‰å…¥å°ç¨‹å¼(elf)é”åˆ°åˆ‡æ›ä¸åŒæ‡‰ç”¨çš„åŠŸèƒ½ã€‚
+API (Symbol) çµ±æ•´å®šç¾©åœ¨alfabase.hä¸­ã€‚
   
-## Alfabase ¤pµ{¦¡¶}µo¤u¨ã
-¶}µo Alfabase ¤pµ{¦¡°£¤F [Alfabase](https://github.com/AlfaLoop/alfabase) ¥H¥~¡AÁÙ»İ­n [alfabridge](https://github.com/AlfaLoop/alfabridge-android) µ¥¤u¨ã¡A¬Æ¦Ü¥i¥H·f°t [nRF Connect for Mobile](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp) °£¿ù»P´ú¸Õ¡C
+## Alfabase å°ç¨‹å¼é–‹ç™¼å·¥å…·
+é–‹ç™¼ Alfabase å°ç¨‹å¼é™¤äº† [Alfabase](https://github.com/AlfaLoop/alfabase) ä»¥å¤–ï¼Œé‚„éœ€è¦ [alfabridge](https://github.com/AlfaLoop/alfabridge-android) ç­‰å·¥å…·ï¼Œç”šè‡³å¯ä»¥æ­é… [nRF Connect for Mobile](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp) é™¤éŒ¯èˆ‡æ¸¬è©¦ã€‚
   
 - [Alfabase](https://github.com/AlfaLoop/alfabase)  
-Alfabase ¨t²Î¡A¥Ø¿ı¤¤ªº [tools/](https://github.com/AlfaLoop/alfabase/tree/master/tools) ¸ê®Æ§¨ªº [alfa.py](https://github.com/AlfaLoop/alfabase/blob/master/tools/alfa.py) ¤u¨ã¥Î¨ÓºŞ²z¤pµ{¦¡±M®×¡A¥i«Øºc¡B½sÄ¶¤Î¤W¶Ç¤pµ{¦¡¨ì Alfabase ¸Ë¸m¤¤¡C
-¦b [apps/](https://github.com/AlfaLoop/alfabase/tree/master/apps) ¸ê®Æ§¨¤¤¦³¤@¨Ç½d¨Ò¤pµ{¦¡¥i¥H°Ñ¦Ò¡A¨Ò¦p [HelloWorld](https://github.com/AlfaLoop/alfabase/tree/master/apps/helloworld)¡C
+Alfabase ç³»çµ±ï¼Œç›®éŒ„ä¸­çš„ [tools/](https://github.com/AlfaLoop/alfabase/tree/master/tools) è³‡æ–™å¤¾çš„ [alfa.py](https://github.com/AlfaLoop/alfabase/blob/master/tools/alfa.py) å·¥å…·ç”¨ä¾†ç®¡ç†å°ç¨‹å¼å°ˆæ¡ˆï¼Œå¯å»ºæ§‹ã€ç·¨è­¯åŠä¸Šå‚³å°ç¨‹å¼åˆ° Alfabase è£ç½®ä¸­ã€‚
+åœ¨ [apps/](https://github.com/AlfaLoop/alfabase/tree/master/apps) è³‡æ–™å¤¾ä¸­æœ‰ä¸€äº›ç¯„ä¾‹å°ç¨‹å¼å¯ä»¥åƒè€ƒï¼Œä¾‹å¦‚ [HelloWorld](https://github.com/AlfaLoop/alfabase/tree/master/apps/helloworld)ã€‚
   
 - [alfabridge](https://github.com/AlfaLoop/alfabridge-android)  
-alfabridge ¥Ø«e¤ä«ù Android ¨t²Î¡A¨Ã¥B¶È¬Û®e©ó¤ä«ùÂÅ¤ú 4.0(BLE) ¼Ò¶ôªº¸Ë¸m¡C¥D­n¥Î¨Ó¨ó§U PC »P¸Ë¸m¶¡ªº¤pµ{¦¡¶Ç¿é»P³¡¸p¡C
+alfabridge ç›®å‰æ”¯æŒ Android ç³»çµ±(5.1ä»¥ä¸Š)ï¼Œä¸¦ä¸”åƒ…ç›¸å®¹æ–¼æ”¯æŒè—ç‰™ 4.1(BLE) ä»¥ä¸Šçš„è£ç½®ã€‚ä¸»è¦ç”¨ä¾†å”åŠ© PC èˆ‡è£ç½®é–“çš„å°ç¨‹å¼å‚³è¼¸èˆ‡éƒ¨ç½²ã€‚
   
-## ¦p¦ó¶}µo
-- «Ø¥ß±M®×  
-¦b apps/ ¤¤©I¥s [alfa.py](https://github.com/AlfaLoop/alfabase/blob/master/tools/alfa.py) «Ø¥ß·s¤pµ{¦¡±M®×  
+## å¦‚ä½•é–‹ç™¼
+- å»ºç«‹å°ˆæ¡ˆ  
+åœ¨ apps/ ä¸­å‘¼å« [alfa.py](https://github.com/AlfaLoop/alfabase/blob/master/tools/alfa.py) å»ºç«‹æ–°å°ç¨‹å¼å°ˆæ¡ˆ  
 ```bash
 cd alfabase/apps/
 python ../tools/alfa.py new
 ```
-¨Ã¥B¿é¤J±M®×¦WºÙ(¤pµ{¦¡¦WºÙ)»P¶}µoªÌ¦WºÙ(«D¥²¶ñ)  
+ä¸¦ä¸”è¼¸å…¥å°ˆæ¡ˆåç¨±(å°ç¨‹å¼åç¨±)èˆ‡é–‹ç™¼è€…åç¨±(éå¿…å¡«)  
 <p align="center">
 <img src="./images/new_proj.png"><br/>
-¹Ï¤G
+åœ–äºŒ
 </p>  
   
-- ¶}µo»P½sÄ¶  
-·|²£¥Í­è­è«Ø¥ßªº¤pµ{¦¡±M®×¸ê®Æ§¨¡A¶i¤J«á·|¦³°ò¥»ªº app.conf »P main.c ÀÉ®×¡C
-¸ê®Æ§¨¤¤ªº app.conf ´y­z¤pµ{¦¡ªº±M®×³]©w¡Amain.c «h¬O¤pµ{¦¡ªº¥D­nµ{§Ç¡Aªì©l®É¥]§t°ò¥»ªº Timer ©M Logger ªº¨Ï¥Î½d¨Ò¡C  
-¤pµ{¦¡ªº¥N½X¶}µo¥i¥H°Ñ¦Ò [apps/](https://github.com/AlfaLoop/alfabase/tree/master/apps) ¨ä¥L½d¨Ò±M®×»P [Alfabase API](https://www.alfaloop.com/docs/alfaos/#os-framework)¡C
-±µ¤U¨Ó¶i¦æ¤pµ{¦¡ªº½sÄ¶
+- é–‹ç™¼èˆ‡ç·¨è­¯  
+æœƒç”¢ç”Ÿå‰›å‰›å»ºç«‹çš„å°ç¨‹å¼å°ˆæ¡ˆè³‡æ–™å¤¾ï¼Œé€²å…¥å¾Œæœƒæœ‰åŸºæœ¬çš„ app.conf èˆ‡ main.c æª”æ¡ˆã€‚
+è³‡æ–™å¤¾ä¸­çš„ app.conf æè¿°å°ç¨‹å¼çš„å°ˆæ¡ˆè¨­å®šï¼Œmain.c å‰‡æ˜¯å°ç¨‹å¼çš„ä¸»è¦ç¨‹åºï¼Œåˆå§‹æ™‚åŒ…å«åŸºæœ¬çš„ Timer å’Œ Logger çš„ä½¿ç”¨ç¯„ä¾‹ã€‚  
+å°ç¨‹å¼çš„ä»£ç¢¼é–‹ç™¼å¯ä»¥åƒè€ƒ [apps/](https://github.com/AlfaLoop/alfabase/tree/master/apps) å…¶ä»–ç¯„ä¾‹å°ˆæ¡ˆèˆ‡ [Alfabase API](https://www.alfaloop.com/docs/alfaos/#os-framework)ã€‚
+æ¥ä¸‹ä¾†é€²è¡Œå°ç¨‹å¼çš„ç·¨è­¯
 ```bash
 cd PROJECT-NAME
 python ../../tools/alfa.py build
 ```
 <p align="center">
 <img src="./images/build_app.png"><br/>
-¹Ï¤T
+åœ–ä¸‰
 </p>  
-²£¥Íªº PROJECT-NAME-app.elf ´N¬O¤pµ{¦¡½sÄ¶ÀÉ¡C
+ç”¢ç”Ÿçš„ PROJECT-NAME-app.elf å°±æ˜¯å°ç¨‹å¼ç·¨è­¯æª”ã€‚
   
-- ¤W¶Ç»P°õ¦æ  
-²£¥Í¤F .elf ÀÉ«á¡A´N¥i¥H¤W¶Ç¨ì¸Ë¸m¤¤°õ¦æ¡A»İ­n·f°t alfabridge ¤W¶Ç¤pµ{¦¡¡C  
-­º¥ı¥ı«Ø¥ß alfabridge »P¸Ë¸mªº³s½u¡A  
+- ä¸Šå‚³èˆ‡åŸ·è¡Œ  
+ç”¢ç”Ÿäº† .elf æª”å¾Œï¼Œå°±å¯ä»¥ä¸Šå‚³åˆ°è£ç½®ä¸­åŸ·è¡Œï¼Œéœ€è¦æ­é… alfabridge ä¸Šå‚³å°ç¨‹å¼ã€‚  
+é¦–å…ˆå…ˆå»ºç«‹ alfabridge èˆ‡è£ç½®çš„é€£ç·šï¼Œ  
 <p align="center">
 <img src="./images/start.jpg"><br/>
-¹Ï¥|
+åœ–å››
 </p>  
-ÂIÀ»¶}©l³]©w°»´úªşªñ Alfabase ¸Ë¸m¡A  
+é»æ“Šé–‹å§‹è¨­å®šåµæ¸¬é™„è¿‘ Alfabase è£ç½®ï¼Œ  
   
 <p align="center">
 <img src="./images/discovering.jpg"><br/>
-¹Ï¤­
+åœ–äº”
 </p>  
   
-¾aªñ Alfabase ¸Ë¸m¤@¬q®É¶¡¡A  
+é è¿‘ Alfabase è£ç½®ä¸€æ®µæ™‚é–“ï¼Œ  
 <p align="center">
 <img src="./images/connedted.jpg"><br/>
-¹Ï¤»¡B»P¸Ë¸m§¹¦¨°t¹ï  
+åœ–å…­ã€èˆ‡è£ç½®å®Œæˆé…å°  
 </p>  
   
-°»´ú¨ìªşªñªº Alfabase ¸Ë¸m«á¡Aalfabridge ·|©M¸Ë¸m³s½u¡A§Ú­Ì¦b³z¹L alfabridge «Ì¹õ¤Wªº°Ï°ìºô¸ô ip ¦ì§}¹ï Alfabase ¸Ë¸m¤U©R¥O§Y¥i¹ï¸Ë¸m¶i¦æ¾Ş§@¡C  
-alfa.py ªº install »P run ©R¥O¤À§O¥Nªí¤W¶Ç¤pµ{¦¡¤Î°õ¦æ¤pµ{¦¡¡A¥²­nªş¥[°Ñ¼Æ -i IP_ADDRESS (alfabridge ¤WÅã¥Üªº ip ¦ì§})¡C  
+åµæ¸¬åˆ°é™„è¿‘çš„ Alfabase è£ç½®å¾Œï¼Œalfabridge æœƒå’Œè£ç½®é€£ç·šï¼Œæˆ‘å€‘åœ¨é€é alfabridge å±å¹•ä¸Šçš„å€åŸŸç¶²è·¯ ip ä½å€å° Alfabase è£ç½®ä¸‹å‘½ä»¤å³å¯å°è£ç½®é€²è¡Œæ“ä½œã€‚  
+alfa.py çš„ install èˆ‡ run å‘½ä»¤åˆ†åˆ¥ä»£è¡¨ä¸Šå‚³å°ç¨‹å¼åŠåŸ·è¡Œå°ç¨‹å¼ï¼Œå¿…è¦é™„åŠ åƒæ•¸ -i IP_ADDRESS (alfabridge ä¸Šé¡¯ç¤ºçš„ ip ä½å€)ã€‚  
 ```bash
 python ../../tools/alfa.py install -i 192.168.1.XX
 python ../../tools/alfa.py run -i 192.168.1.XX
 ```
 <p align="center">
 <img src="./images/deploy.png"><br/>
-¹Ï¤C  
+åœ–ä¸ƒ  
 </p>  
-³z¹L¥H¤W©R¥O§Y¥i§¹¦¨¤pµ{¦¡ªº³¡¸p¡I  
+é€éä»¥ä¸Šå‘½ä»¤å³å¯å®Œæˆå°ç¨‹å¼çš„éƒ¨ç½²ï¼  
   
 PS.
-1. Android ¸Ë¸m¥²¶·»P PC ¦b¦P¤@­Ó°Ï°ìºô¸ô¤¤¡C  
-2. ­n¹ï¸Ë¸m¤U¹F run¡Bkill¡Bsetboot¡Bdelboot µ¥µ¥©R¥O¡A¶·¦b±ı³¡Äİªº¤pµ{¦¡±M®×¥Ø¸ô¤U¹B¦æ alfa.py  
+1. Android è£ç½®å¿…é ˆèˆ‡ PC åœ¨åŒä¸€å€‹å€åŸŸç¶²è·¯ä¸­ã€‚  
+2. è¦å°è£ç½®ä¸‹é” runã€killã€setbootã€delboot ç­‰ç­‰å‘½ä»¤ï¼Œé ˆåœ¨æ¬²éƒ¨å±¬çš„å°ç¨‹å¼å°ˆæ¡ˆç›®è·¯ä¸‹é‹è¡Œ alfa.py  
   
-## alfa.py ¤u¨ã©R¥O¿ï¶µ
+## alfa.py å·¥å…·å‘½ä»¤é¸é …
   
 ```bash
-python alfa.py ©R¥O [-i IP_ADDRESS]
+python alfa.py å‘½ä»¤ [-i IP_ADDRESS]
 ```
   
-|©R¥O|´y­z¡B»¡©ú|
+|å‘½ä»¤|æè¿°ã€èªªæ˜|
 |:---:|:---:|
-|new|«Ø¥ß¤pµ{¦¡±M®×|
-|build|½sÄ¶¤pµ{¦¡ elf ÀÉ|
-|clean|²M°£±M®×¤¤ªº½sÄ¶ÀÉ|
-|install|¤W¶Ç«ü©w±M®×¤pµ{¦¡¨ì¸Ë¸m|
-|remove|²¾°£¸Ë¸m¤¤ªº¤pµ{¦¡(«ü©w±M®×)|
-|remove_app_files|²¾°£¸Ë¸m¤¤ªº©Ò¦³¤pµ{¦¡|
-|run|°õ¦æ«ü©w±M®×¤pµ{¦¡|
-|kill|¤¤¤î°õ¦æ¤¤ªº¤pµ{¦¡|
-|ts|¦P¨B®É¶¡¨ì¸Ë¸m¤¤|
-|list|¨úÅª¸Ë¸m¤¤¤w¦w¸Ëªº¤pµ{¦¡¦Cªí|
-|setboot|³]¸m°õ¦æ¤¤ªº¤pµ{¦¡¬°¸Ë¸m¶}¾÷¦Û°Ê°õ¦æ|
-|delboot|²M°£¸Ë¸m¶}¾÷¦Û°Ê°õ¦æªº¤pµ{¦¡³]¸m|
-|airlog|ºÊÅ¥¸Ë¸mªº air log °T®§|
-|version|¥´¦L·í«eª©¥»
+|new|å»ºç«‹å°ç¨‹å¼å°ˆæ¡ˆ|
+|build|ç·¨è­¯å°ç¨‹å¼ elf æª”|
+|clean|æ¸…é™¤å°ˆæ¡ˆä¸­çš„ç·¨è­¯æª”|
+|install|ä¸Šå‚³æŒ‡å®šå°ˆæ¡ˆå°ç¨‹å¼åˆ°è£ç½®|
+|remove|ç§»é™¤è£ç½®ä¸­çš„å°ç¨‹å¼(æŒ‡å®šå°ˆæ¡ˆ)|
+|remove_app_files|ç§»é™¤è£ç½®ä¸­çš„æ‰€æœ‰å°ç¨‹å¼|
+|run|åŸ·è¡ŒæŒ‡å®šå°ˆæ¡ˆå°ç¨‹å¼|
+|kill|ä¸­æ­¢åŸ·è¡Œä¸­çš„å°ç¨‹å¼|
+|ts|åŒæ­¥æ™‚é–“åˆ°è£ç½®ä¸­|
+|list|å–è®€è£ç½®ä¸­å·²å®‰è£çš„å°ç¨‹å¼åˆ—è¡¨|
+|setboot|è¨­ç½®åŸ·è¡Œä¸­çš„å°ç¨‹å¼ç‚ºè£ç½®é–‹æ©Ÿè‡ªå‹•åŸ·è¡Œ|
+|delboot|æ¸…é™¤è£ç½®é–‹æ©Ÿè‡ªå‹•åŸ·è¡Œçš„å°ç¨‹å¼è¨­ç½®|
+|airlog|ç›£è½è£ç½®çš„ air log è¨Šæ¯|
+|version|æ‰“å°ç•¶å‰ç‰ˆæœ¬
   
-PS. PC ¥»¦aºİ¾Ş§@ªº©R¥OµL»İªş¥[ -i °Ñ¼Æ¡A¦p new¡Bbuild¡Bclean¡Bversion µ¥¡C
+PS. PC æœ¬åœ°ç«¯æ“ä½œçš„å‘½ä»¤ç„¡éœ€é™„åŠ  -i åƒæ•¸ï¼Œå¦‚ newã€buildã€cleanã€version ç­‰ã€‚
   
   
-## Alfabase ¸Ë¸mª¬ºA
+## Alfabase è£ç½®ç‹€æ…‹
 
-Alfabase ¸Ë¸m¦b¥¼¤U¹F¥ô¦ó©R¥Oªº®É­Ô¡AÄİ©óµLª¬ºA¡C  
-¤U¹F run ©R¥O¤§«á¡A¸Ë¸m·|¶}©l°õ¦æ«ü©wªº¤pµ{¦¡¡A¨Ò¦p footmotion ¾c¹ÔÀ³¥Î¡A³o®É¸Ë¸mªºª¬ºA¬°°õ¦æ¤¤¡C
-¦b°õ¦æ¤¤ªºª¬ºA¤U¡AµLªk¦A¦¸¤U¹F run ªº©R¥O¡A¦ı¬O¥i¥H³z¹L kill ¨Ï¸Ë¸m¦^¨ìµLª¬ºA¡Akill ©R¥O·|²×¤î·í«e°õ¦æ¤¤ªº¤pµ{¦¡¡C  
-setboot ©R¥O·|³]¸m·í«e°õ¦æ¤¤ªº¤pµ{¦¡¬°¸Ë¸m¶}¾÷¦Û°Ê°õ¦æ¡A·í¸Ë¸m§ó´«¹q¦À©Î­«·s±Ò°Ê¤§«á¡A³]¸m¦Û°Ê±Ò°Êªº¤pµ{¦¡·|¦b¶}¾÷«á¦Û°Ê°õ¦æ¡A
-setboot ¥²¶·¦b°õ¦æ¤¤ªºª¬ºA¤U¤~¥i¨Ï¥Î¡Cdelboot «h¤Ï¤§¡A¶·­n¤w³]¸m setboot ªºª¬ºA¤U¤~¥i¨Ï¥Î¡C
+Alfabase è£ç½®åœ¨æœªä¸‹é”ä»»ä½•å‘½ä»¤çš„æ™‚å€™ï¼Œå±¬æ–¼ç„¡ç‹€æ…‹ã€‚  
+ä¸‹é” run å‘½ä»¤ä¹‹å¾Œï¼Œè£ç½®æœƒé–‹å§‹åŸ·è¡ŒæŒ‡å®šçš„å°ç¨‹å¼ï¼Œä¾‹å¦‚ footmotion é‹å¢Šæ‡‰ç”¨ï¼Œé€™æ™‚è£ç½®çš„ç‹€æ…‹ç‚ºåŸ·è¡Œä¸­ã€‚
+åœ¨åŸ·è¡Œä¸­çš„ç‹€æ…‹ä¸‹ï¼Œç„¡æ³•å†æ¬¡ä¸‹é” run çš„å‘½ä»¤ï¼Œä½†æ˜¯å¯ä»¥é€é kill ä½¿è£ç½®å›åˆ°ç„¡ç‹€æ…‹ï¼Œkill å‘½ä»¤æœƒçµ‚æ­¢ç•¶å‰åŸ·è¡Œä¸­çš„å°ç¨‹å¼ã€‚  
+setboot å‘½ä»¤æœƒè¨­ç½®ç•¶å‰åŸ·è¡Œä¸­çš„å°ç¨‹å¼ç‚ºè£ç½®é–‹æ©Ÿè‡ªå‹•åŸ·è¡Œï¼Œç•¶è£ç½®æ›´æ›é›»æ± æˆ–é‡æ–°å•Ÿå‹•ä¹‹å¾Œï¼Œè¨­ç½®è‡ªå‹•å•Ÿå‹•çš„å°ç¨‹å¼æœƒåœ¨é–‹æ©Ÿå¾Œè‡ªå‹•åŸ·è¡Œï¼Œ
+setboot å¿…é ˆåœ¨åŸ·è¡Œä¸­çš„ç‹€æ…‹ä¸‹æ‰å¯ä½¿ç”¨ã€‚delboot å‰‡åä¹‹ï¼Œé ˆè¦å·²è¨­ç½® setboot çš„ç‹€æ…‹ä¸‹æ‰å¯ä½¿ç”¨ã€‚
   
 <p align="center">
 <img src="./images/state_graph.png"><br/>
-¹Ï¤K¡B¸Ë¸mª¬ºAÂà´«¹Ï  
+åœ–å…«ã€è£ç½®ç‹€æ…‹è½‰æ›åœ–  
 </p>  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
